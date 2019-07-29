@@ -229,8 +229,8 @@ snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
 
 for service in ${SERVICES[@]} ; do
     flags=$(echo ${service}_flags | sed -e 's/-/_/g')
-    bashio::log.info "${service} ${!flags} >/share/snips/${service}.log 2>/share/snips/${service}.log &"
-    ${service} ${!flags} >/share/snips/${service}.log 2>/share/snips/${service}.log &
+    bashio::log.info "${service} ${!flags} >/share/snips/logs/${service}.log 2>/share/snips/logs/${service}.log &"
+    ${service} ${!flags} >/share/snips/logs/${service}.log 2>/share/snips/logs/${service}.log &
     WAIT_PIDS+=($!)
 done
 
