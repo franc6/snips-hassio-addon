@@ -12,7 +12,7 @@
     "homassistant_api": false,
     "ingress": false,
     "host_network": false,
-    "map": ["config:rw", "share"],
+    "map": ["config:rw", "share:rw"],
     "panel_icon": "mdi:puzzle",
     "ports": {
         "1883/tcp": 9883
