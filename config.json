@@ -1,0 +1,50 @@
+{
+    "name": "Snips.AI Base (no local audio)",
+    "version": "0.1.20",
+    "slug": "snips-base",
+    "description": "Local voice control platform",
+    "apparmor": false,
+    "arch": ["armhf", "amd64"],
+    "audio": false,
+    "boot": "auto",
+    "docker_api": false,
+    "homassistant": "0.96.4",
+    "homassistant_api": false,
+    "ingress": false,
+    "host_network": false,
+    "map": ["config:rw", "share"],
+    "panel_icon": "mdi:puzzle",
+    "ports": {
+        "1883/tcp": 9883
+    },
+    "services": ["mqtt:need"],
+    "startup": "application",
+    "tmpfs": "size=10m",
+    "url": "https://github.com/franc6/snips-hassio-addon",
+    "options": {
+        "analytics": "false",
+        "assistant": "assistant.zip",
+        "cafile": "certfile.pem",
+        "country_code": "US",
+        "custom_tts": {
+            "active": true,
+            "platform": "mimic",
+            "voice": "/share/snips/voices/cmu_us_eey.flitevox"
+        },
+        "google_asr_credentials": "",
+        "language": "en"
+    },
+    "schema": {
+        "analytics": "bool",
+        "assistant": "str",
+        "cafile": "str",
+        "country_code": "str",
+        "custom_tts": {
+            "active": "bool",
+            "platform": "match(mimic|pico2wave)",
+            "voice": "str"
+        },
+        "google_asr_credentials": "str",
+        "language": "match(en|de|fr)"
+    }
+}
