@@ -48,7 +48,7 @@ mqtt = "localhost:1883"
 [snips-asr]
 
 [snips-audio-server]
-bind = "snips-hassio-addon@mqtt"
+bind = "$(hostname)@mqtt"
 
 [snips-dialogue]
 
@@ -117,7 +117,7 @@ protocol mqtt
 connection hassio-mqtt
 address ${mqtt_host}:${mqtt_port}
 cleansession false
-clientid snips-hassio-addon
+clientid $(hostname)
 start_type automatic
 username ${mqtt_username}
 password ${mqtt_password}
@@ -211,27 +211,24 @@ mkdir -p /share/snips/logs
 
 SERVICES=(mosquitto)
 mosquitto_flags="-c /etc/mosquitto/mosquitto.conf"
+mosquitto_startup_delay=5
 
 if [ "${ANALYTICS}" = "true" ]; then
     SERVICES+=(snips-analytics)
 fi
-snips_analytics_flags=""
 
 SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
-snips_asr_flags=""
-snips_dialogue_flags=""
-snips_hotword_flags=""
-snips_nlu_flags=""
-snips_injection_flags=""
-snips_tts_flags=""
-snips_skill_server_flags=""
 snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
 
 for service in ${SERVICES[@]} ; do
     flags=$(echo ${service}_flags | sed -e 's/-/_/g')
-    bashio::log.info "${service} ${!flags} >/share/snips/logs/${service}.log 2>/share/snips/logs/${service}.log &"
-    ${service} ${!flags} >/share/snips/logs/${service}.log 2>/share/snips/logs/${service}.log &
+    startup_delay=$(echo ${service}_startup_delay | sed -e 's/-/_/g')
+    bashio::log.info "${service} ${!flags:-} >/share/snips/logs/${service}.log 2>/share/snips/logs/${service}.log &"
+    ${service} ${!flags:-} >/share/snips/logs/${service}.log 2>/share/snips/logs/${service}.log &
     WAIT_PIDS+=($!)
+    if [ -n "${!startup_delay:-}" ]; then
+	sleep ${!startup_delay}
+    fi
 done
 
 # TODO: Add something to keep the services alive instead of just starting them.
@@ -239,7 +236,7 @@ done
 # too.
 
 function stop_snips() {
-    bashio::log.info "Shutdown snips-hassio-addon"
+    bashio::log.info "Shutdown $(hostname)"
     kill -TERM "${WAIT_PIDS[@]}"
     wait "${WAIT_PIDS[@]}"
 }
