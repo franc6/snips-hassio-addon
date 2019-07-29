@@ -79,7 +79,6 @@ _SNIPS_TOML_EOF
 	CUSTOM_TTS_VOICE=$(bashio::config 'custom_tts.voice')
 	CUSTOM_TTS_VOICE=$(bashio::config 'custom_tts.voice')
 	CUSTOM_TTS_GENDER=$(bashio::config 'custom_tts.gender')
-	# TODO: Modify snips.toml to include this info!
 	echo 'provider = "customtts"' >> /etc/snips.toml
 	if [ "${CUSTOM_TTS_PLATFORM}" = "mimic" ]; then
 	    echo "customtts = { command = [\"/usr/local/bin/mimic\", \"-o\", \"%%OUTPUT_FILE%%\", \"-voice\", \"${CUSTOM_TTS_VOICE}\", \"-t\", \"%%TEXT%%\"] }" >> /etc/snips.toml
