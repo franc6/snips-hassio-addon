@@ -31,19 +31,11 @@ RUN set -x \
 	mosquitto \
 	mosquitto-clients \
 	mpg123 \
-	python-all-dev \
 	python-pip \
-	python-pip-whl \
-	python-pkg-resources \
-	python-setuptools \
-	python-wheel \
 	python-virtualenv \
 	python3-pip \
 	python3-venv \
-	python3-dev \
 	python3-setuptools \
-	python3-wheel \
-	python3-pkg-resources \
 	python3-virtualenv \
 	unzip \
     && rm -rf /var/lib/apt/lists/* \
@@ -95,14 +87,6 @@ RUN set -x \
     && rm -rf /tmp/mimic \
     && apt-get -y autoremove
 
-# Voices are in /usr/local/share/mimic/voices
-
-# Install mosquitto-clients to aid in trouble-shooting when connecting to
-# another MQTT bridge, e.g. Home Assistant.
-#RUN set -x && \
-	#apt-get install -y mosquitto-clients
-
-#Is this really required? 
 RUN set -x \
     && usermod -aG snips-skills-admin root
 
