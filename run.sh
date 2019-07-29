@@ -215,8 +215,16 @@ mosquitto_flags="-c /etc/mosquitto/mosquitto.conf"
 if [ "${ANALYTICS}" = "true" ]; then
     SERVICES+=(snips-analytics)
 fi
+snips_analytics_flags=""
 
-SERVICES+=(snips-asr snips-dialog snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
+SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
+snips_asr_flags=""
+snips_dialogue_flags=""
+snips_hotword_flags=""
+snips_nlu_flags=""
+snips_injection_flags=""
+snips_tts_flags=""
+snips_skill_server_flags=""
 snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
 
 for service in ${SERVICES[@]} ; do
