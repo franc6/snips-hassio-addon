@@ -17,6 +17,10 @@
     "ports": {
         "1883/tcp": 9883
     },
+    "ports_description": {
+        "1883/tcp": "External port for MQTT server.  This is the port you configure in your satellites' snips.tom files."
+    },
+
     "services": ["mqtt:need"],
     "startup": "application",
     "tmpfs": "size=10m",
