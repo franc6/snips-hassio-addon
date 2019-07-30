@@ -88,8 +88,10 @@ RUN set -x \
     && apt-get -y autoremove
 
 RUN set -x \
-    && usermod -aG snips-skills-admin root
+    && usermod -aG snips-skills-admin root \
+    && apt-get install -y supervisor
 
 COPY run.sh /
+COPY wait-for-it.sh /
 
 ENTRYPOINT [ "/run.sh" ]

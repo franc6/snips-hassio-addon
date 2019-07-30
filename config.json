@@ -1,6 +1,6 @@
 {
     "name": "Snips.AI Base (no local audio)",
-    "version": "0.1.25",
+    "version": "0.1.28",
     "slug": "snips-base-hassio-addon",
     "description": "Local voice control platform",
     "apparmor": false,
