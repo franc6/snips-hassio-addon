@@ -1,6 +1,6 @@
 {
     "name": "Snips.AI Base (no local audio)",
-    "version": "0.1.25",
+    "version": "0.1.28",
     "slug": "snips-base-hassio-addon",
     "description": "Local voice control platform",
     "apparmor": false,
@@ -18,6 +18,10 @@
     "ports": {
         "1883/tcp": 9883
     },
+    "ports_description": {
+        "1883/tcp": "External port for MQTT server.  This is the port you configure in your satellites' snips.tom files."
+    },
+
     "services": ["mqtt:need"],
     "startup": "application",
     "tmpfs": "size=10m",

@@ -95,7 +95,7 @@ bashio::log.info "Done with snips.toml setup."
 
 # Get information about the mqtt server from hassio API, to set up
 # mosquitto.conf
-if MQTT_CONFIG="$(curl -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/services/mqtt)" ; then
+if MQTT_CONFIG="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/services/mqtt)" ; then
     mqtt_host="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.host')"
     mqtt_port="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.port')"
     mqtt_username="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.username')"
@@ -211,6 +211,7 @@ mkdir -p /share/snips/logs
 SERVICES=(mosquitto)
 mosquitto_flags="-c /etc/mosquitto/mosquitto.conf"
 mosquitto_startup_delay=5
+mosquitto_priority=1
 
 if [ "${ANALYTICS}" = "true" ]; then
     SERVICES+=(snips-analytics)
@@ -218,21 +219,37 @@ fi
 
 SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
 snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
+snips_skill_server_priority="999"
+
+SUPERVISORD_CONF="/etc/supervisor/conf.d/supervisord.conf"
+cat > ${SUPERVISORD_CONF} << _EOF_SUPERVISORD_CONF
+[supervisord]
+nodaemon=true
+_EOF_SUPERVISORD_CONF
 
 for service in ${SERVICES[@]} ; do
     flags=$(echo ${service}_flags | sed -e 's/-/_/g')
-    startup_delay=$(echo ${service}_startup_delay | sed -e 's/-/_/g')
-    bashio::log.info "${service} ${!flags:-} >/share/snips/logs/${service}.log 2>/share/snips/logs/${service}.log &"
-    ${service} ${!flags:-} >/share/snips/logs/${service}.log 2>/share/snips/logs/${service}.log &
-    WAIT_PIDS+=($!)
-    if [ -n "${!startup_delay:-}" ]; then
-	sleep ${!startup_delay}
+    priority=$(echo ${service}_priority | sed -e 's/-/_/g')
+    if [ "${service}" = "mosquitto" ]; then
+	command="${service} ${!flags:-}"
+    else
+	command="/wait-for-it.sh -h localhost -p 1883 -- ${service} ${!flags:-}"
     fi
+    cat >> ${SUPERVISORD_CONF} << _EOF_CONF
+[program:${service}]
+command=${command}
+priority=${!priority:-900}
+directory=/
+autostart=true
+autorestart=true
+startretries=5
+stderr_logfile=/share/snips/logs/${service}.log
+stdout_logfile=/share/snips/logs/${service}.log
+_EOF_CONF
 done
 
-# TODO: Add something to keep the services alive instead of just starting them.
-# Docker recommends supervisord, and that's what the official snips addon does,
-# too.
+supervisord -c ${SUPERVISORD_CONF} &
+WAIT_PIDS+=($!)
 
 function stop_snips() {
     bashio::log.info "Shutdown $(hostname)"

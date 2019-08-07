@@ -61,12 +61,11 @@ start the addon, and this directory will be made available as a share named
 "share".
 
 ## TODO
+The following list is in no particular order...
+
 - Determine how to update configuration.yaml so that intents from snips that need to run homeassistant scripts will work without user interaction.  For now, the home assistant scripts are installed in /config/python_scripts, but they won't actually run until configuration.yaml is updated.
-- Support the SuperSnipsTTS script
-- Support on-device audio, but only if it exists
-- Keep services alive via supervisord
-- Add ingress support; should be able to view the log files, and run snips-watch
+- Support the SuperSnipsTTS script.
+- Support on-device audio, but only if it exists.
+- Add ingress support; should be able to view the log files, and run snips-watch.
 - Add AppArmor support; this will probably have to wait on the snips.ai team, because I'm too lazy to figure out what all the various components of snips need access to.
-
-
-
+- Add support for configuring alternative wake word(s).
