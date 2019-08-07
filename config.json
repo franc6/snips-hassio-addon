@@ -4,7 +4,7 @@
     "slug": "snips-base-hassio-addon",
     "description": "Local voice control platform",
     "apparmor": false,
-    "arch": ["armhf", "amd64"],
+    "arch": ["amd64"],
     "audio": false,
     "boot": "auto",
     "docker_api": false,
