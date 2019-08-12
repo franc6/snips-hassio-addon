@@ -68,4 +68,4 @@ The following list is in no particular order...
 - Support on-device audio, but only if it exists.
 - Add ingress support; should be able to view the log files, and run snips-watch.
 - Add AppArmor support; this will probably have to wait on the snips.ai team, because I'm too lazy to figure out what all the various components of snips need access to.
-- Add support for configuring alternative wake word(s).
+- Add support for configuring skills in the assistant -- through ingress or through config flows??
