@@ -94,4 +94,6 @@ RUN set -x \
 COPY run.sh /
 COPY wait-for-it.sh /
 
+RUN chmod 755 /run.sh /wait-for-it.sh
+
 ENTRYPOINT [ "/run.sh" ]
