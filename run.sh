@@ -233,7 +233,7 @@ for service in ${SERVICES[@]} ; do
     if [ "${service}" = "mosquitto" ]; then
 	command="${service} ${!flags:-}"
     else
-	command="/wait-for-it.sh -h localhost -p 1883 -t 0 -- sh -c \"sleep 60 ; ${service} ${!flags:-}\""
+	command="/wait-for-it.sh -h localhost -p 1883 -t 0 -- sh -c \"sleep 60;${service} ${!flags:-}\""
     fi
     cat >> ${SUPERVISORD_CONF} << _EOF_CONF
 [program:${service}]
