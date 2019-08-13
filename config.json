@@ -1,19 +1,18 @@
 {
     "name": "Snips.AI Base (no local audio)",
-    "version": "0.1.32",
-    "slug": "snips-base-hassio-addon",
+    "version": "0.1.45",
+    "slug": "snips-base",
     "description": "Local voice control platform",
-    "apparmor": false,
+    "apparmor": true,
     "arch": ["amd64"],
     "audio": false,
     "boot": "auto",
     "docker_api": false,
     "homassistant": "0.96.4",
     "homassistant_api": false,
-    "image": "franc6/image-{arch}-snips-base-hassio-addon",
     "ingress": false,
     "host_network": false,
-    "map": ["config:rw", "share:rw"],
+    "map": ["config:rw", "share:rw", "ssl"],
     "panel_icon": "mdi:text-to-speech",
     "ports": {
         "1883/tcp": 9883
