@@ -10,6 +10,7 @@
     "docker_api": false,
     "homassistant": "0.96.4",
     "homassistant_api": false,
+    "image": "franc6/image-{arch}-snips-base-hassio-addon",
     "ingress": false,
     "host_network": false,
     "map": ["config:rw", "share:rw", "ssl"],
