@@ -1,6 +1,6 @@
 {
     "name": "Snips.AI Base (no local audio)",
-    "version": "0.1.45",
+    "version": "0.1.46",
     "slug": "snips-base",
     "description": "Local voice control platform",
     "apparmor": true,
@@ -10,7 +10,7 @@
     "docker_api": false,
     "homassistant": "0.96.4",
     "homassistant_api": false,
-    "ingress": false,
+    "ingress": true,
     "host_network": false,
     "map": ["config:rw", "share:rw", "ssl"],
     "panel_icon": "mdi:text-to-speech",
@@ -36,7 +36,8 @@
             "voice": "/share/snips/voices/cmu_us_eey.flitevox"
         },
         "google_asr_credentials": "",
-        "language": "en"
+        "language": "en",
+        "snips_watch": "false"
     },
     "schema": {
         "analytics": "bool",
@@ -49,6 +50,7 @@
             "voice": "str"
         },
         "google_asr_credentials": "str",
-        "language": "match(en|de|fr)"
+        "language": "match(en|de|fr)",
+        "snips_watch": "bool"
     }
 }

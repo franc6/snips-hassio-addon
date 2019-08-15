@@ -59,7 +59,8 @@ RUN set -x \
 	snips-nlu \
 	snips-skill-server \
 	snips-template \
-	snips-tts
+	snips-tts \
+	snips-watch
 
 # Install mimic from Mycroft
 RUN set -x \
@@ -91,9 +92,16 @@ RUN set -x \
     && usermod -aG snips-skills-admin root \
     && apt-get install -y supervisor
 
+RUN set -x \
+    && mkdir -p ingress/templates \
+    && pip3 install flask
+
+COPY ingress/control.py /ingress
+COPY ingress/templates/index.html /ingress/templates
+
 COPY run.sh /
 COPY wait-for-it.sh /
 
-RUN chmod 755 /run.sh /wait-for-it.sh
+RUN chmod 755 /run.sh /wait-for-it.sh /ingress /ingress/templates
 
 ENTRYPOINT [ "/run.sh" ]
