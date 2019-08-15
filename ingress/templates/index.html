@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Snips Base Logs</title>
+        <style>
+            .button {
+                background-color: #03a9f4;
+                border: none;
+                cursor: pointer;
+                color: white;
+                float: left;
+                outline: none;
+                padding: 14px 16px;
+                font-size: 16px;
+                font-weight: normal;
+            }
+            .buttonActive {
+                background-color: white;
+                color: #03a9f4;
+                font-weight: bold;
+                outline: 3px solid #03a9f4;
+                outline-offset: -3px;
+            }
+            .buttonContainer {
+                background-color: #03a9f4;
+                border: none;
+                cursor: pointer;
+                color: white;
+                float: left;
+                font-size: 16px;
+                margin: 0;
+                outline: none;
+                width: 100%;
+            }
+            .tab {
+                background-color: black;
+                border: 10px solid black;
+                color: white;
+                height: 100%;
+                padding: 0;
+            }
+            .tabContainer {
+                background-color: black;
+                color: white;
+                padding: 0;
+                width: 100%;
+            }
+            .tabContent: {
+                background-color: black;
+                color: white;
+                height: 100%;
+                padding: 0;
+            }
+            #updateInterval {
+                width: 40px;
+            }
+            h2 {
+                color: #03a9f4;
+                padding: 0px 0px 0px 10px;
+            }
+        </style>
+        <script type="text/javascript">
+            var intervalID = null;
+            var updateInterval = 5000;
+            function setUpdateInterval() {
+                var updateElement = document.getElementById("updateInterval");
+                if (updateElement.value < 0.1)
+                    updateElement.value = 0.1;
+
+                window.updateInterval = updateElement.value * 1000;
+                console.log('new Update Interval: ' + window.updateInterval);
+                if (intervalID != null)
+                {
+                    clearInterval(window.intervalID);
+                    intervalID = setInterval(updateCurrentLog, window.updateInterval);
+                }
+            }
+            function showLog(fileName) {
+                var buttons = document.getElementsByClassName('buttonActive');
+                while (buttons[0])
+                {
+                    buttons[0].classList.remove('buttonActive');
+                }
+                var tabs = document.getElementsByClassName('tab');
+                for (var idx = 0; idx < tabs.length; idx++)
+                {
+                    tabs[idx].style.display = 'none';
+                }
+                updateLog(fileName);
+                var button = document.getElementById("button_" + fileName);
+                button.classList.add('buttonActive');
+                var tab = document.getElementById("tab_" + fileName);
+                tab.style.display = 'block';
+            }
+            function updateCurrentLog() {
+                var button = document.getElementsByClassName('buttonActive')[0];
+                if (button)
+                {
+                    var fileName = button.id.split("_")[1];
+                    updateLog(fileName);
+                }
+            }
+            function updateLog(fileName) {
+                var output = document.getElementById(fileName);
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/stream?log=' + fileName, true);
+                xhr.responseType = 'text';
+                xhr.onload = function() {
+                    if (xhr.readyState === xhr.DONE) {
+                        if (xhr.status == 200) {
+                            output.textContent = xhr.responseText;
+                        }
+                    }
+                }
+                xhr.send();
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    var button = document.getElementsByClassName('buttonActive')[0];
+                    if (button)
+                    {
+                        var fileName = button.id.split("_")[1];
+                        showLog(fileName);
+                    }
+                    window.intervalID = setInterval(updateCurrentLog, window.updateInterval);
+                }, 100);
+            });
+        </script>
+    </head>
+    <body>
+        <h2>Logs</h2>
+        Update Interval: <input id="updateInterval" type="number" value="5.0" min="0.1" step="0.1" />&nbsp;<input value="Set" type="button" onclick="setUpdateInterval()" />
+        <hr />
+        <div class="buttonContainer">
+            {% for fileName in fileNames %}
+            <button class="button buttonActive" id="button_{{ fileName }}" onclick="showLog('{{ fileName }}')">{{ fileName }}</button>
+            {% endfor %}
+        </div>
+        <br clear="all" />
+        <div class="tabContainer">
+            {% for fileName in fileNames %}
+                <div class="tab" id="tab_{{ fileName }}">
+                    <pre class="tabContent" id="{{ fileName }}">Loading data, please wait...</pre>
+                </div>
+            {% endfor %}
+        </div>
+    </body>
+</html>

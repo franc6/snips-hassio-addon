@@ -10,6 +10,7 @@ COUNTRY=$(bashio::config 'country_code')
 CAFILE=$(bashio::config 'cafile')
 USE_CUSTOM_TTS=$(bashio::config 'custom_tts.active')
 GOOGLE_ASR_CREDENTIALS=$(bashio::config 'google_asr_credentials')
+SNIPS_WATCH=$(bashio::config 'snips_watch')
 
 export LC_ALL="${LANG}_${COUNTRY}.UTF-8"
 
@@ -208,18 +209,35 @@ cd /
 
 mkdir -p /share/snips/logs
 
+ingress_entry="/"
+ingress_port="8099"
+if SELF_INFO="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/addons/self/info)" ; then
+    ingress_ip="$(echo "${SELF_INFO}" | jq --raw-output '.data.ip_address')"
+    ingress_entry="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_entry')"
+    ingress_port="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_port')"
+fi
+
 SERVICES=(mosquitto)
 mosquitto_flags="-c /etc/mosquitto/mosquitto.conf"
-mosquitto_startup_delay=5
-mosquitto_priority=1
+mosquitto_priority=100
+
+if [ "${SNIPS_WATCH}" = "true" ]; then
+    SERVICES+=(snips-watch)
+fi
 
 if [ "${ANALYTICS}" = "true" ]; then
     SERVICES+=(snips-analytics)
 fi
 
-SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
+SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server snips-watch)
 snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
 snips_skill_server_priority="999"
+ingress_flags="/ingress/control.py ${ingress_ip} ${ingress_port} ${ingress_entry} ${SERVICES[@]/%/.log}"
+ingress_program="python3"
+ingress_priority="1"
+ingress_directory="/ingress"
+
+SERVICES+=(ingress)
 
 SUPERVISORD_CONF="/etc/supervisor/conf.d/supervisord.conf"
 cat > ${SUPERVISORD_CONF} << _EOF_SUPERVISORD_CONF
@@ -230,19 +248,25 @@ _EOF_SUPERVISORD_CONF
 for service in ${SERVICES[@]} ; do
     flags=$(echo ${service}_flags | sed -e 's/-/_/g')
     priority=$(echo ${service}_priority | sed -e 's/-/_/g')
-    if [ "${service}" = "mosquitto" ]; then
-	command="${service} ${!flags:-}"
+    directory=$(echo ${service}_directory | sed -e 's/-/_/g')
+    program="${service}"
+    if [ "${service}" = "ingress" ]; then
+	program="python3"
+    fi
+    if [ "${service}" = "mosquitto" -o "${service}" = "ingress" ]; then
+	command="${program} ${!flags:-}"
     else
-	command="/wait-for-it.sh -h localhost -p 1883 -t 0 -- sh -c \"sleep 60;${service} ${!flags:-}\""
+	command="/wait-for-it.sh -h localhost -p 1883 -t 0 -- sh -c \"sleep 60;${program} ${!flags:-}\""
     fi
     cat >> ${SUPERVISORD_CONF} << _EOF_CONF
 [program:${service}]
 command=${command}
 priority=${!priority:-900}
-directory=/
+directory=${!directory:-/}
 autostart=true
 autorestart=true
 startretries=5
+startsecs=65
 stderr_logfile=/share/snips/logs/${service}.log
 stdout_logfile=/share/snips/logs/${service}.log
 _EOF_CONF

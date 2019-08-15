@@ -35,6 +35,7 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 # End of python
 	/usr/share/python-wheels/ r,
 	/usr/share/python-wheels/** r,
+	/usr/local/lib/python{2.[4-7],3.[0-7]}/{dist,site}-packages/** mrw,
 
 	capability net_bind_service,
 	capability setgid,
@@ -79,6 +80,10 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	/sbin/ldconfig rix,
 	/sbin/ldconfig.real rix,
 	/usr/lib/gcc/x86_64-linux-gnu/*/* rix,
+	/ingress/ r,
+	/ingress/control.py mr,
+	/ingress/templates/ r,
+	/ingress/templates/index.html mr,
 	/run.sh rix,
 	/wait-for-it.sh rix,
 	/bin/* rcix,
