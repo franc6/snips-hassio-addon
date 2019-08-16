@@ -1,3 +1,6 @@
+## 0.1.47 ????/??/??
+Fixed bug where snips-watch is always run
+
 ## 0.1.46 2019/08/15
 Added Web UI (ingress) support
 
