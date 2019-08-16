@@ -229,7 +229,7 @@ if [ "${ANALYTICS}" = "true" ]; then
     SERVICES+=(snips-analytics)
 fi
 
-SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server snips-watch)
+SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
 snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
 snips_skill_server_priority="999"
 ingress_flags="/ingress/control.py ${ingress_ip} ${ingress_port} ${ingress_entry} ${SERVICES[@]/%/.log}"
