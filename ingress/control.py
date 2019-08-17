@@ -1,3 +1,4 @@
+import subprocess
 import sys
 from time import sleep
 from flask import Flask, abort, render_template, request
@@ -33,6 +34,11 @@ def stream():
             print("Couldn't open " + log)
         return ""
     return app.response_class(generate(log), mimetype='text/plain')
+
+@app.route('/update-assistant')
+def update_assistant():
+    subprocess.call(['/extract_assistant.sh'])
+    return app.response_class(" ", mimetype='text/plain')
 
 
 class PrefixMiddleware(object):

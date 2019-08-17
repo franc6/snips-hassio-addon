@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>Snips Base Logs</title>
+        <title>Snips Base Web UI</title>
         <style>
             .button {
                 background-color: #03a9f4;
@@ -38,6 +38,7 @@
                 color: white;
                 height: 100%;
                 padding: 0;
+                overflow-x: auto;
             }
             .tabContainer {
                 background-color: black;
@@ -100,6 +101,28 @@
                     updateLog(fileName);
                 }
             }
+            function updateAssistant() {
+                var updateButton = document.getElementById('updateAssistantButton');
+                updateButton.diabled = true;
+                updateButton.setAttribute('disabled', 'disabled');
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/update-assistant', true);
+                xhr.responseType = 'text';
+                xhr.onload = function() {
+                    if (xhr.readyState === xhr.DONE) {
+                        var updateButton = document.getElementById('updateAssistantButton');
+                        if (xhr.status == 200) {
+                            alert("Finished updating the assistant!")
+                        }
+                        else {
+                            alert("Failed to update the assistant!")
+                        }
+                        updateButton.diabled = false;
+                        updateButton.removeAttribute('disabled');
+                    }
+                }
+                xhr.send();
+            }
             function updateLog(fileName) {
                 var output = document.getElementById(fileName);
                 var xhr = new XMLHttpRequest();
@@ -128,6 +151,9 @@
         </script>
     </head>
     <body>
+        <h2>Assistant Update</h2>
+        If you have replaced your assistant ZIP file, you should update the assistant that is running.  Please note this could take a few minutes.<br clear="all" />
+        <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
         <h2>Logs</h2>
         Update Interval: <input id="updateInterval" type="number" value="5.0" min="0.1" step="0.1" />&nbsp;<input value="Set" type="button" onclick="setUpdateInterval()" />
         <hr />

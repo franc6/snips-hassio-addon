@@ -43,6 +43,10 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	capability dac_override,
 
 	/config/** rw,
+	# Uncomment the following when ready to not grant full perms to
+	# /config/**
+	#/config/python_scripts/ rw,
+	#/config/python_scripts/** rw,
 	/data/** r,
 	/etc/ r,
 	/etc/** r,
@@ -56,8 +60,7 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 
 	/etc/snips.toml rw,
 	/etc/mosquitto/mosquitto.conf rw,
-	/etc/supervisor/conf.d/supervisord.conf rw,
-	/supervisord.log rw,
+	/etc/supervisor/** mklrw,
 	/supervisord.pid rw,
 
 	/tmp/** mlkrw,
@@ -71,7 +74,12 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	/usr/share/snips/** mlkrw,
 	/var/lib/docker/overlay2/** mlkrwix,
 	/var/lib/snips/** mlkrw,
+	/run/ mr,
+	/run/supervisor.sock* mlkrw,
+	/var/run/ mr,
+	/var/run/supervisor.sock* mlkrw,
 	/share/snips/** lkrw,
+	/funcs.sh r,
 
 	/root/ mkr,
 	/root/.cache/ mlkrw,
@@ -85,6 +93,8 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	/ingress/templates/ r,
 	/ingress/templates/index.html mr,
 	/run.sh rix,
+	/start_service.sh rix,
+	/extract_assistant.sh rix,
 	/wait-for-it.sh rix,
 	/bin/* rcix,
 	/usr/bin/ r,
