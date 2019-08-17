@@ -14,19 +14,7 @@ SNIPS_WATCH=$(bashio::config 'snips_watch')
 
 export LC_ALL="${LANG}_${COUNTRY}.UTF-8"
 
-function check_for_file() {
-    bashio::log.info "Checking for /share/snips/$1"
-    if [ -f "/share/snips/$1" ]; then
-	echo "/share/snips/$1"
-	return 0
-    fi
-    bashio::log.info "Checking for /share/$1"
-    if [ -f "/share/$1" ]; then
-	echo "/share/$1"
-	return 0
-    fi
-    echo
-}
+. /funcs.sh
 
 bashio::log.info "LANG: ${LANG}"
 
@@ -138,74 +126,9 @@ else
     exit 1
 fi
 
-assistant=$(check_for_file ${ASSISTANT})
-if [ -n "${assistant}" ]; then
-    bashio::log.info "Installing snips assistant from ${assistant}"
-    rm -rf /usr/share/snips/assistant
-    unzip -qq -d /usr/share/snips ${assistant}
-else
-    bashio::log.error "Could not find the snips assistant!"
+if ! extract_assistant ${ASSISTANT} ; then
     exit 1
 fi
-
-#start with a clear skill directory
-rm -rf /var/lib/snips/skills/*
-
-#deploy apps (skills). See: https://snips.gitbook.io/documentation/console/deploying-your-skills
-snips-template render
-
-#goto skill directory
-cd /var/lib/snips/skills
-
-#download required skills from git
-for url in $(awk '$1=="url:" {print $2}' /usr/share/snips/assistant/Snipsfile.yaml); do
-	git clone -q $url
-done
-
-#be sure we are in the skill directory
-cd /var/lib/snips/skills
-
-# run setup.sh for each skill, and link any config.ini file for it
-# since we can't interact with the user, we have to do something else to get
-# config.ini files in place!
-find . -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
-        if [ "$dir" != "." ]; then
-	    cd "$dir" 
-	    skillname=$(echo $dir | cut -c3-)
-	    if [ -f setup.sh ]; then
-		bashio::log.info "Running setup.sh for ${skillname}"
-		#run the scrips always with bash
-		bash ./setup.sh
-	    fi
-	    skillconfigfile=$(check_for_file ${skillname}-config.ini)
-	    if [ -n "${skillconfigfile}" ] ; then
-		bashio::log.info "Copying ${skillconfigfile} to config.ini for ${skillname}"
-		rm -f config.ini
-		cp "${skillconfigfile}" "config.ini"
-	    fi
-	    if [ -f "spec.json" ]; then
-		spec_json_name="$(jq --raw-output '.name' spec.json)"
-		spec_json_language="$(jq --raw-output '.language' spec.json)"
-		if [ "X${spec_json_name}" = "Xhomeassistant" ]; then
-		    if [ "X${spec_json_language}" = "XPYTHON" ]; then
-			for i in action_*.py ; do
-			    bashio::log.info "Installing python_script: ${i}"
-			    if [ ! -d "/config/python_scripts" ]; then
-				mkdir /config/python_scripts
-			    fi
-			    cp "${i}" /config/python_scripts
-			done
-			bashio::log.info "You must set up the intent_script: component in configuration.yaml for ${dir} to work."
-		    fi
-		fi
-	    fi
-	    cd /var/lib/snips/skills
-	fi
-done
-bashio::log.info "Finished deploying skills"
-
-#go back to root directory
-cd /
 
 mkdir -p /share/snips/logs
 
@@ -217,10 +140,22 @@ if SELF_INFO="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/
     ingress_port="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_port')"
 fi
 
-SERVICES=(mosquitto)
+SERVICES=(ingress mosquitto)
 mosquitto_flags="-c /etc/mosquitto/mosquitto.conf"
 mosquitto_priority=100
 
+SNIPS_GROUP=()
+
+SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
+
+for service in ${SERVICES[@]} ; do
+    if [[ "${service}" == snips-* ]]; then
+	SNIPS_GROUP+=(${service})
+    fi
+done
+
+# snips-watch and snips-analytics should not be included in SNIPS_GROUP, so we
+# add them only after setting up SNIPS_GROUP!
 if [ "${SNIPS_WATCH}" = "true" ]; then
     SERVICES+=(snips-watch)
 fi
@@ -229,7 +164,6 @@ if [ "${ANALYTICS}" = "true" ]; then
     SERVICES+=(snips-analytics)
 fi
 
-SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server snips-watch)
 snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
 snips_skill_server_priority="999"
 ingress_flags="/ingress/control.py ${ingress_ip} ${ingress_port} ${ingress_entry} ${SERVICES[@]/%/.log}"
@@ -237,26 +171,37 @@ ingress_program="python3"
 ingress_priority="1"
 ingress_directory="/ingress"
 
-SERVICES+=(ingress)
-
-SUPERVISORD_CONF="/etc/supervisor/conf.d/supervisord.conf"
+rm -f ${SUPERVISORD_CONF}
 cat > ${SUPERVISORD_CONF} << _EOF_SUPERVISORD_CONF
 [supervisord]
-nodaemon=true
+nodaemon = true
+logfile = /share/snips/logs/supervisord.log
+logfile_maxbytes = 50MB
+logfile_backups = 1
+loglevel = info
+pifile = /supervisord.pid
+
+[unix_http_server]
+file = /var/run/supervisor.sock
+chmod = 0700
+chown = root:root
+
+[supervisorctl]
+serverurl = unix:///var/run/supervisor.sock
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 _EOF_SUPERVISORD_CONF
 
 for service in ${SERVICES[@]} ; do
     flags=$(echo ${service}_flags | sed -e 's/-/_/g')
     priority=$(echo ${service}_priority | sed -e 's/-/_/g')
     directory=$(echo ${service}_directory | sed -e 's/-/_/g')
-    program="${service}"
-    if [ "${service}" = "ingress" ]; then
-	program="python3"
-    fi
+    program=$(echo ${service}_program | sed -e 's/-/_/g')
     if [ "${service}" = "mosquitto" -o "${service}" = "ingress" ]; then
-	command="${program} ${!flags:-}"
+	command="${!program:-${service}} ${!flags:-}"
     else
-	command="/wait-for-it.sh -h localhost -p 1883 -t 0 -- sh -c \"sleep 60;${program} ${!flags:-}\""
+	command="/start_service.sh localhost 1883 0 ${!program:-${service}} ${!flags:-}"
     fi
     cat >> ${SUPERVISORD_CONF} << _EOF_CONF
 [program:${service}]
@@ -271,6 +216,12 @@ stderr_logfile=/share/snips/logs/${service}.log
 stdout_logfile=/share/snips/logs/${service}.log
 _EOF_CONF
 done
+
+( IFS=, ; cat >> ${SUPERVISORD_CONF} << _EOF_CONF
+[group:snips-group]
+programs=${SNIPS_GROUP[*]}
+_EOF_CONF
+)
 
 supervisord -c ${SUPERVISORD_CONF} &
 WAIT_PIDS+=($!)

@@ -29,11 +29,13 @@ that run only on snips as well as skills that work through Home Assistant.
 |custom_tts.voice|string|A string that represents which voice to use.  For mimic, this should be the full path of a flitevox file.  For pico2wave this specifies the voice and country, such as "en-US"|
 |snips_watch|true or false|If true, snips-watch will be started.  Use the Web UI to view its output.|
 
+Please note that flitevox files for mimic are not included in the image, so if
+you want to use mimic, you'll need to copy the flitevox file to /share and list
+the full path to it in the custom_tts.voice option.
+
+### Providing your own snips.toml
 If you create a snips.toml file in /share/snips or /share, that file will be
 used, and the custom_tts and google_asr_credentials settings will be ignored.
-Please note that flitevox files are not included in the image, so if you want
-to use mimic, you'll need to copy the flitevox file to /share and list the full
-path to it.
 
 ## Configuring Skills
 Many snips skills must be configured. Configuration is typically handled
@@ -72,11 +74,16 @@ Log files for the programs running in the addon are stored in
 /share/snips/logs.  This directory is created if it doesn't exist.
  
 ## Web UI
-The Web UI lets you view the log files for the internal mosquitto and snips
+The Web UI lets you update the assistant without restarting the whole addon.
+Simply copy your new assistant's .ZIP file over the old one (see
+configuration), and click "Update Assistant".  Updating will take a few
+minutes.  You'll receive a message when it has finished.  Please do not
+navigate from the WebUI while it is updating.
+
+You can also view the log files for the internal mosquitto and snips
 programs.  You can choose how frequently the interface updates the logs.  If
-you want to watch the logs near real-time, this can be faster than viewing the
-logs directly in /share/snips/logs.  If you have enabled snips-watch, you can
-view its output from here, too.
+you have enabled snips-watch, you can view its output from here, too.
+
 
 ## Accessing /share
 The best ways to access /share are through the samba and ssh addons.  Check their documentation for more information.
@@ -89,4 +96,3 @@ The following list is in no particular order...
 - Support on-device audio, but only if it exists.
 - Add support for configuring skills in the assistant -- through the web ui or through config flows??
 - It'd be nice if you could start and stop only snips-watch through the web ui, instead of having to restart the whole addon.
-- It'd be nice if you didn't have to restart the whole addon to change a skill's configuration.  Fortunately, most of the skills I've seen don't typically require changing configuration after you get it right the first time. :)

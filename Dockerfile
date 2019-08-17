@@ -99,9 +99,15 @@ RUN set -x \
 COPY ingress/control.py /ingress
 COPY ingress/templates/index.html /ingress/templates
 
+COPY funcs.sh /
+COPY extract_assistant.sh /
 COPY run.sh /
+COPY start_service.sh /
 COPY wait-for-it.sh /
 
-RUN chmod 755 /run.sh /wait-for-it.sh /ingress /ingress/templates
+RUN rm -rf /etc/supervisor \
+	&& mkdir /etc/supervisor
+RUN chmod 644 /funcs.sh
+RUN chmod 755 /extract_assistant.sh /run.sh /start_service.sh /wait-for-it.sh /ingress /ingress/templates /etc/supervisor
 
 ENTRYPOINT [ "/run.sh" ]

@@ -1,3 +1,7 @@
+## 0.1.47 2019/08/17
+Fixed bug where snips-watch is always run
+Added first-pass code for updating the assistant without restarting the container
+
 ## 0.1.46 2019/08/15
 Added Web UI (ingress) support
 
