@@ -14,6 +14,7 @@ function check_for_file() {
 
 function extract_assistant() {
     assistant_file=$1
+    ha_app_dirs=()
     assistant=$(check_for_file ${assistant_file})
     if [ -n "${assistant}" ]; then
 	bashio::log.info "Installing snips assistant from ${assistant}"
@@ -47,43 +48,50 @@ function extract_assistant() {
     # run setup.sh for each skill, and link any config.ini file for it
     # since we can't interact with the user, we have to do something else to get
     # config.ini files in place!
-    find . -maxdepth 1 -type d -print0 | while IFS= read -r -d '' dir; do
-	    if [ "$dir" != "." ]; then
-		cd "$dir" 
-		skillname=$(echo $dir | cut -c3-)
-		if [ -f setup.sh ]; then
-		    bashio::log.info "Running setup.sh for ${skillname}"
-		    #run the scrips always with bash
-		    bash ./setup.sh >/dev/null 2>/dev/null
-		fi
-		skillconfigfile=$(check_for_file ${skillname}-config.ini)
-		if [ -n "${skillconfigfile}" ] ; then
-		    bashio::log.info "Copying ${skillconfigfile} to config.ini for ${skillname}"
-		    rm -f config.ini
-		    cp "${skillconfigfile}" "config.ini"
-		fi
-		if [ -f "spec.json" ]; then
-		    spec_json_name="$(jq --raw-output '.name' spec.json)"
-		    spec_json_language="$(jq --raw-output '.language' spec.json)"
-		    if [ "X${spec_json_name}" = "Xhomeassistant" ]; then
-			if [ "X${spec_json_language}" = "XPYTHON" ]; then
-			    for i in action_*.py ; do
-				bashio::log.info "Installing python_script: ${i}"
-				if [ ! -d "/config/python_scripts" ]; then
-				    mkdir /config/python_scripts
-				fi
-				cp "${i}" /config/python_scripts
-			    done
-			    bashio::log.info "You must set up the intent_script: component in configuration.yaml for ${dir} to work."
-			fi
+    for dir in * ; do
+	if [ -d "$dir" ]; then
+	    cd "$dir" 
+	    skillname="$dir"
+	    if [ -f setup.sh ]; then
+		bashio::log.info "Running setup.sh for ${skillname}"
+		#run the scrips always with bash
+		bash ./setup.sh >/dev/null 2>/dev/null
+	    fi
+	    skillconfigfile=$(check_for_file ${skillname}-config.ini)
+	    if [ -n "${skillconfigfile}" ] ; then
+		bashio::log.info "Copying ${skillconfigfile} to config.ini for ${skillname}"
+		rm -f config.ini
+		cp "${skillconfigfile}" "config.ini"
+	    fi
+	    if [ -f "spec.json" ]; then
+		spec_json_name="$(jq --raw-output '.name' spec.json)"
+		spec_json_language="$(jq --raw-output '.language' spec.json)"
+		if [ "X${spec_json_name}" = "Xhomeassistant" ]; then
+		    if [ "X${spec_json_language}" = "XPYTHON" ]; then
+			bashio::log.info "${skillname} uses python_script in HA"
+			ha_app_dirs+=(${skillname})
 		    fi
 		fi
-		cd /var/lib/snips/skills
 	    fi
+	    cd /var/lib/snips/skills
+	fi
     done
     bashio::log.info "Finished deploying skills"
+
+    if [ ${#ha_app_dirs[@]} -ne 0 ]; then
+	cd /var/lib/snips/skills
+	bashio::log.info "Updating HA configuration"
+	/update_ha_config.py ${ha_app_dirs[@]}
+	need_restart=$?
+
+	if [ ${need_restart} -ne 0 ]; then
+	    bashio::log.warning "HA configuration was modified.  You need to restart it!"
+	fi
+    fi
+
     # Go back to /!
     cd /
+
     return 0
 }
 
