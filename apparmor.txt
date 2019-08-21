@@ -1,4 +1,5 @@
 #include <tunables/global>
+@{DOCKER_OVERLAY} = /var/lib/docker/overlay2/*/diff
 
 profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	#include <abstractions/base>
@@ -7,104 +8,252 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	#include <abstractions/openssl>
 	#include <abstractions/ssl_certs>
 
-# These are from <abstractions/python, but we must ensure python 3.6 & 3.7 are supported, as some systems only support up to python 3.5. Note the file this comes from is under GPL v2!
-	/usr/lib{,32,64}/python{2.[4-7],3.[0-7]}/**.{pyc,so}           mr,
-	/usr/lib{,32,64}/python{2.[4-7],3.[0-7]}/**.{egg,py,pth}       r,
-	/usr/lib{,32,64}/python{2.[4-7],3.[0-7]}/{site,dist}-packages/ r,
-	/usr/lib{,32,64}/python3.[0-7]/lib-dynload/*.so            mr,
-
-	/usr/local/lib{,32,64}/python{2.[4-7],3.[0-7]}/**.{pyc,so}           mr,
-	/usr/local/lib{,32,64}/python{2.[4-7],3.[0-7]}/**.{egg,py,pth}       r,
-	/usr/local/lib{,32,64}/python{2.[4-7],3.[0-7]}/{site,dist}-packages/ r,
-	/usr/local/lib{,32,64}/python3.[0-7]/lib-dynload/*.so            mr,
-
-	# Site-wide configuration
-	/etc/python{2.[4-7],3.[0-7]}/** r,
-
-	# shared python paths
-	/usr/share/{pyshared,pycentral,python-support}/**      r,
-	/{var,usr}/lib/{pyshared,pycentral,python-support}/**  r,
-	/usr/lib/{pyshared,pycentral,python-support}/**.so     mr,
-	/var/lib/{pyshared,pycentral,python-support}/**.pyc    mr,
-	/usr/lib/python3/dist-packages/**.so                   mr,
-
-	# wx paths
-	/usr/lib/wx/python/*.pth r,
-	# python build configuration and headers
-	/usr/include/python{2.[4-7],3.[0-7]}*/pyconfig.h r,
-# End of python
-	/usr/share/python-wheels/ r,
-	/usr/share/python-wheels/** r,
-	/usr/local/lib/python{2.[4-7],3.[0-7]}/{dist,site}-packages/** mrw,
-
 	capability net_bind_service,
 	capability setgid,
 	capability setuid,
 	capability dac_override,
 
-	/config/** rw,
-	# Uncomment the following when ready to not grant full perms to
-	# /config/**
-	#/config/python_scripts/ rw,
-	#/config/python_scripts/** rw,
-	/data/** r,
-	/etc/ r,
-	/etc/** r,
-	/proc/** r,
-	/share/** r,
-	/ssl/** r,
-	/usr/local/share/mimic/voices/** r,
+	/data/**							r,
+	/share/**							r,
 
-	/usr/lib/locale/*/LC_MESSAGES** mr,
-	/dev/tty rw,
+	/etc/								r,
+	@{DOCKER_OVERLAY}/etc/						r,
+	/etc/**								r,
+	@{DOCKER_OVERLAY}/etc/**					r,
+	/proc/**							r,
+	@{DOCKER_OVERLAY}/proc/**					r,
+	/ssl/**								r,
+	@{DOCKER_OVERLAY}/ssl/**					r,
+	/usr/local/share/mimic/voices/**				r,
+	@{DOCKER_OVERLAY}/usr/local/share/mimic/voices/**		r,
 
-	/etc/snips.toml rw,
-	/etc/mosquitto/mosquitto.conf rw,
-	/etc/supervisor/** mklrw,
-	/supervisord.pid rw,
+	/usr/lib/locale/*/LC_MESSAGES**					mr,
+	@{DOCKER_OVERLAY}/usr/lib/locale/*/LC_MESSAGES**		mr,
+	/dev/tty							rw,
+	@{DOCKER_OVERLAY}/dev/tty					rw,
 
-	/tmp/** mlkrw,
-	/tmp/ mr,
-	/usr/include/** mr,
-	/usr/share/pkgconfig/ mr,
-	/usr/share/pkgconfig/** mr,
-	/usr/local/lib/pkgconfig/ mr,
-	/usr/local/lib/pkgconfig/** mr,
-	/usr/share/git-core/** mlkr,
-	/usr/share/snips/** mlkrw,
-	/var/lib/docker/overlay2/** mlkrwix,
-	/var/lib/snips/** mlkrw,
-	/run/ mr,
-	/run/supervisor.sock* mlkrw,
-	/var/run/ mr,
-	/var/run/supervisor.sock* mlkrw,
-	/share/snips/** lkrw,
-	/funcs.sh r,
+	/etc/snips.toml							rw,
+	@{DOCKER_OVERLAY}/etc/snips.toml				rw,
+	/etc/mosquitto/mosquitto.conf					rw,
+	@{DOCKER_OVERLAY}/etc/mosquitto/mosquitto.conf			rw,
+	/etc/supervisor/**						mklrw,
+	@{DOCKER_OVERLAY}/etc/supervisor/**				mklrw,
+	/supervisord.pid						rw,
+	@{DOCKER_OVERLAY}/supervisord.pid				rw,
 
-	/root/ mkr,
-	/root/.cache/ mlkrw,
-	/root/.cache/** mlkrw,
+	/tmp/**								mlkrw,
+	@{DOCKER_OVERLAY}/tmp/**					mlkrw,
+	/tmp/								mr,
+	@{DOCKER_OVERLAY}/tmp/						mr,
+	/usr/include/**							mr,
+	@{DOCKER_OVERLAY}/usr/include/**				mr,
+	/usr/share/pkgconfig/						mr,
+	@{DOCKER_OVERLAY}/usr/share/pkgconfig/				mr,
+	/usr/share/pkgconfig/**						mr,
+	@{DOCKER_OVERLAY}/usr/share/pkgconfig/**			mr,
+	/usr/local/lib/pkgconfig/					mr,
+	@{DOCKER_OVERLAY}/usr/local/lib/pkgconfig/			mr,
+	/usr/local/lib/pkgconfig/**					mr,
+	@{DOCKER_OVERLAY}/usr/local/lib/pkgconfig/**			mr,
+	/usr/share/git-core/**						mlkr,
+	@{DOCKER_OVERLAY}/usr/share/git-core/**				mlkr,
+	/usr/share/snips/**						mlkrw,
+	@{DOCKER_OVERLAY}/usr/share/snips/**				mlkrw,
+	/var/lib/snips/**						mlkrw,
+	@{DOCKER_OVERLAY}/var/lib/snips/**				mlkrw,
+	/run/								mr,
+	@{DOCKER_OVERLAY}/run/						mr,
+	/run/supervisor.sock*						mlkrw,
+	@{DOCKER_OVERLAY}/run/supervisor.sock*				mlkrw,
+	/var/run/							mr,
+	@{DOCKER_OVERLAY}/var/run/					mr,
+	/var/run/supervisor.sock*					mlkrw,
+	@{DOCKER_OVERLAY}/var/run/supervisor.sock*			mlkrw,
+	/share/snips/**							lkrw,
+	@{DOCKER_OVERLAY}/share/snips/**				lkrw,
+	/funcs.sh							r,
+	@{DOCKER_OVERLAY}/funcs.sh					r,
 
-	/sbin/ldconfig rix,
-	/sbin/ldconfig.real rix,
-	/usr/lib/gcc/x86_64-linux-gnu/*/* rix,
-	/ingress/ r,
-	/ingress/control.py mr,
-	/ingress/templates/ r,
-	/ingress/templates/index.html mr,
-	/run.sh rix,
-	/start_service.sh rix,
-	/extract_assistant.sh rix,
-	/wait-for-it.sh rix,
-	/bin/* rcix,
-	/usr/bin/ r,
-	/usr/bin/* rix,
-	/usr/local/bin/* rix,
-	/usr/lib/bashio/* rix,
-	/usr/lib/git-core/* rix,
-	/usr/sbin/mosquitto mrcx,
-	/var/lib/snips/skills/**/*.py mlkrwix,
-	/var/lib/snips/skills/*/{venv,virtualenv}/bin/** mlkrwix,
+	/root/								mkr,
+	@{DOCKER_OVERLAY}/root/						mkr,
+	/root/.cache/							mlkrw,
+	@{DOCKER_OVERLAY}/root/.cache/					mlkrw,
+	/root/.cache/**							mlkrw,
+	@{DOCKER_OVERLAY}/root/.cache/**				mlkrw,
+
+	/sbin/ldconfig							rix,
+	@{DOCKER_OVERLAY}/sbin/ldconfig					rix,
+	/sbin/ldconfig.real						rix,
+	@{DOCKER_OVERLAY}/sbin/ldconfig.real				rix,
+	/usr/lib/gcc/x86_64-linux-gnu/*/*				rix,
+	@{DOCKER_OVERLAY}/usr/lib/gcc/x86_64-linux-gnu/*/*		rix,
+	/ingress/							r,
+	@{DOCKER_OVERLAY}/ingress/					r,
+	/ingress/control.py						mr,
+	@{DOCKER_OVERLAY}/ingress/control.py				mr,
+	/ingress/templates/						r,
+	@{DOCKER_OVERLAY}/ingress/templates/				r,
+	/ingress/templates/index.html					mr,
+	@{DOCKER_OVERLAY}/ingress/templates/index.html			mr,
+	/run.sh								rix,
+	@{DOCKER_OVERLAY}/run.sh					rix,
+	/start_service.sh						rix,
+	@{DOCKER_OVERLAY}/start_service.sh				rix,
+	/extract_assistant.sh						rix,
+	@{DOCKER_OVERLAY}/extract_assistant.sh				rix,
+	/update_ha_config.py						mrcx,
+	@{DOCKER_OVERLAY}/update_ha_config.py				mrcx,
+	/wait-for-it.sh							rix,
+	@{DOCKER_OVERLAY}/wait-for-it.sh				rix,
+	/bin/*								rcix,
+	@{DOCKER_OVERLAY}/bin/*						rcix,
+	/usr/bin/							r,
+	@{DOCKER_OVERLAY}/usr/bin/					r,
+	/usr/bin/*							rix,
+	@{DOCKER_OVERLAY}/usr/bin/*					rix,
+	/usr/local/bin/*						rix,
+	@{DOCKER_OVERLAY}/usr/local/bin/*				rix,
+	/usr/lib/bashio/*						rix,
+	@{DOCKER_OVERLAY}/usr/lib/bashio/*				rix,
+	/usr/lib/git-core/*						rix,
+	@{DOCKER_OVERLAY}/usr/lib/git-core/*				rix,
+	/usr/sbin/mosquitto						mrcx,
+	@{DOCKER_OVERLAY}/usr/sbin/mosquitto				mrcx,
+
+	/var/lib/snips/skills/**					mlkrwix,
+	@{DOCKER_OVERLAY}/var/lib/snips/skills/**			mlkrwix,
+
+	# Rules for running python scripts
+	/usr/lib{,32,64}/python{2.7,3.[0-7]}/				mr,
+	@{DOCKER_OVERLAY}/usr/lib{,32,64}/python{2.7,3.[0-7]}/		mr,
+	/usr/lib{,32,64}/python{2.7,3.[0-7]}/**				mr,
+	@{DOCKER_OVERLAY}/usr/lib{,32,64}/python{2.7,3.[0-7]}/**	mr,
+	/usr/lib{,32,64}/python{2.7,3.[0-7]}/**/			mr,
+	@{DOCKER_OVERLAY}/usr/lib{,32,64}/python{2.7,3.[0-7]}/**/	mr,
+	/usr/lib{,32,64}/python3/					mr,
+	@{DOCKER_OVERLAY}/usr/lib{,32,64}/python3/			mr,
+	/usr/lib{,32,64}/python3/**					mr,
+	@{DOCKER_OVERLAY}/usr/lib{,32,64}/python3/**			mr,
+	/usr/lib{,32,64}/python3/**/					mr,
+	@{DOCKER_OVERLAY}/usr/lib{,32,64}/python3/**/			mr,
+
+	/usr/local/lib{,32,64}/python3{,.[0-7]}/			mr,
+	@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python3{,.[0-7]}/	mr,
+	/usr/local/lib{,32,64}/python3{,.[0-7]}/**/			mr,
+	@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python3{,.[0-7]}/**/	mr,
+	/usr/local/lib{,32,64}/python3{,.[0-7]}/**			mr,
+	@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python3{,.[0-7]}/**	mr,
+	/usr/local/lib{,32,64}/python2.7/**/				mr,
+	@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python2.7/**		mr,
+
+	/etc/python{2.7,3.[0-7]}/**					r,
+	@{DOCKER_OVERLAY}/etc/python{2.7,3.[0-7]}/**			r,
+
+	/usr/share/{pyshared,pycentral,python-support}/**		r,
+	@{DOCKER_OVERLAY}/usr/share/{pyshared,pycentral,python-support}/**	r,
+	/{var,usr}/lib/{pyshared,pycentral,python-support}/**		r,
+	@{DOCKER_OVERLAY}/{var,usr}/lib/{pyshared,pycentral,python-support}/**	r,
+	/usr/lib/{pyshared,pycentral,python-support}/**.so		mr,
+	@{DOCKER_OVERLAY}/usr/lib/{pyshared,pycentral,python-support}/**.so	mr,
+	/var/lib/{pyshared,pycentral,python-support}/**.pyc		mr,
+	@{DOCKER_OVERLAY}/var/lib/{pyshared,pycentral,python-support}/**.pyc	mr,
+
+	/usr/lib/wx/python/*.pth					r,
+	@{DOCKER_OVERLAY}/usr/lib/wx/python/*.pth			r,
+
+	# Rules for installing pip packages
+	/usr/include/python{2.7,3.[0-7]}*/pyconfig.h			r,
+	@{DOCKER_OVERLAY}/usr/include/python{2.7,3.[0-7]}*/pyconfig.h	r,
+
+	/usr/share/python-wheels/					r,
+	@{DOCKER_OVERLAY}/usr/share/python-wheels/			r,
+	/usr/share/python-wheels/**					r,
+	@{DOCKER_OVERLAY}/usr/share/python-wheels/**			r,
+
+	/usr/local/lib{,32,64}/python{2.7,3.[0-7]}/{dist,site}-packages/**	mrw,
+	@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python{2.7,3.[0-7]}/{dist,site}-packages/**	mrw,
+
+	/usr/lib/{,x86_64-linux-gnu/}pkgconfig/				mr,
+	@{DOCKER_OVERLAY}/usr/lib/{,x86_64-linux-gnu/}pkgconfig/	mr,
+	/usr/lib/{,x86_64-linux-gnu/}pkgconfig/**			mr,
+	@{DOCKER_OVERLAY}/usr/lib/{,x86_64-linux-gnu/}pkgconfig/**	mr,
+
+	# Support TCP Wrappers
+	/lib{,32,64}/libwrap.so*				mr,
+	/etc/hosts.allow					r,
+	/etc/hosts.deny						r,
+
+
+	profile /update_ha_config.py flags=(attach_disconnected,mediate_deleted) {
+		#include <abstractions/base>
+
+		/usr/bin/env							rix,
+		/update_ha_config.py						mr,
+
+		# Need full permissions to /config, because we don't know
+		# how/if the user already configured intent_scripts.
+		/config/**							rw,
+
+		# Need read-only on /var/lib/snips/skills/**
+		@{DOCKER_OVERLAY}/var/lib/snips/skills/**			r,
+		/var/lib/snips/skills/**					r,
+
+		/								mr,
+		@{DOCKER_OVERLAY}/						r,
+		/tmp/**								mlkrw,
+		@{DOCKER_OVERLAY}/tmp/**					mlkrw,
+		/tmp/								mr,
+		@{DOCKER_OVERLAY}/tmp/						mr,
+
+		/usr/bin/python3*						rix,
+		@{DOCKER_OVERLAY}/usr/bin/python3*				rix,
+
+		# Rules for running python scripts
+		/usr/lib{,32,64}/python3{,.[0-7]}/				mr,
+		@{DOCKER_OVERLAY}/usr/lib{,32,64}/python3{,.[0-7]}/		mr,
+		/usr/lib{,32,64}/python3{,.[0-7]}/**				mr,
+		@{DOCKER_OVERLAY}/usr/lib{,32,64}/python3{,.[0-7]}/**		mr,
+		/usr/lib{,32,64}/python3{,.[0-7]}/**/				mr,
+		@{DOCKER_OVERLAY}/usr/lib{,32,64}/python3{,.[0-7]}/**/		mr,
+
+		/usr/local/lib{,32,64}/python3{,.[0-7]}/			mr,
+		@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python3{,.[0-7]}/	mr,
+		/usr/local/lib{,32,64}/python3{,.[0-7]}/**/			mr,
+		@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python3{,.[0-7]}/**/	mr,
+		/usr/local/lib{,32,64}/python3{,.[0-7]}/**			mr,
+		@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python3{,.[0-7]}/**	mr,
+
+		/etc/python3.[0-7]/**						r,
+		@{DOCKER_OVERLAY}/etc/python3.[0-7]/**				r,
+
+		/usr/share/{pyshared,pycentral,python-support}/**		r,
+		@{DOCKER_OVERLAY}/usr/share/{pyshared,pycentral,python-support}/**	r,
+		/{var,usr}/lib/{pyshared,pycentral,python-support}/**		r,
+		@{DOCKER_OVERLAY}/{var,usr}/lib/{pyshared,pycentral,python-support}/**	r,
+		/usr/lib/{pyshared,pycentral,python-support}/**.so		mr,
+		@{DOCKER_OVERLAY}/usr/lib/{pyshared,pycentral,python-support}/**.so	mr,
+		/var/lib/{pyshared,pycentral,python-support}/**.pyc		mr,
+		@{DOCKER_OVERLAY}/var/lib/{pyshared,pycentral,python-support}/**.pyc	mr,
+
+		/usr/lib/wx/python/*.pth					r,
+		#@{DOCKER_OVERLAY}/usr/lib/wx/python/*.pth			r,
+		# Rules for installing pip packages
+		#/usr/include/python3.[0-7]*/pyconfig.h				r,
+		#@{DOCKER_OVERLAY}/usr/include/python3.[0-7]*/pyconfig.h	r,
+
+		#/usr/share/python-wheels/					r,
+		#@{DOCKER_OVERLAY}/usr/share/python-wheels/			r,
+		#/usr/share/python-wheels/**					r,
+		#@{DOCKER_OVERLAY}/usr/share/python-wheels/**			r,
+
+		#/usr/local/lib{,32,64}/python{2.7,3.[0-7]}/{dist,site}-packages/**	mrw,
+		#@{DOCKER_OVERLAY}/usr/local/lib{,32,64}/python{2.7,3.[0-7]}/{dist,site}-packages/**	mrw,
+
+		#/usr/lib/{,x86_64-linux-gnu/}pkgconfig/			mr,
+		#@{DOCKER_OVERLAY}/usr/lib/{,x86_64-linux-gnu/}pkgconfig/	mr,
+		#/usr/lib/{,x86_64-linux-gnu/}pkgconfig/**			mr,
+		#@{DOCKER_OVERLAY}/usr/lib/{,x86_64-linux-gnu/}pkgconfig/**	mr,
+	}
 
 	profile /usr/sbin/mosquitto flags=(attach_disconnected,mediate_deleted) {
 		#include <abstractions/base>
@@ -112,18 +261,18 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 		#include <abstractions/openssl>
 		#include <abstractions/ssl_certs>
 
-		/data/mosquitto.db mlkrw,
-		/data/mosquitto.db.new mlkrw,
-		/etc/mosquitto/mosquitto.conf r,
-		/etc/mosquitto/conf.d/ r,
-		/etc/mosquitto/conf.d/* r,
-		/var/lib/docker/overlay2/**/etc/mosquitto/conf.d/ r,
-		/var/lib/docker/overlay2/**/etc/mosquitto/conf.d/* r,
-		/share/** r,
-		/var/lib/mosquitto/ r,
-		/var/lib/mosquitto/mosquitto.db rwk,
-		/var/run/mosquitto.pid rw,
-		/usr/sbin/mosquitto mr,
+		/data/mosquitto.db					mlkrw,
+		/data/mosquitto.db.new					mlkrw,
+		/etc/mosquitto/mosquitto.conf				r,
+		/etc/mosquitto/conf.d/					r,
+		/etc/mosquitto/conf.d/*					r,
+		/var/lib/docker/overlay2/**/etc/mosquitto/conf.d/	r,
+		/var/lib/docker/overlay2/**/etc/mosquitto/conf.d/*	r,
+		/share/**						r,
+		/var/lib/mosquitto/					r,
+		/var/lib/mosquitto/mosquitto.db				rwk,
+		/var/run/mosquitto.pid					rw,
+		/usr/sbin/mosquitto					mr,
 
 		network inet stream,
 		network inet6 stream,
@@ -134,8 +283,9 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 		capability setgid,
 		capability setuid,
 
-		/lib{,32,64}/libwrap.so* mr,
-		/etc/hosts.allow r,
-		/etc/hosts.deny r,
+		# Support TCP Wrappers
+		/lib{,32,64}/libwrap.so*				mr,
+		/etc/hosts.allow					r,
+		/etc/hosts.deny						r,
 	}
 }
