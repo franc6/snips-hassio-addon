@@ -60,8 +60,8 @@ intent_script configuration will be updated to reference the intents for your
 assistant that use snippets.
 
 If your configuration files are modified, your original file will be copied to
-the same name ending with a ~.  E.g., if configuration.yaml is modified, the
-original file will be copied to a new file named "configuration.yaml~".
+the same name ending with a `~`.  E.g., if configuration.yaml is modified, the
+original file will be copied to a new file named "configuration.yaml`~`".
 Additionally, the file indents will be normalized to 2 space indents, if they
 were not already.  All comments in the file will be preserved.
 
