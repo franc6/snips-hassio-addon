@@ -120,3 +120,4 @@ The following list is in no particular order...
 - Support on-device audio, but only if it exists.
 - Add support for configuring skills in the assistant -- through the web ui or through config flows??
 - It'd be nice if you could start and stop only snips-watch through the web ui, instead of having to restart the whole addon.
+- Automatically download assistant ZIP file (requires config updates, too)
