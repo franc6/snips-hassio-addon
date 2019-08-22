@@ -43,6 +43,7 @@ bind = "$(hostname)@mqtt"
 
 [snips-hotword]
 #audio = ["+@mqtt"]
+audio = "$(hostname)@mqtt"
 
 [snips-injection]
 
