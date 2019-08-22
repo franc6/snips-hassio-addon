@@ -121,3 +121,5 @@ The following list is in no particular order...
 - Add support for configuring skills in the assistant -- through the web ui or through config flows??
 - It'd be nice if you could start and stop only snips-watch through the web ui, instead of having to restart the whole addon.
 - Automatically download assistant ZIP file (requires config updates, too)
+
+[![Buy me some pizza](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/qpunYPZx5)
