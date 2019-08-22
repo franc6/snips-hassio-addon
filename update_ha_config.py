@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import filecmp
+import json
 import os
 from pathlib import Path
 import re
@@ -14,9 +15,11 @@ from ruamel.yaml.comments import (Tag, TaggedScalar)
 config_dir = Path('/config')
 python_scripts_dir = config_dir / 'python_scripts'
 skill_dir = Path('/var/lib/snips/skills')
+assistant_dir = Path('/usr/share/snips/assistant')
 
 ha_app_dirs = sys.argv[1:]
 need_restart = False
+fix_name_re = re.compile(r'_+')
 
 def log(color, level, message):
     msg = "[{time}] {level}: {color}{message}[0m".format(time=datetime.now().strftime("%H:%M:%S"), level=level, color=color, message=message)
@@ -31,26 +34,44 @@ def log_info(message):
 def log_warning(message):
     log('[33m', "WARNING", "{}".format(message))
 
-def add_intent_script(intent_script_yaml, name, file_name):
+def add_intent_script(intent_script_yaml, intent, file_name, slots):
     log_info("Installing python_script: {}".format(file_name.name))
-    copyfile(file_name, python_scripts_dir / file_name.name)
-    service = "python_script." + file_name.stem
+    # HA doesn't like multiple underscores in a row, so trim them to just one --
+    # both for the real file name and in the service!
+    copyfile(file_name, python_scripts_dir / fix_name_re.sub(r'_', file_name.name))
+    service = "python_script." + fix_name_re.sub(r'_', file_name.stem)
+    action = { "action": { 'service': service } }
+    data_template = { }
+    for slot in slots:
+        data_template[slot] = "{{{{ {} }}}}".format(slot)
+    if len(slots) != 0:
+        action['action']['data_template'] = data_template
     if not 'intent_script' in intent_script_yaml:
-        intent_script_yaml[name] = { "action": { 'service': service } }
+        intent_script_yaml[intent] = action
     else:
-        intent_script_yaml['intent_script'][name] = { "action": { 'service': service } }
+        intent_script_yaml['intent_script'][intent] = action
     return intent_script_yaml
 
 def add_intent_scripts(intent_script_yaml):
+    with open(assistant_dir / 'assistant.json') as f:
+        assistant = json.load(f)
     for app_dir in ha_app_dirs:
-        log_info("processing dir: {}".format(skill_dir / app_dir))
+        log_info("processing HA snippets for: {}".format(app_dir))
         (username, suffix) = app_dir.lower().split('.')
-        regex_pattern = r"^action_{username}_(.+)_{username}_{suffix}.py$".format(username=username, suffix=suffix)
-        regex = re.compile(regex_pattern)
-        file_list = Path(skill_dir / app_dir).glob('action_*.py')
+        suffix = suffix.replace('-', '_')
+        file_list = Path(assistant_dir / 'snippets' / app_dir / 'homeassistant' / username).glob('*.snippet')
         for app_file in file_list:
-            app = regex.sub(r'\1', str(app_file.name))
-            intent_script_yaml = add_intent_script(intent_script_yaml, app, skill_dir / app_file)
+            log_info("processing: {}".format(app_file))
+            slots = []
+            app = app_file.stem
+            for intent in assistant['intents']:
+                if intent['id'] == "{username}:{intent}".format(username=username, intent=app):
+                    log_info("Found intent: {}".format(intent['id']))
+                    for slot in intent['slots']:
+                        slots.append(slot['name'])
+                        log_info("Found slot: {}".format(slot['name']))
+            py_file = "action_{username}_{intent}_{username}_{suffix}.py".format(username=username, intent=app.lower(), suffix=suffix)
+            intent_script_yaml = add_intent_script(intent_script_yaml, app, skill_dir / app_dir / py_file, slots)
     return intent_script_yaml
 
 def save_yaml(destination, yaml_code):
