@@ -195,8 +195,12 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 		/config/**							rw,
 
 		# Need read-only on /var/lib/snips/skills/**
-		@{DOCKER_OVERLAY}/var/lib/snips/skills/**			r,
 		/var/lib/snips/skills/**					r,
+		@{DOCKER_OVERLAY}/var/lib/snips/skills/**			r,
+
+		# Need read-only on /usr/share/snips/assistant/**
+		/usr/share/snips/assistant/**					r,
+		@{DOCKER_OVERLAY}/usr/share/snips/assistant/**			r,
 
 		/								mr,
 		@{DOCKER_OVERLAY}/						r,
