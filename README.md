@@ -13,7 +13,7 @@ that run only on snips as well as skills that work through Home Assistant.
 - Configuration of snips skills
 - Installs home assistant skills (incomplete)
 - Exposes log files (via /share/snips/logs)
-- Generates snips.toml based on configuration, or allows you to run your own
+- Generates snips.toml based on configuration, or allows you to use your own
 
 ## Configuration
 | Option | Values | Explanation |
@@ -47,6 +47,31 @@ app store will list the required configuration items.
 
 You must restart the addon after changing <skillname>-config.ini for the
 changes to take affect.
+
+## Home Assistant Snippets
+If your assistant uses Home Assistant Snippets, they will be installed to
+/config/python_script and /config/configuration.yaml will be updated to enable
+the intent_script, python_script, and snips components.  If you had alread
+configured those components, the snips and python_script components will remain
+untouched.  If intent_script was set to an included file, that included file
+will be used.  If intent_script was not configured, it will be configured to
+use an included file, named intent_script.yaml.  In either event, the existing
+intent_script configuration will be updated to reference the intents for your
+assistant that use snippets.
+
+If your configuration files are modified, your original file will be copied to
+the same name ending with a `~`.  E.g., if configuration.yaml is modified, the
+original file will be copied to a new file named "configuration.yaml`~`".
+Additionally, the file indents will be normalized to 2 space indents, if they
+were not already.  All comments in the file will be preserved.
+
+You will need to restart HA if the configuration was updated.  The log will
+include a message to indicate this; you don't need to check the files yourself.
+If no changes are necessary to configure HA for use with your assistant, your
+files will not be modified.
+
+The HA configuration will be checked (and potentially modified) when you start
+the addon and when you update your assistant.
 
 ## Satellite Configuration
 In /etc/snips.toml:
@@ -84,15 +109,15 @@ You can also view the log files for the internal mosquitto and snips
 programs.  You can choose how frequently the interface updates the logs.  If
 you have enabled snips-watch, you can view its output from here, too.
 
-
 ## Accessing /share
 The best ways to access /share are through the samba and ssh addons.  Check their documentation for more information.
 
 ## TODO
 The following list is in no particular order...
 
-- Determine how to update configuration.yaml so that intents from snips that need to run homeassistant scripts will work without user interaction.  For now, the home assistant scripts are installed in /config/python_scripts, but they won't actually run until configuration.yaml is updated.
+- Restart HA instead of telling the user to do it, when the HA config is updated.
 - Support the SuperSnipsTTS script.
 - Support on-device audio, but only if it exists.
 - Add support for configuring skills in the assistant -- through the web ui or through config flows??
 - It'd be nice if you could start and stop only snips-watch through the web ui, instead of having to restart the whole addon.
+- Automatically download assistant ZIP file (requires config updates, too)
