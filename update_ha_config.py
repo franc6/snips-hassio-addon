@@ -48,8 +48,7 @@ def add_intent_script(intent_script_yaml, intent, file_name, slots):
     data_template['confidenceScore'] = "{{{{ confidenceScore }}}}"
     data_template['siteId'] = "{{{{ site_id }}}}"
     data_template['sessionId'] = "{{{{ session_id }}}}"
-    if len(slots) != 0:
-        action['action']['data_template'] = data_template
+    action['action']['data_template'] = data_template
     if not 'intent_script' in intent_script_yaml:
         intent_script_yaml[intent] = action
     else:
