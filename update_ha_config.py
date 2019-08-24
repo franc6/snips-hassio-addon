@@ -45,9 +45,9 @@ def add_intent_script(intent_script_yaml, intent, file_name, slots):
     for slot in slots:
         data_template[slot] = "{{{{ {} }}}}".format(slot)
         data_template["{}_raw".format(slot)] = "{{{{ {}_raw }}}}".format(slot)
-    data_template['confidenceScore'] = "{{{{ confidenceScore }}}}"
-    data_template['siteId'] = "{{{{ site_id }}}}"
-    data_template['sessionId'] = "{{{{ session_id }}}}"
+    data_template['confidenceScore'] = "{{ confidenceScore }}"
+    data_template['siteId'] = "{{ site_id }}"
+    data_template['sessionId'] = "{{ session_id }}"
     action['action']['data_template'] = data_template
     if not 'intent_script' in intent_script_yaml:
         intent_script_yaml[intent] = action
