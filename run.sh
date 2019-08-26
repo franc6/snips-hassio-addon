@@ -126,7 +126,7 @@ else
     exit 1
 fi
 
-if ! extract_assistant ${ASSISTANT} ; then
+if ! extract_assistant "${ASSISTANT}" ; then
     exit 1
 fi
 
@@ -143,6 +143,7 @@ fi
 SERVICES=(ingress mosquitto)
 mosquitto_flags="-c /etc/mosquitto/mosquitto.conf"
 mosquitto_priority=100
+mosquitto_startsecs=15
 
 SNIPS_GROUP=()
 
@@ -166,10 +167,12 @@ fi
 
 snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
 snips_skill_server_priority="999"
+assistant_file=$(check_for_file "${ASSISTANT}")
 ingress_flags="/ingress/control.py ${ingress_ip} ${ingress_port} ${ingress_entry} ${SERVICES[@]/%/.log}"
 ingress_program="python3"
 ingress_priority="1"
 ingress_directory="/ingress"
+ingress_startsecs=5
 
 rm -f ${SUPERVISORD_CONF}
 cat > ${SUPERVISORD_CONF} << _EOF_SUPERVISORD_CONF
@@ -198,6 +201,7 @@ for service in ${SERVICES[@]} ; do
     priority=$(echo ${service}_priority | sed -e 's/-/_/g')
     directory=$(echo ${service}_directory | sed -e 's/-/_/g')
     program=$(echo ${service}_program | sed -e 's/-/_/g')
+    startsecs=$(echo ${service}_startsecs | sed -e 's/-/_/g')
     if [ "${service}" = "mosquitto" -o "${service}" = "ingress" ]; then
 	command="${!program:-${service}} ${!flags:-}"
     else
@@ -211,7 +215,7 @@ directory=${!directory:-/}
 autostart=true
 autorestart=true
 startretries=5
-startsecs=65
+startsecs=${!startsecs:-0}
 stderr_logfile=/share/snips/logs/${service}.log
 stdout_logfile=/share/snips/logs/${service}.log
 _EOF_CONF
