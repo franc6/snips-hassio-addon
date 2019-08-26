@@ -13,13 +13,13 @@ function check_for_file() {
 }
 
 function extract_assistant() {
-    assistant_file=$1
+    assistant_file="$1"
     ha_app_dirs=()
-    assistant=$(check_for_file ${assistant_file})
+    assistant=$(check_for_file "${assistant_file}")
     if [ -n "${assistant}" ]; then
-	bashio::log.info "Installing snips assistant from ${assistant}"
+	bashio::log.info "Installing snips assistant from "${assistant}""
 	rm -rf /usr/share/snips/assistant
-	unzip -qq -d /usr/share/snips ${assistant}
+	unzip -qq -d /usr/share/snips "${assistant}"
     else
 	bashio::log.error "Could not find the snips assistant!"
 	return 1
