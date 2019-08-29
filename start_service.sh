@@ -14,15 +14,16 @@ WAIT_PID=
 ( ./wait-for-it.sh -h ${host} -p ${port} -t ${timeout} -- )
 ret=$?
 if [ ${ret} ] ; then
-    $* &
+    setsid $* &
     WAIT_PID=$!
+    bashio::log.info "Started $1"
 else
-    bashio::log.info "Could not connect to ${host} on port ${port} after ${timeout} seconds.  Exiting!"
+    bashio::log.error "Could not connect to ${host} on port ${port} after ${timeout} seconds.  Exiting!"
     exit 1
 fi
 
 function stop_process() {
-    kill -TERM ${WAIT_PID}
+    kill -TERM -${WAIT_PID}
     wait "${WAIT_PID}"
 }
 
