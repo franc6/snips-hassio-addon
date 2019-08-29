@@ -83,10 +83,6 @@ RUN set -x \
     && make check \
     && make install
 WORKDIR /
-# Don't forget to clean up the stuff the image won't actually use!
-RUN set -x \
-    && rm -rf /tmp/mimic \
-    && apt-get -y autoremove
 
 RUN set -x \
     && usermod -aG snips-skills-admin root \
@@ -95,7 +91,13 @@ RUN set -x \
 RUN set -x \
     && mkdir -p ingress/templates \
     && pip3 install flask \
-    && pip3 install ruamel.yaml
+	ruamel.yaml \
+	cheroot
+
+# Don't forget to clean up the stuff the image won't actually use!
+RUN set -x \
+    && rm -rf /tmp/mimic \
+    && apt-get -y autoremove
 
 COPY ingress/control.py /ingress
 COPY ingress/templates/index.html /ingress/templates
