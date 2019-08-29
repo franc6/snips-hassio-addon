@@ -89,7 +89,7 @@ RUN set -x \
     && apt-get install -y supervisor
 
 RUN set -x \
-    && mkdir -p ingress/templates \
+    && mkdir -p /ingress/templates \
     && pip3 install flask \
 	ruamel.yaml \
 	cheroot
@@ -101,6 +101,7 @@ RUN set -x \
 
 COPY ingress/control.py /ingress
 COPY ingress/templates/index.html /ingress/templates
+COPY ingress/templates/ansi_up.js /ingress/templates
 
 COPY funcs.sh /
 COPY extract_assistant.sh /
@@ -111,7 +112,7 @@ COPY wait-for-it.sh /
 
 RUN rm -rf /etc/supervisor \
 	&& mkdir /etc/supervisor
-RUN chmod 644 /funcs.sh
 RUN chmod 755 /extract_assistant.sh /run.sh /start_service.sh /update_ha_config.py /wait-for-it.sh /ingress /ingress/templates /etc/supervisor
+RUN chmod 644 /funcs.sh
 
 ENTRYPOINT [ "/run.sh" ]
