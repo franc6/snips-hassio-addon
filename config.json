@@ -1,6 +1,6 @@
 {
     "name": "Snips.AI Base (no local audio)",
-    "version": "0.1.48",
+    "version": "0.1.49",
     "slug": "snips-base",
     "description": "Local voice control platform",
     "apparmor": true,
@@ -8,8 +8,9 @@
     "audio": false,
     "boot": "auto",
     "docker_api": false,
-    "homassistant": "0.96.4",
-    "homassistant_api": false,
+    "full_access": false,
+    "homeassistant": "0.96.4",
+    "homeassistant_api": true,
     "image": "franc6/image-{arch}-snips-base-hassio-addon",
     "ingress": true,
     "host_network": false,
@@ -21,7 +22,6 @@
     "ports_description": {
         "1883/tcp": "External port for MQTT server.  This is the port you configure in your satellites' snips.toml files."
     },
-
     "services": ["mqtt:need"],
     "startup": "application",
     "tmpfs": "size=10m",
