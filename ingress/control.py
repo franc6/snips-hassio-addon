@@ -18,6 +18,10 @@ def limit_remote():
 def index():
     return render_template('index.html', fileNames = fileNames, root = root)
 
+@app.route('/ansi_up.js')
+def ansi_up():
+    return render_template('ansi_up.js')
+
 @app.route('/stream')
 def stream():
     log=request.args.get('log')
@@ -48,7 +52,6 @@ if __name__ == '__main__':
     port = int(sys.argv[2])
     root = sys.argv[3]
     fileNames = sys.argv[4:]
-    app.config['MAX_CONTENT_LENGTH'] = 40 * 1024 * 1024
     app.config['UPLOAD_FOLDER'] = '/tmp/'
 
     dispatcher = PathInfoDispatcher({'/': app.wsgi_app, root: app.wsgi_app})
