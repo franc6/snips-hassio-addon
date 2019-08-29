@@ -95,6 +95,9 @@ pid_file /var/run/mosquitto.pid
 persistence true
 persistence_location /data/
 log_dest stdout
+log_type error
+log_type warning
+log_type notice
 include_dir /etc/mosquitto/conf.d
 
 user root
@@ -216,8 +219,10 @@ autostart=true
 autorestart=true
 startretries=5
 startsecs=${!startsecs:-0}
-stderr_logfile=/share/snips/logs/${service}.log
+redirect_stderr=true
 stdout_logfile=/share/snips/logs/${service}.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=5
 _EOF_CONF
 done
 
