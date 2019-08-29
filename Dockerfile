@@ -89,7 +89,7 @@ RUN set -x \
     && apt-get install -y supervisor
 
 RUN set -x \
-    && mkdir -p /ingress/templates \
+    && mkdir -p /ingress/templates /EXTRA-LICENSES \
     && pip3 install flask \
 	ruamel.yaml \
 	cheroot
@@ -109,6 +109,7 @@ COPY run.sh /
 COPY start_service.sh /
 COPY update_ha_config.py /
 COPY wait-for-it.sh /
+COPY EXTRA-LICENSES/* /EXTRA-LICENSES
 
 RUN rm -rf /etc/supervisor \
 	&& mkdir /etc/supervisor
