@@ -3,6 +3,7 @@
 - Fixed issue #3
 - Fixed issue #4
 - Reduced disk usage of log files
+- Colorized log output
 
 ## 0.1.48 2019/08/21
 - Added code to update the HA config with python scripts from Home Assistant snippets.  This includes updating the intent_script settings for the appropriate intents and python_script.  If the configuration is updated, a message will be logged to indicate that HA should be restarted.  Eventually, the addon should restart HA on its own.
