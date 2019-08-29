@@ -33,22 +33,30 @@
                 width: 100%;
             }
             .tab {
-                background-color: black;
-                border: 10px solid black;
-                color: white;
+                background-color: white;
+                border: 10px solid white;
+                color: black;
                 height: 100%;
                 padding: 0;
                 overflow-x: auto;
             }
+            .tabBox {
+                background-color: white;
+                color: black;
+                padding: 0;
+                width: 100%;
+                box-shadow: 1px 1px 1px 1px black;
+            }
             .tabContainer {
-                background-color: black;
-                color: white;
+                background-color: white;
+                color: black;
                 padding: 0;
                 width: 100%;
             }
             .tabContent: {
-                background-color: black;
-                color: white;
+                background-color: white;
+                color: black;
+                font-family: monospace;
                 height: 100%;
                 padding: 0;
             }
@@ -60,9 +68,11 @@
                 padding: 0px 0px 0px 10px;
             }
         </style>
+        <script type="text/javascript" src="{{ root }}/ansi_up.js"></script>
         <script type="text/javascript">
             var intervalID = null;
             var updateInterval = 5000;
+            var ansi_up = new AnsiUp;
             function setUpdateInterval() {
                 var updateElement = document.getElementById("updateInterval");
                 if (updateElement.value < 0.1)
@@ -131,7 +141,7 @@
                 xhr.onload = function() {
                     if (xhr.readyState === xhr.DONE) {
                         if (xhr.status == 200) {
-                            output.textContent = xhr.responseText;
+                            output.innerHTML = ansi_up.ansi_to_html(xhr.responseText).replace(/(?:\r\n|\r|\n)/g, '<br />');
                         }
                     }
                 }
@@ -151,12 +161,13 @@
         </script>
     </head>
     <body>
-        <h2>Assistant Update</h2>
-        If you have replaced your assistant ZIP file, you should update the assistant that is running.  Please note this could take a few minutes.<br clear="all" />
+        <h2>Assistant Re-install and Update</h2>
+        If you have replaced your assistant ZIP file, click the Update Assistant button. Please note this could take a few minutes.<br clear="all" />
         <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
         <h2>Logs</h2>
         Update Interval: <input id="updateInterval" type="number" value="5.0" min="0.1" step="0.1" />&nbsp;<input value="Set" type="button" onclick="setUpdateInterval()" />
         <hr />
+        <div class="tabBox">
         <div class="buttonContainer">
             {% for fileName in fileNames %}
             <button class="button buttonActive" id="button_{{ fileName }}" onclick="showLog('{{ fileName }}')">{{ fileName }}</button>
@@ -166,9 +177,10 @@
         <div class="tabContainer">
             {% for fileName in fileNames %}
                 <div class="tab" id="tab_{{ fileName }}">
-                    <pre class="tabContent" id="{{ fileName }}">Loading data, please wait...</pre>
+                    <div class="tabContent" id="{{ fileName }}">Loading data, please wait...</div>
                 </div>
             {% endfor %}
+        </div>
         </div>
     </body>
 </html>

@@ -1,6 +1,7 @@
 import subprocess
 import sys
 from time import sleep
+from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
 from flask import Flask, abort, render_template, request
 
 fileNames = []
@@ -16,6 +17,10 @@ def limit_remote():
 @app.route('/')
 def index():
     return render_template('index.html', fileNames = fileNames, root = root)
+
+@app.route('/ansi_up.js')
+def ansi_up():
+    return render_template('ansi_up.js')
 
 @app.route('/stream')
 def stream():
@@ -41,23 +46,20 @@ def update_assistant():
     return app.response_class(" ", mimetype='text/plain')
 
 
-class PrefixMiddleware(object):
-    def __init__(self, app, prefix=''):
-        self.app = app
-        self.prefix = prefix
-
-    def __call__(self, environ, start_response):
-        if environ['PATH_INFO'].startswith(self.prefix):
-            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
-            environ['SCRIPT_NAME'] = self.prefix
-        return self.app(environ, start_response)
-
-# There should really be some error handling here...
+# There should really be some more error handling here...
 if __name__ == '__main__':
     host = sys.argv[1]
-    port = sys.argv[2]
+    port = int(sys.argv[2])
     root = sys.argv[3]
     fileNames = sys.argv[4:]
-    app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix=root)
+    app.config['UPLOAD_FOLDER'] = '/tmp/'
 
-    app.run(host=host, port=port)
+    dispatcher = PathInfoDispatcher({'/': app.wsgi_app, root: app.wsgi_app})
+    server = WSGIServer((host, port), dispatcher)
+
+    try:
+        server.start()
+    except Exception as e:
+        print("caught exception: {}".format(e))
+        server.stop()
+

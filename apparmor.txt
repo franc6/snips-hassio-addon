@@ -95,6 +95,8 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	@{DOCKER_OVERLAY}/ingress/templates/				r,
 	/ingress/templates/index.html					mr,
 	@{DOCKER_OVERLAY}/ingress/templates/index.html			mr,
+	/ingress/templates/ansi_up.js					mr,
+	@{DOCKER_OVERLAY}/ingress/templates/ansi_up.js			mr,
 	/run.sh								rix,
 	@{DOCKER_OVERLAY}/run.sh					rix,
 	/start_service.sh						rix,
