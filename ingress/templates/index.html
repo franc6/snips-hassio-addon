@@ -73,6 +73,27 @@
             var intervalID = null;
             var updateInterval = 5000;
             var ansi_up = new AnsiUp;
+            function enableSnipsWatchButtons()
+            {
+                var startButton = document.getElementById('button_start_snips_watch');
+                var stopButton = document.getElementById('button_stop_snips_watch');
+
+                var snipsWatchTab = document.getElementById('tab_snips-watch.log');
+                if (snipsWatchTab)
+                {
+                    startButton.diabled = true;
+                    startButton.setAttribute('disabled', 'disabled');
+                    stopButton.diabled = false;
+                    stopButton.removeAttribute('disabled');
+                }
+                else
+                {
+                    startButton.diabled = false;
+                    startButton.removeAttribute('disabled');
+                    stopButton.diabled = true;
+                    stopButton.setAttribute('disabled', 'disabled');
+                }
+            }
             function setUpdateInterval() {
                 var updateElement = document.getElementById("updateInterval");
                 if (updateElement.value < 0.1)
@@ -102,6 +123,34 @@
                 button.classList.add('buttonActive');
                 var tab = document.getElementById("tab_" + fileName);
                 tab.style.display = 'block';
+            }
+            function startSnipsWatch() {
+                var startButton = document.getElementById('button_start_snips_watch');
+                startButton.diabled = true;
+                startButton.setAttribute('disabled', 'disabled');
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/start_snips_watch');
+                xhr.responseType = 'text';
+                xhr.onload = function() {
+                    if (xhr.readyState == xhr.DONE) {
+                        window.location = window.location;
+                    }
+                }
+                xhr.send();
+            }
+            function stopSnipsWatch() {
+                var stopButton = document.getElementById('button_stop_snips_watch');
+                stopButton.diabled = true;
+                stopButton.setAttribute('disabled', 'disabled');
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/stop_snips_watch');
+                xhr.responseType = 'text';
+                xhr.onload = function() {
+                    if (xhr.readyState == xhr.DONE) {
+                        window.location = window.location;
+                    }
+                }
+                xhr.send();
             }
             function updateCurrentLog() {
                 var button = document.getElementsByClassName('buttonActive')[0];
@@ -149,6 +198,7 @@
             }
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
+                    enableSnipsWatchButtons();
                     var button = document.getElementsByClassName('buttonActive')[0];
                     if (button)
                     {
@@ -162,25 +212,34 @@
     </head>
     <body>
         <h2>Assistant Re-install and Update</h2>
-        If you have replaced your assistant ZIP file, click the Update Assistant button. Please note this could take a few minutes.<br clear="all" />
+        <p>If you have replaced your assistant ZIP file, click the Update
+        Assistant button. Please note this could take a few minutes.</p>
         <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
+        <h2>Snips-watch</h2>
+        <p>You can start and stop snips-watch, even if you didn't configure it
+        to be started.  Note that starting it here will not change the
+        configuration.  If it is disabled in the configuration, the next time
+        you restart this addon, snips-watch will not be running.</p>
+        <p>The snips-watch log is always the first log file, when it is running.</p>
+        <button id="button_start_snips_watch" onclick="startSnipsWatch()">Start snips-watch</button>
+        <button id="button_stop_snips_watch" onclick="stopSnipsWatch()">Stop snips-watch</button>
         <h2>Logs</h2>
         Update Interval: <input id="updateInterval" type="number" value="5.0" min="0.1" step="0.1" />&nbsp;<input value="Set" type="button" onclick="setUpdateInterval()" />
         <hr />
         <div class="tabBox">
-        <div class="buttonContainer">
-            {% for fileName in fileNames %}
-            <button class="button buttonActive" id="button_{{ fileName }}" onclick="showLog('{{ fileName }}')">{{ fileName }}</button>
-            {% endfor %}
-        </div>
-        <br clear="all" />
-        <div class="tabContainer">
-            {% for fileName in fileNames %}
+            <div class="buttonContainer">
+                {% for fileName in fileNames %}
+                <button class="button buttonActive" id="button_{{ fileName }}" onclick="showLog('{{ fileName }}')">{{ fileName }}</button>
+                {% endfor %}
+            </div>
+            <br clear="all" />
+            <div class="tabContainer">
+                {% for fileName in fileNames %}
                 <div class="tab" id="tab_{{ fileName }}">
                     <div class="tabContent" id="{{ fileName }}">Loading data, please wait...</div>
                 </div>
-            {% endfor %}
-        </div>
+                {% endfor %}
+            </div>
         </div>
     </body>
 </html>

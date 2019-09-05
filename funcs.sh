@@ -99,3 +99,11 @@ SUPERVISORD_CONF="/etc/supervisor/supervisord.conf"
 function kill_snips_skills() {
     supervisorctl -c ${SUPERVISORD_CONF} restart snips-group:
 }
+
+function start_snips_watch() {
+    supervisorctl -c ${SUPERVISORD_CONF} start snips-watch
+}
+
+function stop_snips_watch() {
+    supervisorctl -c ${SUPERVISORD_CONF} stop snips-watch
+}

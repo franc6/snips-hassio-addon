@@ -160,8 +160,12 @@ done
 
 # snips-watch and snips-analytics should not be included in SNIPS_GROUP, so we
 # add them only after setting up SNIPS_GROUP!
+snips_watch_autostart="false"
+snips_watch_autorestart="false"
 if [ "${SNIPS_WATCH}" = "true" ]; then
     SERVICES+=(snips-watch)
+    snips_watch_autostart="true"
+    snips_watch_autorestart="unexpected"
 fi
 
 if [ "${ANALYTICS}" = "true" ]; then
@@ -176,6 +180,12 @@ ingress_program="python3"
 ingress_priority="1"
 ingress_directory="/ingress"
 ingress_startsecs=5
+
+# Add snips-watch to SERVICES now, if we didn't already, to ensure it gets put
+# into supervisord.conf
+if [ "${SNIPS_WATCH}" != "true" ]; then
+    SERVICES+=(snips-watch)
+fi
 
 rm -f ${SUPERVISORD_CONF}
 cat > ${SUPERVISORD_CONF} << _EOF_SUPERVISORD_CONF
@@ -205,6 +215,8 @@ for service in ${SERVICES[@]} ; do
     directory=$(echo ${service}_directory | sed -e 's/-/_/g')
     program=$(echo ${service}_program | sed -e 's/-/_/g')
     startsecs=$(echo ${service}_startsecs | sed -e 's/-/_/g')
+    autostart=$(echo ${service}_autostart | sed -e 's/-/_/g')
+    autorestart=$(echo ${service}_autorestart | sed -e 's/-/_/g')
     if [ "${service}" = "mosquitto" -o "${service}" = "ingress" ]; then
 	command="${!program:-${service}} ${!flags:-}"
     else
@@ -215,8 +227,8 @@ for service in ${SERVICES[@]} ; do
 command=${command}
 priority=${!priority:-900}
 directory=${!directory:-/}
-autostart=true
-autorestart=true
+autostart=${!autostart:-true}
+autorestart=${!autorestart:-true}
 startretries=5
 startsecs=${!startsecs:-0}
 redirect_stderr=true
