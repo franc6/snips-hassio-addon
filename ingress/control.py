@@ -22,6 +22,22 @@ def index():
 def ansi_up():
     return render_template('ansi_up.js')
 
+@app.route('/start_snips_watch')
+def start_snips_watch():
+    if 'snips-watch.log' not in fileNames:
+        fileNames.insert(0, 'snips-watch.log')
+        subprocess.call(['/start_snips_watch.sh'])
+
+    return app.response_class(" ", mimetype='text/plain')
+
+@app.route('/stop_snips_watch')
+def stop_snips_watch():
+    if 'snips-watch.log' in fileNames:
+        fileNames.remove('snips-watch.log')
+        subprocess.call(['/stop_snips_watch.sh'])
+
+    return app.response_class(" ", mimetype='text/plain')
+
 @app.route('/stream')
 def stream():
     log=request.args.get('log')
@@ -52,6 +68,10 @@ if __name__ == '__main__':
     port = int(sys.argv[2])
     root = sys.argv[3]
     fileNames = sys.argv[4:]
+    if 'snips-watch.log' in fileNames:
+        fileNames.remove('snips-watch.log')
+        fileNames.insert(0, 'snips-watch.log')
+
     app.config['UPLOAD_FOLDER'] = '/tmp/'
 
     dispatcher = PathInfoDispatcher({'/': app.wsgi_app, root: app.wsgi_app})

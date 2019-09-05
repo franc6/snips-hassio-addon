@@ -107,13 +107,15 @@ COPY funcs.sh /
 COPY extract_assistant.sh /
 COPY run.sh /
 COPY start_service.sh /
+COPY start_snips_watch.sh /
+COPY stop_snips_watch.sh /
 COPY update_ha_config.py /
 COPY wait-for-it.sh /
-COPY EXTRA-LICENSES/* /EXTRA-LICENSES
+COPY EXTRA-LICENSES/* /EXTRA-LICENSES/
 
 RUN rm -rf /etc/supervisor \
 	&& mkdir /etc/supervisor
-RUN chmod 755 /extract_assistant.sh /run.sh /start_service.sh /update_ha_config.py /wait-for-it.sh /ingress /ingress/templates /etc/supervisor
+RUN chmod 755 /extract_assistant.sh /run.sh /start_service.sh /start_snips_watch.sh /stop_snips_watch.sh /update_ha_config.py /wait-for-it.sh /ingress /ingress/templates /etc/supervisor
 RUN chmod 644 /funcs.sh
 
 ENTRYPOINT [ "/run.sh" ]
