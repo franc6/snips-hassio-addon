@@ -22,12 +22,12 @@ snips as well as skills that work through Home Assistant.
 |analytics|true or false|If true, snips-analytics will be started.|
 |assistant|file name|The name of your snips assistant, in a zip file.  This should be a path relative to /share/snips or /share.|
 |cafile|file name|If your hass.io MQTT server uses TLS, specify a file containing the CA certificate for it here.  This should be a path relative to /share/snips or /share.  If you are using the MQTT add-on, you don't need this.|
-|google_asr_credentials|string|If you want to use Google's ASR, specify your API key here.|
-|language|en, fr, or de|Indicate which langue you're using, en for English, fr for French, or de for German.|
 |country_code|ISO 3166 country code|Your two-letter country code, e.g. US for the United States of America.|
 |custom_tts.active|true or false|If true, a custom text-to-speech setting will be used for snips.|
 |custom_tts.platform|mimic or pico2wave|Which custom TTS to use. For now, only mimic and pico2wave are supported.  Support for SuperSnipsTTS is planned.|
 |custom_tts.voice|string|A string that represents which voice to use.  For mimic, this should be the full path of a flitevox file.  For pico2wave this specifies the voice and country, such as "en-US"|
+|google_asr_credentials|string|If you want to use Google's ASR, specify your API key here.|
+|language|en, fr, or de|Indicate which langue you're using, en for English, fr for French, or de for German.|
 |restart_home_assistant|true or false|If true, Home Assistant will be restarted if its configuration was changed by this add-on. |
 |snips_watch|true or false|If true, snips-watch will be started.  Use the Web UI to view its output.|
 
