@@ -107,8 +107,24 @@ function extract_assistant() {
 }
 
 SUPERVISORD_CONF="/etc/supervisor/supervisord.conf"
-function kill_snips_skills() {
+SNIPS_WATCH=$(bashio::config 'snips_watch')
+function restart_snips() {
+    stop_snips_watch
     supervisorctl -c ${SUPERVISORD_CONF} restart snips-group:
+    if [ "${SNIPS_WATCH}" = "true" ]; then
+	start_snips_watch
+    fi
+}
+
+function restart_snips_skill_server() {
+    supervisorctl -c ${SUPERVISORD_CONF} restart snips-skill-server
+}
+
+function start_snips() {
+    supervisorctl -c ${SUPERVISORD_CONF} start snips-group:
+    if [ "${SNIPS_WATCH}" = "true" ]; then
+	start_snips_watch
+    fi
 }
 
 function start_snips_watch() {

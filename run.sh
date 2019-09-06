@@ -3,7 +3,7 @@ set -e
 
 CONFIG_PATH=/data/options.json
 
-ANALYTICS=$(bashio::config 'analytics')
+SNIPS_ANALYTICS=$(bashio::config 'analytics')
 ASSISTANT=$(bashio::config 'assistant')
 LANG=$(bashio::config 'language')
 COUNTRY=$(bashio::config 'country_code')
@@ -129,11 +129,33 @@ else
     exit 1
 fi
 
-if ! extract_assistant "${ASSISTANT}" ; then
-    exit 1
+mkdir -p /share/snips/logs
+
+SERVICES=(ingress mosquitto)
+SNIPS_GROUP=()
+
+SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
+if [ "${SNIPS_ANALYTICS}" = "true" ]; then
+    SERVICES+=(snips-analytics)
 fi
 
-mkdir -p /share/snips/logs
+for service in ${SERVICES[@]} ; do
+    if [[ "${service}" == snips-* ]]; then
+	SNIPS_GROUP+=(${service})
+    fi
+done
+
+# snips-watch must not be included in SNIPS_GROUP, so we add it only after
+# setting up SNIPS_GROUP!
+snips_watch_autostart="false"
+snips_watch_autorestart="false"
+if [ "${SNIPS_WATCH}" = "true" ]; then
+    SERVICES+=(snips-watch)
+fi
+
+snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
+snips_skill_server_priority="999"
+assistant_file=$(check_for_file "${ASSISTANT}")
 
 ingress_entry="/"
 ingress_port="8099"
@@ -142,50 +164,19 @@ if SELF_INFO="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/
     ingress_entry="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_entry')"
     ingress_port="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_port')"
 fi
-
-SERVICES=(ingress mosquitto)
-mosquitto_flags="-c /etc/mosquitto/mosquitto.conf"
-mosquitto_priority=100
-mosquitto_startsecs=15
-
-SNIPS_GROUP=()
-
-SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
-
-for service in ${SERVICES[@]} ; do
-    if [[ "${service}" == snips-* ]]; then
-	SNIPS_GROUP+=(${service})
-    fi
-done
-
-# snips-watch and snips-analytics should not be included in SNIPS_GROUP, so we
-# add them only after setting up SNIPS_GROUP!
-snips_watch_autostart="false"
-snips_watch_autorestart="false"
-if [ "${SNIPS_WATCH}" = "true" ]; then
-    SERVICES+=(snips-watch)
-    snips_watch_autostart="true"
-    snips_watch_autorestart="unexpected"
-fi
-
-if [ "${ANALYTICS}" = "true" ]; then
-    SERVICES+=(snips-analytics)
-fi
-
-snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
-snips_skill_server_priority="999"
-assistant_file=$(check_for_file "${ASSISTANT}")
+ingress_autostart="true"
+ingress_autorestart="true"
 ingress_flags="/ingress/control.py ${ingress_ip} ${ingress_port} ${ingress_entry} ${SERVICES[@]/%/.log}"
 ingress_program="python3"
 ingress_priority="1"
 ingress_directory="/ingress"
 ingress_startsecs=5
 
-# Add snips-watch to SERVICES now, if we didn't already, to ensure it gets put
-# into supervisord.conf
-if [ "${SNIPS_WATCH}" != "true" ]; then
-    SERVICES+=(snips-watch)
-fi
+mosquitto_flags="-c /etc/mosquitto/mosquitto.conf"
+mosquitto_priority=100
+mosquitto_startsecs=15
+mosquitto_autostart="true"
+mosquitto_autorestart="true"
 
 rm -f ${SUPERVISORD_CONF}
 cat > ${SUPERVISORD_CONF} << _EOF_SUPERVISORD_CONF
@@ -227,8 +218,8 @@ for service in ${SERVICES[@]} ; do
 command=${command}
 priority=${!priority:-900}
 directory=${!directory:-/}
-autostart=${!autostart:-true}
-autorestart=${!autorestart:-true}
+autostart=${!autostart:-false}
+autorestart=${!autorestart:-unexpected}
 startretries=5
 startsecs=${!startsecs:-0}
 redirect_stderr=true
@@ -244,15 +235,26 @@ programs=${SNIPS_GROUP[*]}
 _EOF_CONF
 )
 
+rm -f /data/mosquitto.db
 supervisord -c ${SUPERVISORD_CONF} &
 WAIT_PIDS+=($!)
 
-function stop_snips() {
+if ! extract_assistant "${ASSISTANT}" ; then
+    bashio::log.error "Failed to extract and setup assistant!"
+    stop_snips
+    exit 1
+fi
+
+bashio::log.info "Waiting for mosquitto to settle..."
+sleep 5
+start_snips
+
+function stop_addon() {
     bashio::log.info "Shutdown $(hostname)"
     kill -TERM "${WAIT_PIDS[@]}"
     wait "${WAIT_PIDS[@]}"
 }
 
-trap "stop_snips" SIGTERM SIGHUP
+trap "stop_addon" SIGTERM SIGHUP
 
 wait "${WAIT_PIDS[@]}"

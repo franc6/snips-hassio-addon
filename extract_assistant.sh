@@ -17,6 +17,6 @@ if ! extract_assistant ${ASSISTANT}; then
 fi
 
 bashio::log.info "Assistant update finished" 
-# Kill snips-skills-server so that supervisord will restart it
-kill_snips_skills
+# Restart snips services
+restart_snips
 

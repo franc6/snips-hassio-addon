@@ -14,6 +14,8 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	capability dac_override,
 
 	/data/**							r,
+	/data/mosquitto.db						lw,
+	/data/mosquitto.db.new						lw,
 	/share/**							r,
 
 	/etc/								r,
