@@ -1,5 +1,6 @@
 ## 0.1.50 2019/09/05
 - Added ability to start and stop snips-watch on the fly
+- Added an option to restart HA if it needs to be restarted
 
 ## 0.1.49 2019/08/28
 - Added confidenceScore, sessionId, siteId, and raw slot values to intents configured for Home Assistant snippets
