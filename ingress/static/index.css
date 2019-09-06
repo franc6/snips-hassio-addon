@@ -1,0 +1,64 @@
+.button {
+    background-color: #03a9f4;
+    border: none;
+    cursor: pointer;
+    color: white;
+    float: left;
+    outline: none;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: normal;
+}
+.buttonActive {
+    background-color: white;
+    color: #03a9f4;
+    font-weight: bold;
+    outline: 3px solid #03a9f4;
+    outline-offset: -3px;
+}
+.buttonContainer {
+    background-color: #03a9f4;
+    border: none;
+    cursor: pointer;
+    color: white;
+    float: left;
+    font-size: 16px;
+    margin: 0;
+    outline: none;
+    width: 100%;
+}
+.tab {
+    background-color: white;
+    border: 10px solid white;
+    color: black;
+    height: 100%;
+    padding: 0;
+    overflow-x: auto;
+}
+.tabBox {
+    background-color: white;
+    color: black;
+    padding: 0;
+    width: 100%;
+    box-shadow: 1px 1px 1px 1px black;
+}
+.tabContainer {
+    background-color: white;
+    color: black;
+    padding: 0;
+    width: 100%;
+}
+.tabContent: {
+    background-color: white;
+    color: black;
+    font-family: monospace;
+    height: 100%;
+    padding: 0;
+}
+#updateInterval {
+    width: 40px;
+}
+h2 {
+    color: #03a9f4;
+    padding: 0px 0px 0px 10px;
+}

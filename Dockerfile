@@ -89,7 +89,7 @@ RUN set -x \
     && apt-get install -y supervisor
 
 RUN set -x \
-    && mkdir -p /ingress/templates /EXTRA-LICENSES \
+    && mkdir -p /ingress/templates /ingress/static /EXTRA-LICENSES \
     && pip3 install flask \
 	ruamel.yaml \
 	cheroot
@@ -100,8 +100,8 @@ RUN set -x \
     && apt-get -y autoremove
 
 COPY ingress/control.py /ingress
-COPY ingress/templates/index.html /ingress/templates
-COPY ingress/templates/ansi_up.js /ingress/templates
+COPY ingress/templates/* /ingress/templates/
+COPY ingress/static/* /ingress/static/
 
 COPY funcs.sh /
 COPY extract_assistant.sh /

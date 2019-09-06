@@ -18,10 +18,6 @@ def limit_remote():
 def index():
     return render_template('index.html', fileNames = fileNames, root = root)
 
-@app.route('/ansi_up.js')
-def ansi_up():
-    return render_template('ansi_up.js')
-
 @app.route('/start_snips_watch')
 def start_snips_watch():
     if 'snips-watch.log' not in fileNames:

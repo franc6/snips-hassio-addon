@@ -2,77 +2,19 @@
 <html>
     <head>
         <title>Snips Base Web UI</title>
-        <style>
-            .button {
-                background-color: #03a9f4;
-                border: none;
-                cursor: pointer;
-                color: white;
-                float: left;
-                outline: none;
-                padding: 14px 16px;
-                font-size: 16px;
-                font-weight: normal;
-            }
-            .buttonActive {
-                background-color: white;
-                color: #03a9f4;
-                font-weight: bold;
-                outline: 3px solid #03a9f4;
-                outline-offset: -3px;
-            }
-            .buttonContainer {
-                background-color: #03a9f4;
-                border: none;
-                cursor: pointer;
-                color: white;
-                float: left;
-                font-size: 16px;
-                margin: 0;
-                outline: none;
-                width: 100%;
-            }
-            .tab {
-                background-color: white;
-                border: 10px solid white;
-                color: black;
-                height: 100%;
-                padding: 0;
-                overflow-x: auto;
-            }
-            .tabBox {
-                background-color: white;
-                color: black;
-                padding: 0;
-                width: 100%;
-                box-shadow: 1px 1px 1px 1px black;
-            }
-            .tabContainer {
-                background-color: white;
-                color: black;
-                padding: 0;
-                width: 100%;
-            }
-            .tabContent: {
-                background-color: white;
-                color: black;
-                font-family: monospace;
-                height: 100%;
-                padding: 0;
-            }
-            #updateInterval {
-                width: 40px;
-            }
-            h2 {
-                color: #03a9f4;
-                padding: 0px 0px 0px 10px;
-            }
-        </style>
-        <script type="text/javascript" src="{{ root }}/ansi_up.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css" />
+        <script type="text/javascript" src="{{ root }}/static/ansi_up.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/ace.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/keybinding-emacs.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/keybinding-sublime.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/keybinding-vim.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/mode-ini.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/theme-textmate.js"></script>
         <script type="text/javascript">
             var intervalID = null;
             var updateInterval = 5000;
             var ansi_up = new AnsiUp;
+
             function enableSnipsWatchButtons()
             {
                 var startButton = document.getElementById('button_start_snips_watch');
@@ -94,6 +36,7 @@
                     stopButton.setAttribute('disabled', 'disabled');
                 }
             }
+
             function setUpdateInterval() {
                 var updateElement = document.getElementById("updateInterval");
                 if (updateElement.value < 0.1)
@@ -107,6 +50,7 @@
                     intervalID = setInterval(updateCurrentLog, window.updateInterval);
                 }
             }
+
             function showLog(fileName) {
                 var buttons = document.getElementsByClassName('buttonActive');
                 while (buttons[0])
@@ -124,6 +68,7 @@
                 var tab = document.getElementById("tab_" + fileName);
                 tab.style.display = 'block';
             }
+
             function startSnipsWatch() {
                 var startButton = document.getElementById('button_start_snips_watch');
                 startButton.diabled = true;
@@ -138,6 +83,7 @@
                 }
                 xhr.send();
             }
+
             function stopSnipsWatch() {
                 var stopButton = document.getElementById('button_stop_snips_watch');
                 stopButton.diabled = true;
@@ -152,6 +98,7 @@
                 }
                 xhr.send();
             }
+
             function updateCurrentLog() {
                 var button = document.getElementsByClassName('buttonActive')[0];
                 if (button)
@@ -160,6 +107,7 @@
                     updateLog(fileName);
                 }
             }
+
             function updateAssistant() {
                 var updateButton = document.getElementById('updateAssistantButton');
                 updateButton.diabled = true;
@@ -182,6 +130,7 @@
                 }
                 xhr.send();
             }
+
             function updateLog(fileName) {
                 var output = document.getElementById(fileName);
                 var xhr = new XMLHttpRequest();
@@ -196,6 +145,7 @@
                 }
                 xhr.send();
             }
+
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
                     enableSnipsWatchButtons();
