@@ -1,4 +1,4 @@
-## 0.1.50 2019/09/05
+## 0.2.0 2019/09/05
 - Added ability to start and stop snips-watch on the fly
 - Added an option to restart HA if it needs to be restarted
 
