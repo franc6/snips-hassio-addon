@@ -68,7 +68,7 @@ function extract_assistant() {
 		spec_json_language="$(jq --raw-output '.language' spec.json)"
 		if [ "X${spec_json_name}" = "Xhomeassistant" ]; then
 		    if [ "X${spec_json_language}" = "XPYTHON" ]; then
-			bashio::log.info "${skillname} uses python_script in HA"
+			bashio::log.info "${skillname} uses python_script in Home Assistant"
 			ha_app_dirs+=(${skillname})
 		    fi
 		fi
@@ -80,12 +80,23 @@ function extract_assistant() {
 
     if [ ${#ha_app_dirs[@]} -ne 0 ]; then
 	cd /var/lib/snips/skills
-	bashio::log.info "Updating HA configuration"
+	bashio::log.info "Updating Home Assistant configuration"
 	/update_ha_config.py ${ha_app_dirs[@]}
 	need_restart=$?
 
 	if [ ${need_restart} -ne 0 ]; then
-	    bashio::log.warning "HA configuration was modified.  You need to restart it!"
+	    bashio::log.info "Home Assistant configuration was modified"
+	    RESTART_HOME_ASSISTANT=$(bashio::config 'restart_home_assistant')
+	    if [ "${RESTART_HOME_ASSISTANT}" = "true" ]; then
+		curl -f -s -X POST -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/homeassistant/restart
+		if [ $? -eq 0 ]; then
+		    bashio::log.warning "Home Assistant was restarted!"
+		    need_restart=0
+		fi
+	    fi
+	fi
+	if [ ${need_restart} -ne 0 ]; then
+	    bashio::log.warning "You need to restart Home Assistant!"
 	fi
     fi
 

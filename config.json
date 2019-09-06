@@ -9,6 +9,8 @@
     "boot": "auto",
     "docker_api": false,
     "full_access": false,
+    "hassio_api": true,
+    "hassio_role": "homeassistant",
     "homeassistant": "0.96.4",
     "homeassistant_api": true,
     "image": "franc6/image-{arch}-snips-base-hassio-addon",
@@ -38,6 +40,7 @@
         },
         "google_asr_credentials": "",
         "language": "en",
+        "restart_home_assistant": "false",
         "snips_watch": "false"
     },
     "schema": {
@@ -52,6 +55,7 @@
         },
         "google_asr_credentials": "str",
         "language": "match(en|de|fr)",
+        "restart_home_assistant": "bool",
         "snips_watch": "bool"
     }
 }

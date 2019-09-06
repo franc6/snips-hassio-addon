@@ -12,7 +12,7 @@ snips as well as skills that work through Home Assistant.
 ## Features
 - Works only with satellites
 - Configuration of snips skills
-- Installs home assistant skills (incomplete)
+- Installs Home Assistant skills (and optionally restarts Home Assistant if necessary)
 - Exposes log files (via /share/snips/logs)
 - Generates snips.toml based on configuration, or allows you to use your own
 
@@ -28,6 +28,7 @@ snips as well as skills that work through Home Assistant.
 |custom_tts.active|true or false|If true, a custom text-to-speech setting will be used for snips.|
 |custom_tts.platform|mimic or pico2wave|Which custom TTS to use. For now, only mimic and pico2wave are supported.  Support for SuperSnipsTTS is planned.|
 |custom_tts.voice|string|A string that represents which voice to use.  For mimic, this should be the full path of a flitevox file.  For pico2wave this specifies the voice and country, such as "en-US"|
+|restart_home_assistant|true or false|If true, Home Assistant will be restarted if its configuration was changed by this add-on. |
 |snips_watch|true or false|If true, snips-watch will be started.  Use the Web UI to view its output.|
 
 Please note that flitevox files for mimic are not included in the image, so
@@ -48,8 +49,8 @@ directory is not visible, this add-on will copy configuration files from
 and appear on the snips app store will list the required configuration
 items.
 
-You must restart the add-on after changing <skillname>-config.ini for the
-changes to take affect.
+You must restart the add-on, or click "Update Assistant" in the Web UI after
+changing <skillname>-config.ini for the changes to take affect.
 
 ## Home Assistant Snippets
 If your assistant uses Home Assistant Snippets, they will be installed to
@@ -69,13 +70,19 @@ modified, the original file will be copied to a new file named
 to 2 space indents, if they were not already.  All comments in the file will
 be preserved.
 
-You will need to restart HA if the configuration was updated.  The log will
-include a message to indicate this; you don't need to check the files
-yourself.  If no changes are necessary to configure HA for use with your
-assistant, your files will not be modified.
+You might need to restart Home Assistant if the configuration was updated.  The
+log will include a message to indicate this.  If no changes are necessary to
+configure Home Assistant for use with your assistant, your files will not be
+modified.  If you set the configuration option, "restart_home_assistant" to
+true, then the add-on will attempt to restart Home Assistant for you, when
+necessary.  If it fails, you'll see a message in the logs indicating you need
+to restart Home Assistant.  When you start the add-on, the message indicating
+if you need to restart Home Assistant will appear in the Log at the bottom of
+the add-on's page.  When you use the Web UI's "Update Assistant" button, the
+message will appear in "ingress.log".
 
-The HA configuration will be checked (and potentially modified) when you
-start the add-on and when you update your assistant.
+The Home Assistant configuration will be checked (and potentially modified)
+when you start the add-on and when you update your assistant.
 
 ## Satellite Configuration
 In /etc/snips.toml:
@@ -126,7 +133,6 @@ their documentation for more information.
 ## TODO
 The following list is in no particular order...
 
-- Restart HA instead of telling the user to do it, when the HA config is updated.
 - Support the SuperSnipsTTS script.
 - Support on-device audio, but only if it exists.
 - Add support for configuring skills in the assistant -- through the web ui or through config flows??
