@@ -1,4 +1,5 @@
 # Additional Software Licenses 
+- ace-LICENSE  License agreement for Ace
 - ansi_up-LICENSE  License agreement for ansi_up.js, by Dru Nelson.
 - mimic-COPYING License information for mimic.
 - wait-for-it-LICENSE License agreement for wait-for-it.sh, by Giles Hall.
