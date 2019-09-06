@@ -1,8 +1,9 @@
 # snips-hassio-add-on
-A snips add-on for hassio.  Based on
-https://github.com/dYalib/snips-docker.git and the official snips add-on,
-with some improvements of my own.  The official add-on is designed to work
-only with assistants whose skills do everything through Home Assistant.
+A snips add-on for hassio.  This project was originally inspired by
+https://github.com/dYalib/snips-docker.git and the official snips add-on.
+This project doesn't have much in common with either of those projects, and
+does several things very differently.  The official add-on is designed to
+work only with assistants whose skills do everything through Home Assistant.
 Unfortunately, most of the skills available for snips assistants don't work
 that way.  Some of those skills do things that Home Assistant can't (yet),
 while others don't even make sense to work through Home Assistant.  This
@@ -70,16 +71,17 @@ modified, the original file will be copied to a new file named
 to 2 space indents, if they were not already.  All comments in the file will
 be preserved.
 
-You might need to restart Home Assistant if the configuration was updated.  The
-log will include a message to indicate this.  If no changes are necessary to
-configure Home Assistant for use with your assistant, your files will not be
-modified.  If you set the configuration option, "restart_home_assistant" to
-true, then the add-on will attempt to restart Home Assistant for you, when
-necessary.  If it fails, you'll see a message in the logs indicating you need
-to restart Home Assistant.  When you start the add-on, the message indicating
-if you need to restart Home Assistant will appear in the Log at the bottom of
-the add-on's page.  When you use the Web UI's "Update Assistant" button, the
-message will appear in "ingress.log".
+You might need to restart Home Assistant if the configuration was updated.
+The log will include a message to indicate this.  If no changes are
+necessary to configure Home Assistant for use with your assistant, your
+files will not be modified.  If you set the configuration option,
+"restart_home_assistant" to true, then the add-on will attempt to restart
+Home Assistant for you, when necessary.  If it fails, you'll see a message
+in the logs indicating you need to restart Home Assistant.  When you start
+the add-on, the message indicating if you need to restart Home Assistant
+will appear in the Log at the bottom of the add-on's page.  When you use the
+Web UI's "Update Assistant" button, the message will appear in
+"ingress.log".
 
 The Home Assistant configuration will be checked (and potentially modified)
 when you start the add-on and when you update your assistant.
@@ -131,11 +133,12 @@ The best ways to access /share are through the samba and ssh add-ons.  Check
 their documentation for more information.
 
 ## TODO
-The following list is in no particular order...
+The following list is in no particular order, but represent the features I
+think are still needed before a 1.0 release.
 
-- Support the SuperSnipsTTS script.
-- Support on-device audio, but only if it exists.
-- Add support for configuring skills in the assistant -- through the web ui or through config flows??
-- Automatically download assistant ZIP file (requires config updates, too)
+- Add support for configuring skills in the assistant through the web ui
+- Support the SuperSnipsTTS script
+- Support on-device audio, but only if it exists
+- Automatically download assistant ZIP file from the snips console or a git repository
 
 [![Buy me some pizza](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/qpunYPZx5)
