@@ -44,13 +44,13 @@ ignored.
 Many snips skills must be configured. Configuration is typically handled
 through a file named config.ini in the skill's directory.  Since this
 directory is not visible, this add-on will copy configuration files from
-/share/snips/.  Name the configuration file "<skillname>-config.ini" where
-"<skillname>" is the name of the skill.  Skills which require configuration
+/share/snips/.  Name the configuration file "\<skillname>-config.ini" where
+"\<skillname>" is the name of the skill.  Skills which require configuration
 and appear on the snips app store will list the required configuration
 items.
 
 You must restart the add-on, or click "Update Assistant" in the Web UI after
-changing <skillname>-config.ini for the changes to take affect.
+changing \<skillname>-config.ini for the changes to take affect.
 
 ## Home Assistant Snippets
 If your assistant uses Home Assistant Snippets, they will be installed to
