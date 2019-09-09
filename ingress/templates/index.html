@@ -1,78 +1,39 @@
 <!doctype html>
 <html>
     <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>Snips Base Web UI</title>
-        <style>
-            .button {
-                background-color: #03a9f4;
-                border: none;
-                cursor: pointer;
-                color: white;
-                float: left;
-                outline: none;
-                padding: 14px 16px;
-                font-size: 16px;
-                font-weight: normal;
-            }
-            .buttonActive {
-                background-color: white;
-                color: #03a9f4;
-                font-weight: bold;
-                outline: 3px solid #03a9f4;
-                outline-offset: -3px;
-            }
-            .buttonContainer {
-                background-color: #03a9f4;
-                border: none;
-                cursor: pointer;
-                color: white;
-                float: left;
-                font-size: 16px;
-                margin: 0;
-                outline: none;
-                width: 100%;
-            }
-            .tab {
-                background-color: white;
-                border: 10px solid white;
-                color: black;
-                height: 100%;
-                padding: 0;
-                overflow-x: auto;
-            }
-            .tabBox {
-                background-color: white;
-                color: black;
-                padding: 0;
-                width: 100%;
-                box-shadow: 1px 1px 1px 1px black;
-            }
-            .tabContainer {
-                background-color: white;
-                color: black;
-                padding: 0;
-                width: 100%;
-            }
-            .tabContent: {
-                background-color: white;
-                color: black;
-                font-family: monospace;
-                height: 100%;
-                padding: 0;
-            }
-            #updateInterval {
-                width: 40px;
-            }
-            h2 {
-                color: #03a9f4;
-                padding: 0px 0px 0px 10px;
-            }
-        </style>
-        <script type="text/javascript" src="{{ root }}/ansi_up.js"></script>
+        <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css?version=0.3.0" />
+        <script type="text/javascript" src="{{ root }}/static/ansi_up.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/ace.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/keybinding-emacs.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/keybinding-sublime.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/keybinding-vim.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/mode-ini.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/theme-textmate.js"></script>
         <script type="text/javascript">
             var intervalID = null;
             var updateInterval = 5000;
             var ansi_up = new AnsiUp;
+            var editor = null;
+
+            function enableReloadSaveConfig(enable) {
+                var saveButton = document.getElementById('saveConfigButton');
+                var reloadButton = document.getElementById('reloadConfigButton');
+                saveButton.diabled = enable;
+                reloadButton.diabled = enable;
+                if (enable)
+                {
+                    saveButton.removeAttribute('disabled');
+                    reloadButton.removeAttribute('disabled');
+                }
+                else
+                {
+                    saveButton.setAttribute('disabled', 'disabled');
+                    reloadButton.setAttribute('disabled', 'disabled');
+                }
+            }
+
             function enableSnipsWatchButtons()
             {
                 var startButton = document.getElementById('button_start_snips_watch');
@@ -94,19 +55,167 @@
                     stopButton.setAttribute('disabled', 'disabled');
                 }
             }
+
+            function reloadConfig()
+            {
+                var activeConfig = document.getElementsByClassName('configFileActive')[0];
+                if (activeConfig != null)
+                {
+                    showConfig(activeConfig);
+                }
+            }
+
+            function saveConfig()
+            {
+                enableReloadSaveConfig(false);
+                var activeConfig = document.getElementsByClassName('configFileActive')[0];
+                if (activeConfig != null)
+                {
+                    fileName = activeConfig.innerHTML;
+                    fileData = editor.session.getValue();
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '{{ root }}/save-config', true);
+                    xhr.setRequestHeader('X-File-Name', fileName);
+                    xhr.setRequestHeader('Content-Type', 'text/plain');
+                    xhr.setRequestHeader('Content-Length', fileData.length);
+                    xhr.responseType = 'text';
+                    xhr.onload = function() {
+                        if (xhr.readyState === xhr.DONE) {
+                            if (xhr.status == 200) {
+                                alert(fileName + ' was saved, and the skill server restarted.');
+                            }
+                            else if (xhr.status == 202) {
+                                alert(fileName + ' was saved, but doesn\'t seem to be used.');
+                            }
+                            else if (xhr.status == 208) {
+                                alert(fileName + ' was not changed.')
+                            }
+                            else if (xhr.status == 403) {
+                                alert('You do not have access to change ' + fileName);
+                            }
+                            else if (xhr.status == 500) {
+                                alert('The server encountered an error saving ' + fileName);
+                            }
+                            else {
+                                alert('Unknown response code: ' + xhr.status);
+                            }
+                        }
+                    }
+                    xhr.send(fileData);
+                }
+            }
+
+            function onEditorChange() {
+                enableReloadSaveConfig(true);
+            }
+
+            function setKeyboard(el)
+            {
+                editor.setKeyboardHandler(el.options[el.selectedIndex].value);
+                expires=new Date(2176, 1, 6);
+                document.cookie='keybindings='+el.selectedIndex+';expires='+expires.toUTCString()+';secure;samesite=strict'
+            }
+
             function setUpdateInterval() {
                 var updateElement = document.getElementById("updateInterval");
                 if (updateElement.value < 0.1)
                     updateElement.value = 0.1;
 
                 window.updateInterval = updateElement.value * 1000;
-                console.log('new Update Interval: ' + window.updateInterval);
-                if (intervalID != null)
+                if (window.intervalID != null)
                 {
                     clearInterval(window.intervalID);
-                    intervalID = setInterval(updateCurrentLog, window.updateInterval);
+                    window.intervalID = setInterval(updateCurrentLog, window.updateInterval);
                 }
             }
+
+            function showConfig(el) {
+                var list_items = document.getElementsByClassName('configFileActive');
+                while (list_items[0])
+                {
+                    list_items[0].classList.remove('configFileActive');
+                }
+                el.classList.add('configFileActive');
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/config?ini=' + el.innerHTML, true);
+                xhr.responseType = 'text/html';
+                xhr.onload = function() {
+                    if (xhr.readyState === xhr.DONE) {
+                        if (xhr.status == 200) {
+                            if (editor !== null) {
+                                editor.session.setValue(xhr.responseText);
+                                enableReloadSaveConfig(false);
+                            }
+                        }
+                    }
+                }
+                xhr.send();
+            }
+
+            function showConfigs() {
+                showTopTab('buttonConfigs', 'configTab');
+                if (editor === null)
+                {
+                    editor = ace.edit('editor');
+                    editor.setTheme('ace/theme/textmate');
+                    editor.session.setMode('ace/mode/ini');
+                    editor.on("change", onEditorChange);
+                    editor.commands.addCommand({
+                        name: 'saveFile',
+                        bindkey: {
+                            win: 'Ctrl-S',
+                            mac: 'Command-S',
+                            sender: 'editor|cli'
+                        },
+                        exec: function(env, args, request) {
+                            saveConfig();
+                        }
+                    });
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var nameval = cookies[i].split('=');
+                        if (nameval[0] === 'keybindings') {
+                            if ((nameval[1] < 0) || (nameval[1] > 4))
+                            {
+                                nameval[1] = 0;
+                            }
+                            var keyboardType = document.getElementById('keyboardType');
+                            keyboardType.selectedIndex = nameval[1];
+                            setKeyboard(keyboardType);
+                            break;
+                        }
+                    }
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', '{{ root }}/config_file_list');
+                    xhr.responseType = 'text/html';
+                    xhr.onload = function() {
+                        if (xhr.readyState == xhr.DONE) {
+                            if (xhr.status == 200) {
+                                var files = document.getElementById('files');
+                                files.innerHTML = xhr.responseText;
+                            }
+                        }
+                    }
+                    xhr.send();
+                }
+            }
+
+            function showControls() {
+                showTopTab('buttonControls', 'controlsTab');
+            }
+
+            function showLogs() {
+                var button = document.getElementsByClassName('buttonActive')[0];
+                if (button)
+                {
+                    var fileName = button.id.split("_")[1];
+                    showLog(fileName);
+                }
+                showTopTab('buttonLogs', 'logTab');
+                setUpdateInterval();
+            }
+
             function showLog(fileName) {
                 var buttons = document.getElementsByClassName('buttonActive');
                 while (buttons[0])
@@ -124,6 +233,26 @@
                 var tab = document.getElementById("tab_" + fileName);
                 tab.style.display = 'block';
             }
+
+            function showTopTab(buttonName, tabName) {
+                clearInterval(window.intervalID);
+                window.intervalID = null;
+                var topButtons = document.getElementsByClassName('topButtonActive');
+                while (topButtons[0])
+                {
+                    topButtons[0].classList.remove('topButtonActive');
+                }
+                var topTabs = document.getElementsByClassName('topTab');
+                for (var idx = 0; idx < topTabs.length; idx++)
+                {
+                    topTabs[idx].style.display = 'none';
+                }
+                var buttonControls = document.getElementById(buttonName);
+                buttonControls.classList.add('topButtonActive');
+                var topTab = document.getElementById(tabName);
+                topTab.style.display = 'block';
+            }
+
             function startSnipsWatch() {
                 var startButton = document.getElementById('button_start_snips_watch');
                 startButton.diabled = true;
@@ -138,6 +267,7 @@
                 }
                 xhr.send();
             }
+
             function stopSnipsWatch() {
                 var stopButton = document.getElementById('button_stop_snips_watch');
                 stopButton.diabled = true;
@@ -152,6 +282,7 @@
                 }
                 xhr.send();
             }
+
             function updateCurrentLog() {
                 var button = document.getElementsByClassName('buttonActive')[0];
                 if (button)
@@ -160,6 +291,7 @@
                     updateLog(fileName);
                 }
             }
+
             function updateAssistant() {
                 var updateButton = document.getElementById('updateAssistantButton');
                 updateButton.diabled = true;
@@ -182,6 +314,7 @@
                 }
                 xhr.send();
             }
+
             function updateLog(fileName) {
                 var output = document.getElementById(fileName);
                 var xhr = new XMLHttpRequest();
@@ -196,49 +329,82 @@
                 }
                 xhr.send();
             }
+
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
+                    ace.config.loadModule('ace/keyboard/vim', function(m) {
+                        var vimAPI = ace.require('ace/keyboard/vim').CodeMirror.Vim;
+                        vimAPI.defineEx('write', 'w', function(cm, input) {
+                            cm.ace.execCommand('saveFile');
+                        });
+                    });
                     enableSnipsWatchButtons();
-                    var button = document.getElementsByClassName('buttonActive')[0];
-                    if (button)
-                    {
-                        var fileName = button.id.split("_")[1];
-                        showLog(fileName);
-                    }
-                    window.intervalID = setInterval(updateCurrentLog, window.updateInterval);
+                    showControls();
                 }, 100);
             });
         </script>
     </head>
     <body>
-        <h2>Assistant Re-install and Update</h2>
-        <p>If you have replaced your assistant ZIP file, click the Update
-        Assistant button. Please note this could take a few minutes.</p>
-        <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
-        <h2>Snips-watch</h2>
-        <p>You can start and stop snips-watch, even if you didn't configure it
-        to be started.  Note that starting it here will not change the
-        configuration.  If it is disabled in the configuration, the next time
-        you restart this addon, snips-watch will not be running.</p>
-        <p>The snips-watch log is always the first log file, when it is running.</p>
-        <button id="button_start_snips_watch" onclick="startSnipsWatch()">Start snips-watch</button>
-        <button id="button_stop_snips_watch" onclick="stopSnipsWatch()">Stop snips-watch</button>
-        <h2>Logs</h2>
-        Update Interval: <input id="updateInterval" type="number" value="5.0" min="0.1" step="0.1" />&nbsp;<input value="Set" type="button" onclick="setUpdateInterval()" />
-        <hr />
-        <div class="tabBox">
-            <div class="buttonContainer">
-                {% for fileName in fileNames %}
-                <button class="button buttonActive" id="button_{{ fileName }}" onclick="showLog('{{ fileName }}')">{{ fileName }}</button>
-                {% endfor %}
-            </div>
-            <br clear="all" />
-            <div class="tabContainer">
-                {% for fileName in fileNames %}
-                <div class="tab" id="tab_{{ fileName }}">
-                    <div class="tabContent" id="{{ fileName }}">Loading data, please wait...</div>
+        <h1>Snips-base for Hass.io</h1>
+        <table>
+            <tr><td>Snips-base Add-on version:</td><td>{{ addon_version }}</td></tr>
+            <tr><td>Snips version:</td><td>{{ snips_version }}</td></tr>
+        </table>
+        <div class="buttonContainer">
+            <button class="button topButtonActive" id="buttonControls" onclick="showControls()">Server Controls</button>
+            <button class="button topButtonActive" id="buttonLogs" onclick="showLogs()">Logs</button>
+            <button class="button topButtonActive" id="buttonConfigs" onclick="showConfigs()">Skill Configs</button>
+        </div>
+        <br clear="all" />
+        <div id="controlsTab" class="topTab">
+            <h2>Assistant Re-install and Update</h2>
+            <p>If you have replaced your assistant ZIP file, click the Update
+            Assistant button. Please note this could take a few minutes.</p>
+            <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
+            <h2>Snips-watch</h2>
+            <p>You can start and stop snips-watch, even if you didn't configure it
+            to be started.  Note that starting it here will not change the
+            configuration.  If it is disabled in the configuration, the next time
+            you restart this addon, snips-watch will not be running.</p>
+            <p>The snips-watch log is always the first log file, when it is running.</p>
+            <button id="button_start_snips_watch" onclick="startSnipsWatch()">Start snips-watch</button>
+            <button id="button_stop_snips_watch" onclick="stopSnipsWatch()">Stop snips-watch</button>
+        </div>
+        <div id="logTab" class="topTab">
+            Update interval: <input id="updateInterval" type="number" value="5.0" min="0.1" step="0.1" />&nbsp;<input value="Set" type="button" onclick="setUpdateInterval()" />
+            <hr />
+            <div class="tabBox">
+                <div class="buttonContainer">
+                    {% for fileName in fileNames %}
+                    <button class="button buttonActive" id="button_{{ fileName }}" onclick="showLog('{{ fileName }}')">{{ fileName }}</button>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                <br clear="all" />
+                <div class="tabContainer">
+                    {% for fileName in fileNames %}
+                    <div class="tab" id="tab_{{ fileName }}">
+                        <div class="tabContent" id="{{ fileName }}">Loading data, please wait...</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div id="configTab" class="topTab">
+            <div class="fullFlex" />
+                <label>Keyboard type:
+                    <select id="keyboardType" onchange="setKeyboard(this)">
+                        <option value="" selected>Default</option>
+                        <option value="ace/keyboard/emacs">emacs</option>
+                        <option value="ace/keyboard/sublime">sublime</option>
+                        <option value="ace/keyboard/vim">vim</option>
+                    </select>
+                </label>
+                <button id="reloadConfigButton" onclick="reloadConfig()">Reload</button>
+                <button id="saveConfigButton" onclick="saveConfig()">Save</button>
+            </div>
+            <div class="tabBox">
+                <div id="files">Loading file list, please wait...</div>
+                <div id="editor">Please select a file to the left.</div>
             </div>
         </div>
     </body>

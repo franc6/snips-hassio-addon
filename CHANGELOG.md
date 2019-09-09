@@ -1,3 +1,8 @@
+## 0.3.0 2019/09/08
+- Added the ability to modify skills configuration files from the Web UI
+- Reworked startup to be more efficient
+- Disabled persistence in mosquitto, this leads to much faster start times
+
 ## 0.2.0 2019/09/05
 - Added ability to start and stop snips-watch on the fly
 - Added an option to restart HA if it needs to be restarted
