@@ -14,6 +14,10 @@ SNIPS_WATCH=$(bashio::config 'snips_watch')
 
 export LC_ALL="${LANG}_${COUNTRY}.UTF-8"
 
+ADDON_INFO="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/addons/self/info)"
+ADDON_VERSION="$(echo "${ADDON_INFO}" | jq --raw-output '.data.version')"
+SNIPS_VERSION="$(snips-skill-server -V | sed -E 's/.*\((.+)\)/\1/')"
+
 . /funcs.sh
 
 bashio::log.info "LANG: ${LANG}"
@@ -92,7 +96,7 @@ if MQTT_CONFIG="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassi
     mqtt_ssl="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.ssl')"
     cat > /etc/mosquitto/mosquitto.conf << _MOSQUITTO_CONF_EOF
 pid_file /var/run/mosquitto.pid
-persistence true
+persistence false
 persistence_location /data/
 log_dest stdout
 log_type error
@@ -166,7 +170,7 @@ if SELF_INFO="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/
 fi
 ingress_autostart="true"
 ingress_autorestart="true"
-ingress_flags="/ingress/control.py ${ingress_ip} ${ingress_port} ${ingress_entry} ${SERVICES[@]/%/.log}"
+ingress_flags="/ingress/control.py ${ingress_ip} ${ingress_port} ${ingress_entry} ${ADDON_VERSION} ${SNIPS_VERSION} ${SERVICES[@]/%/.log}"
 ingress_program="python3"
 ingress_priority="1"
 ingress_directory="/ingress"

@@ -63,6 +63,18 @@ function extract_assistant() {
 		rm -f config.ini
 		cp "${skillconfigfile}" "config.ini"
 	    fi
+	    # If /share/snips/${skillname}-config.ini doesn't exist, create it,
+	    # so the user can edit it.  Use either the existing config.ini or
+	    # config.ini.default.  Note we don't use ${skillconfigfile} here,
+	    # since that could be a file in /share, and the editor code won't
+	    # check for it there.
+	    if [ ! -f "/share/snips/${skillname}-config.ini" ]; then
+		if [ -f "config.ini" ]; then
+		    cp "config.ini" "/share/snips/${skillname}-config.ini"
+		elif [ -f "config.ini.default" ]; then
+		    cp "config.ini.default" "/share/snips/${skillname}-config.ini"
+		fi
+	    fi
 	    if [ -f "spec.json" ]; then
 		spec_json_name="$(jq --raw-output '.name' spec.json)"
 		spec_json_language="$(jq --raw-output '.language' spec.json)"
@@ -117,7 +129,7 @@ function restart_snips() {
 }
 
 function restart_snips_skill_server() {
-    supervisorctl -c ${SUPERVISORD_CONF} restart snips-skill-server
+    supervisorctl -c ${SUPERVISORD_CONF} restart snips-group:snips-skill-server
 }
 
 function start_snips() {

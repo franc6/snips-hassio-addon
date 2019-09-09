@@ -136,7 +136,6 @@ their documentation for more information.
 The following list is in no particular order, but represent the features I
 think are still needed before a 1.0 release.
 
-- Add support for configuring skills in the assistant through the web ui
 - Support the SuperSnipsTTS script
 - Support on-device audio, but only if it exists
 - Automatically download assistant ZIP file from the snips console or a git repository
