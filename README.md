@@ -12,9 +12,9 @@ snips as well as skills that work through Home Assistant.
 
 ## Features
 - Works only with satellites
-- Configuration of snips skills
+- Configuration of snips skills (via Web UI or your favorite text editor)
 - Installs Home Assistant skills (and optionally restarts Home Assistant if necessary)
-- Exposes log files (via /share/snips/logs)
+- Exposes log files (via WebUI and /share/snips/logs)
 - Generates snips.toml based on configuration, or allows you to use your own
 
 ## Configuration
@@ -48,10 +48,18 @@ directory is not visible, this add-on will copy configuration files from
 /share/snips/.  Name the configuration file "\<skillname>-config.ini" where
 "\<skillname>" is the name of the skill.  Skills which require configuration
 and appear on the snips app store will list the required configuration
-items.
+items.  Many skills provide a default config.ini file, which will be copied
+to /share/snips/ for you to edit later.
 
-You must restart the add-on, or click "Update Assistant" in the Web UI after
-changing \<skillname>-config.ini for the changes to take affect.
+You can view and edit the configuration files in /share/snips through the
+Web UI.  When you save the cofiguration file, the snips-skill-server
+will be restarted for you.
+
+If you edit the configuration files directly (i.e., not through the Web UI),
+you must restart the add-on, or click "Update Assistant" in the Web UI for
+the changes to take effect.
+
+![Web UI Logs Screenshot](/snips-base-webui-config.png?raw=true)
 
 ## Home Assistant Snippets
 If your assistant uses Home Assistant Snippets, they will be installed to
@@ -119,14 +127,17 @@ You can start and stop snips-watch on demand from the Web UI, too.  This can
 help with trouble-shooting problems with snips.  Please note that this
 feature doesn't affect your configuration.  If snips-watch is disabled in
 the configuration, starting it through the Web UI will not make it run when
-you restart the add-on.
+you restart the add-on.  It will also stop running (or start running) when
+you update your assistant, based on the configuration.
+
+![Web UI Logs Screenshot](/snips-base-webui.png?raw=true)
 
 You can also view the log files for the Web UI, internal mosquitto, and
 snips programs.  You can choose how frequently the interface updates the
 logs.  If you have enabled snips-watch (or started it from the Web UI), its
 output will be the first log file listed.
 
-![Web UI Screenshot](/snips-base-webui.png?raw=true)
+![Web UI Logs Screenshot](/snips-base-webui-logs.png?raw=true)
 
 ## Accessing /share
 The best ways to access /share are through the samba and ssh add-ons.  Check
