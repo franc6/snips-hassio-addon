@@ -72,7 +72,6 @@
                 if (activeConfig != null)
                 {
                     fileName = activeConfig.innerHTML;
-                    console.log(editor.session.getValue());
                     fileData = editor.session.getValue();
                     var xhr = new XMLHttpRequest();
                     xhr.open('POST', '{{ root }}/save-config', true);
@@ -113,6 +112,8 @@
             function setKeyboard(el)
             {
                 editor.setKeyboardHandler(el.options[el.selectedIndex].value);
+                expires=new Date(2176, 1, 6);
+                document.cookie='keybindings='+el.selectedIndex+';expires='+expires.toUTCString()+';secure;samesite=strict'
             }
 
             function setUpdateInterval() {
@@ -121,7 +122,6 @@
                     updateElement.value = 0.1;
 
                 window.updateInterval = updateElement.value * 1000;
-                console.log('new update interval: ' + window.updateInterval);
                 if (window.intervalID != null)
                 {
                     clearInterval(window.intervalID);
@@ -161,6 +161,31 @@
                     editor.setTheme('ace/theme/textmate');
                     editor.session.setMode('ace/mode/ini');
                     editor.on("change", onEditorChange);
+                    editor.commands.addCommand({
+                        name: 'saveFile',
+                        bindkey: {
+                            win: 'Ctrl-S',
+                            mac: 'Command-S',
+                            sender: 'editor|cli'
+                        },
+                        exec: function(env, args, request) {
+                            saveConfig();
+                        }
+                    });
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var nameval = cookies[i].split('=');
+                        if (nameval[0] === 'keybindings') {
+                            if ((nameval[1] < 0) || (nameval[1] > 4))
+                            {
+                                nameval[1] = 0;
+                            }
+                            var keyboardType = document.getElementById('keyboardType');
+                            keyboardType.selectedIndex = nameval[1];
+                            setKeyboard(keyboardType);
+                            break;
+                        }
+                    }
                     var xhr = new XMLHttpRequest();
                     xhr.open('GET', '{{ root }}/config_file_list');
                     xhr.responseType = 'text/html';
@@ -307,6 +332,12 @@
 
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
+                    ace.config.loadModule('ace/keyboard/vim', function(m) {
+                        var vimAPI = ace.require('ace/keyboard/vim').CodeMirror.Vim;
+                        vimAPI.defineEx('write', 'w', function(cm, input) {
+                            cm.ace.execCommand('saveFile');
+                        });
+                    });
                     enableSnipsWatchButtons();
                     showControls();
                 }, 100);
