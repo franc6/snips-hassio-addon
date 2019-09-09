@@ -121,10 +121,14 @@
 h1 {
     color: #03a9f4;
     padding: 0;
+    margin-bottom: 0;
+    margin-top: 0;
 }
 h2 {
     color: #03a9f4;
     padding: 0;
+    margin-bottom: 0;
+    margin-top: 0;
 }
 label {
     padding-left: 10px;
