@@ -56,6 +56,10 @@
                 }
             }
 
+            function onEditorChange() {
+                enableReloadSaveConfig(true);
+            }
+
             function reloadConfig()
             {
                 var activeConfig = document.getElementsByClassName('configFileActive')[0];
@@ -105,10 +109,6 @@
                 }
             }
 
-            function onEditorChange() {
-                enableReloadSaveConfig(true);
-            }
-
             function setKeyboard(el)
             {
                 editor.setKeyboardHandler(el.options[el.selectedIndex].value);
@@ -125,8 +125,8 @@
                 if (window.intervalID != null)
                 {
                     clearInterval(window.intervalID);
-                    window.intervalID = setInterval(updateCurrentLog, window.updateInterval);
                 }
+                window.intervalID = setInterval(updateCurrentLog, window.updateInterval);
             }
 
             function showConfig(el) {
