@@ -23,6 +23,7 @@ RUN set -x \
     && update-locale
 
 RUN set -x \
+    && apt-get update \
     && apt-get install -y \
 	alsa-utils \
 	curl \
@@ -94,29 +95,35 @@ RUN set -x \
 	ruamel.yaml \
 	cheroot
 
+RUN set -x \
+    && apt-get update \
+    && apt-get install -y ffmpeg
+
 # Don't forget to clean up the stuff the image won't actually use!
 RUN set -x \
     && rm -rf /tmp/mimic \
     && apt-get -y autoremove
 
-COPY ingress/control.py /ingress
+COPY ingress/control.py /ingress/
 COPY ingress/templates/* /ingress/templates/
 COPY ingress/static/* /ingress/static/
 
 COPY funcs.sh /
 COPY extract_assistant.sh /
+COPY manage_tts_cache.sh /
 COPY restart_snips_skill_server.sh /
 COPY run.sh /
+COPY setup.sh /
 COPY start_service.sh /
 COPY start_snips_watch.sh /
 COPY stop_snips_watch.sh /
+COPY tts-unparsed.sh /tts/
 COPY update_ha_config.py /
 COPY wait-for-it.sh /
 COPY EXTRA-LICENSES/* /EXTRA-LICENSES/
 
 RUN rm -rf /etc/supervisor \
 	&& mkdir /etc/supervisor
-RUN chmod 755 /extract_assistant.sh /restart_snips_skill_server.sh /run.sh /start_service.sh /start_snips_watch.sh /stop_snips_watch.sh /update_ha_config.py /wait-for-it.sh /ingress /ingress/templates /etc/supervisor
-RUN chmod 644 /funcs.sh
-
+RUN chmod 755 /extract_assistant.sh /manage_tts_cache.sh /restart_snips_skill_server.sh /run.sh /start_service.sh /start_snips_watch.sh /stop_snips_watch.sh /update_ha_config.py /wait-for-it.sh /ingress/ /ingress/static/ /ingress/templates/ /etc/supervisor/ /tts/
+RUN chmod 644 /funcs.sh /ingress/static/* /ingress/templates/* /setup.sh /tts/tts-unparsed.sh
 ENTRYPOINT [ "/run.sh" ]

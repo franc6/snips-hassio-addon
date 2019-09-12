@@ -1,3 +1,7 @@
+## 0.4.0 2019/09/10
+- Revamped text-to-speech settings so that online text-to-speech services can be used
+- Split README.md into multiple files
+
 ## 0.3.0 2019/09/08
 - Added the ability to modify skills configuration files from the Web UI
 - Reworked startup to be more efficient

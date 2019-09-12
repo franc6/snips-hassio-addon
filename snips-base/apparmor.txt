@@ -26,8 +26,6 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	@{DOCKER_OVERLAY}/proc/**					r,
 	/ssl/**								r,
 	@{DOCKER_OVERLAY}/ssl/**					r,
-	/usr/local/share/mimic/voices/**				r,
-	@{DOCKER_OVERLAY}/usr/local/share/mimic/voices/**		r,
 
 	/usr/lib/locale/*/LC_MESSAGES**					mr,
 	@{DOCKER_OVERLAY}/usr/lib/locale/*/LC_MESSAGES**		mr,
@@ -103,16 +101,29 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	@{DOCKER_OVERLAY}/ingress/static/				r,
 	/ingress/static/**						mr,
 	@{DOCKER_OVERLAY}/ingress/static/**				mr,
+	/manage_tts_cache.sh						rcx,
 	/restart_snips_skill_server.sh					rix,
 	@{DOCKER_OVERLAY}/restart_snips_skill_server.sh			rix,
 	/run.sh								rix,
 	@{DOCKER_OVERLAY}/run.sh					rix,
+	/setup.sh							rix,
+	@{DOCKER_OVERLAY}/setup.sh					rix,
 	/start_service.sh						rix,
 	@{DOCKER_OVERLAY}/start_service.sh				rix,
 	/start_snips_watch.sh						rix,
 	@{DOCKER_OVERLAY}/start_snips_watch.sh				rix,
 	/stop_snips_watch.sh						rix,
 	@{DOCKER_OVERLAY}/stop_snips_watch.sh				rix,
+	/data/tts/							mlkrw,
+	@{DOCKER_OVERLAY}/data/tts/					mlkrw,
+	/data/tts/cache/						mlkrw,
+	@{DOCKER_OVERLAY}/data/tts/cache/				mlkrw,
+	/data/tts/cache/**						mlkrw,
+	@{DOCKER_OVERLAY}/data/tts/cache/**				mlkrw,
+	/tts/tts.sh							mlkrwcx,
+	@{DOCKER_OVERLAY}/tts/tts.sh					mlkrwcx,
+	/tts/tts-unparsed.sh						mr,
+	@{DOCKER_OVERLAY}/tts/tts-unparsed.sh				mr,
 	/update_ha_config.py						mrcx,
 	@{DOCKER_OVERLAY}/update_ha_config.py				mrcx,
 	/wait-for-it.sh							rix,
@@ -134,6 +145,9 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 
 	/var/lib/snips/skills/**					mlkrwix,
 	@{DOCKER_OVERLAY}/var/lib/snips/skills/**			mlkrwix,
+
+	/aws/								mlkrw
+	/aws/**								mlkrwix
 
 	# Rules for running python scripts
 	/usr/lib{,32,64}/python{2.7,3.[0-7]}/				mr,
@@ -195,6 +209,85 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	/etc/hosts.allow					r,
 	/etc/hosts.deny						r,
 
+	profile /tts/tts.sh flags=(attach_disconnected,mediate_deleted) {
+		#include <abstractions/base>
+		#include <abstractions/bash>
+		#include <abstractions/nameservice>
+		#include <abstractions/openssl>
+		#include <abstractions/ssl_certs>
+
+		capability net_bind_service,
+		capability setgid,
+		capability setuid,
+		capability dac_override,
+
+		/bin/bash						rix,
+		/bin/cat						rix,
+		/bin/date						rix,
+		/bin/ls							rix,
+		/bin/readlink						rix,
+		/bin/rm							rix,
+		/bin/sed						rix,
+		/usr/bin/awk						rix,
+		/usr/bin/base64						rix,
+		/usr/bin/bashio						rix,
+		/usr/bin/curl						rix,
+		/usr/bin/cut						rix,
+		/usr/bin/dirname					rix,
+		/usr/bin/env						rix,
+		/usr/bin/ffmpeg						rix,
+		/usr/bin/md5sum						rix,
+		/usr/bin/pico2wave					rix,
+		/usr/bin/ssh						rix,
+		/usr/bin/wc						rix,
+		/usr/lib/bashio/*					rix,
+		/usr/local/bin/mimic					rix,
+		@{DOCKER_OVERLAY}/usr/lib/bashio/*			rix,
+		/usr/local/share/mimic/voices/				r,
+		/usr/local/share/mimic/voices/**			r,
+		@{DOCKER_OVERLAY}/usr/local/share/mimic/voices/**	r,
+		/tts/tts.sh						mr,
+		/config/**						mr,
+		/data/tts/cache/					mlkrw,
+		@{DOCKER_OVERLAY}/data/tts/cache/			mlkrw,
+		/data/tts/cache/*					mlkrw,
+		@{DOCKER_OVERLAY}/data/tts/cache/*			mlkrw,
+		/dev/tty						rw,
+		/proc/**						mr,
+		/share/**						r,
+		/sys/devices/**						mr,
+		/tmp/**							mlkrw,
+		@{DOCKER_OVERLAY}/tmp/**				mlkrw,
+	}
+
+	profile /manage_tts_cache.sh flags=(attach_disconnected,mediate_deleted) {
+		#include <abstractions/base>
+		#include <abstractions/bash>
+
+		/usr/bin/env						rix,
+		/usr/bin/du						rix,
+		/bin/ls							rix,
+		/bin/rm							rix,
+		/bin/bash						rix,
+		/bin/readlink						rix,
+		/usr/bin/bashio						rix,
+		/usr/bin/dirname					rix,
+		/usr/bin/head						rix,
+		/usr/bin/jq						rix,
+		/usr/lib/bashio/*					rix,
+		/dev/tty						rw,
+		/etc/nsswitch.conf					r,
+		/etc/passwd						r,
+		@{DOCKER_OVERLAY}/usr/lib/bashio/*			rix,
+		/manage_tts_cache.sh					mr,
+		/data/options.json					mr,
+		/data/tts/cache/					mlkrw,
+		@{DOCKER_OVERLAY}/data/tts/cache/			mlkrw,
+		/data/tts/cache/*					mlkrw,
+		@{DOCKER_OVERLAY}/data/tts/cache/*			mlkrw,
+		/tmp/**							mlkrw,
+		@{DOCKER_OVERLAY}/tmp/**				mlkrw,
+	}
 
 	profile /update_ha_config.py flags=(attach_disconnected,mediate_deleted) {
 		#include <abstractions/base>
