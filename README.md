@@ -1,14 +1,15 @@
 # snips-hassio-add-on
 A snips add-on for hassio.  This project was originally inspired by
-https://github.com/dYalib/snips-docker.git and the official snips add-on.
-This project doesn't have much in common with either of those projects, and
-does several things very differently.  The official add-on is designed to
-work only with assistants whose skills do everything through Home Assistant.
-Unfortunately, most of the skills available for snips assistants don't work
-that way.  Some of those skills do things that Home Assistant can't (yet),
-while others don't even make sense to work through Home Assistant.  This
-add-on is intended to let you use an assistant withs skills that run only on
-snips as well as skills that work through Home Assistant.
+[https://github.com/dYalib/snips-docker.git](https://github.com/dYalib/snips-docker.git)
+and the official snips add-on.  This project doesn't have much in common
+with either of those projects, and does several things very differently.
+The official add-on is designed to work only with assistants whose skills do
+everything through Home Assistant.  Unfortunately, most of the skills
+available for snips assistants don't work that way.  Some of those skills do
+things that Home Assistant can't (yet), while others don't even make sense
+to work through Home Assistant.  This add-on is intended to let you use an
+assistant withs skills that run only on snips as well as skills that work
+through Home Assistant.
 
 ## Features
 - Works only with satellites

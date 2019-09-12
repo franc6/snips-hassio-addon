@@ -196,7 +196,7 @@ this to work.
 This is the full path to an OpenSSH config file which specifies how to
 connect to your mac system.  It will typically look something like this:
 
-```ssh
+```ssh_config
 Host mymac
 	User myname
 	HostName FQDN or IP address of mymac
