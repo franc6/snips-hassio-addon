@@ -105,7 +105,7 @@ _SNIPS_TOML_EOF
     bashio::log.info "Done with snips.toml setup."
 }
 
-funcion setup_supervisord() {
+function setup_supervisord() {
     SERVICES=(ingress mosquitto)
     SNIPS_GROUP=()
 
