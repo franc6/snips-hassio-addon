@@ -16,83 +16,13 @@ snips as well as skills that work through Home Assistant.
 - Installs Home Assistant skills (and optionally restarts Home Assistant if necessary)
 - Exposes log files (via WebUI and /share/snips/logs)
 - Generates snips.toml based on configuration, or allows you to use your own
+- Allows the use of higher quality voices, both locally and through the internet
 
 ## Configuration
-| Option | Values | Explanation |
-|--------|--------|-------------|
-|analytics|true or false|If true, snips-analytics will be started.|
-|assistant|file name|The name of your snips assistant, in a zip file.  This should be a path relative to /share/snips or /share.|
-|cafile|file name|If your hass.io MQTT server uses TLS, specify a file containing the CA certificate for it here.  This should be a path relative to /share/snips or /share.  If you are using the MQTT add-on, you don't need this.|
-|country_code|ISO 3166 country code|Your two-letter country code, e.g. US for the United States of America.|
-|custom_tts.active|true or false|If true, a custom text-to-speech setting will be used for snips.|
-|custom_tts.platform|mimic or pico2wave|Which custom TTS to use. For now, only mimic and pico2wave are supported.  Support for SuperSnipsTTS is planned.|
-|custom_tts.voice|string|A string that represents which voice to use.  For mimic, this should be the full path of a flitevox file.  For pico2wave this specifies the voice and country, such as "en-US"|
-|google_asr_credentials|string|If you want to use Google's ASR, specify your API key here.|
-|language|en, fr, or de|Indicate which langue you're using, en for English, fr for French, or de for German.|
-|restart_home_assistant|true or false|If true, Home Assistant will be restarted if its configuration was changed by this add-on. |
-|snips_watch|true or false|If true, snips-watch will be started.  Use the Web UI to view its output.|
-
-Please note that flitevox files for mimic are not included in the image, so
-if you want to use mimic, you'll need to copy the flitevox file to /share
-and list the full path to it in the custom_tts.voice option.
-
-### Providing your own snips.toml
-If you create a snips.toml file in /share/snips or /share, that file will be
-used, and the custom_tts and google_asr_credentials settings will be
-ignored.
+See ![Add-on Configuration](/Add-onConfiguration.md)
 
 ## Configuring Skills
-Many snips skills must be configured. Configuration is typically handled
-through a file named config.ini in the skill's directory.  Since this
-directory is not visible, this add-on will copy configuration files from
-/share/snips/.  Name the configuration file "\<skillname>-config.ini" where
-"\<skillname>" is the name of the skill.  Skills which require configuration
-and appear on the snips app store will list the required configuration
-items.  Many skills provide a default config.ini file, which will be copied
-to /share/snips/ for you to edit later.
-
-You can view and edit the configuration files in /share/snips through the
-Web UI.  When you save the cofiguration file, the snips-skill-server
-will be restarted for you.
-
-If you edit the configuration files directly (i.e., not through the Web UI),
-you must restart the add-on, or click "Update Assistant" in the Web UI for
-the changes to take effect.
-
-![Web UI Logs Screenshot](/snips-base-webui-config.png?raw=true)
-
-## Home Assistant Snippets
-If your assistant uses Home Assistant Snippets, they will be installed to
-/config/python_script and /config/configuration.yaml will be updated to
-enable the intent_script, python_script, and snips components.  If you had
-alread configured those components, the snips and python_script components
-will remain untouched.  If intent_script was set to an included file, that
-included file will be used.  If intent_script was not configured, it will be
-configured to use an included file, named intent_script.yaml.  In either
-event, the existing intent_script configuration will be updated to reference
-the intents for your assistant that use snippets.
-
-If your configuration files are modified, your original file will be copied
-to the same name ending with a `~`.  E.g., if configuration.yaml is
-modified, the original file will be copied to a new file named
-"configuration.yaml`~`".  Additionally, the file indents will be normalized
-to 2 space indents, if they were not already.  All comments in the file will
-be preserved.
-
-You might need to restart Home Assistant if the configuration was updated.
-The log will include a message to indicate this.  If no changes are
-necessary to configure Home Assistant for use with your assistant, your
-files will not be modified.  If you set the configuration option,
-"restart_home_assistant" to true, then the add-on will attempt to restart
-Home Assistant for you, when necessary.  If it fails, you'll see a message
-in the logs indicating you need to restart Home Assistant.  When you start
-the add-on, the message indicating if you need to restart Home Assistant
-will appear in the Log at the bottom of the add-on's page.  When you use the
-Web UI's "Update Assistant" button, the message will appear in
-"ingress.log".
-
-The Home Assistant configuration will be checked (and potentially modified)
-when you start the add-on and when you update your assistant.
+See ![Snips Configuration](/SnipsConfiguration.md)
 
 ## Satellite Configuration
 In /etc/snips.toml:
@@ -117,27 +47,7 @@ Log files for the programs running in the add-on are stored in
 /share/snips/logs.  This directory is created if it doesn't exist.
  
 ## Web UI
-The Web UI lets you update the assistant without restarting the whole
-add-on.  Simply copy your new assistant's .ZIP file over the old one (see
-configuration), and click "Update Assistant".  Updating will take a few
-minutes.  You'll receive a message when it has finished.  Please do not
-navigate from the WebUI while it is updating.
-
-You can start and stop snips-watch on demand from the Web UI, too.  This can
-help with trouble-shooting problems with snips.  Please note that this
-feature doesn't affect your configuration.  If snips-watch is disabled in
-the configuration, starting it through the Web UI will not make it run when
-you restart the add-on.  It will also stop running (or start running) when
-you update your assistant, based on the configuration.
-
-![Web UI Logs Screenshot](/snips-base-webui.png?raw=true)
-
-You can also view the log files for the Web UI, internal mosquitto, and
-snips programs.  You can choose how frequently the interface updates the
-logs.  If you have enabled snips-watch (or started it from the Web UI), its
-output will be the first log file listed.
-
-![Web UI Logs Screenshot](/snips-base-webui-logs.png?raw=true)
+See ![Web UI Configuration](/WebUIConfiguration.md)
 
 ## Accessing /share
 The best ways to access /share are through the samba and ssh add-ons.  Check
@@ -147,7 +57,6 @@ their documentation for more information.
 The following list is in no particular order, but represent the features I
 think are still needed before a 1.0 release.
 
-- Support the SuperSnipsTTS script
 - Support on-device audio, but only if it exists
 - Automatically download assistant ZIP file from the snips console or a git repository
 

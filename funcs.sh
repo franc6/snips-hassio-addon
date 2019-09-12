@@ -1,3 +1,6 @@
+SUPERVISORD_CONF="/etc/supervisor/supervisord.conf"
+SNIPS_WATCH=$(bashio::config 'snips_watch')
+
 function check_for_file() {
     bashio::log.info "Checking for /share/snips/$1"
     if [ -f "/share/snips/$1" ]; then
@@ -118,8 +121,6 @@ function extract_assistant() {
     return 0
 }
 
-SUPERVISORD_CONF="/etc/supervisor/supervisord.conf"
-SNIPS_WATCH=$(bashio::config 'snips_watch')
 function restart_snips() {
     stop_snips_watch
     supervisorctl -c ${SUPERVISORD_CONF} restart snips-group:

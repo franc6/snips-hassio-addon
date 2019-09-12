@@ -1,6 +1,6 @@
 {
     "name": "Snips.AI Base (no local audio)",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "slug": "snips-base",
     "description": "Local voice control platform",
     "apparmor": true,
@@ -32,10 +32,23 @@
         "assistant": "assistant.zip",
         "cafile": "certfile.pem",
         "country_code": "US",
-        "custom_tts": {
-            "active": true,
-            "platform": "mimic",
-            "voice": "/share/snips/voices/cmu_us_eey.flitevox"
+        "tts": {
+            "offline_service": "mimic",
+            "mimic_voice": "/share/snips/voices/cmu_us_eey.flitevox",
+            "online_services": [],
+            "max_cache_size": "50MB",
+            "sample_rate": 22050,
+            "online_volume_factor": 0.25,
+            "macos_voice": "Susan",
+            "macos_ssh_config": "/config/ssh/ssh_config",
+            "macos_ssh_host": "",
+            "google_voice": "Wavenet-F",
+            "google_voice_gender": "FEMALE",
+            "google_tts_key": "",
+            "amazon_voice": "Joanna",
+            "aws_access_key_id": "",
+            "aws_secret_access_key": "",
+            "aws_default_region": ""
         },
         "google_asr_credentials": "",
         "language": "en",
@@ -47,10 +60,23 @@
         "assistant": "str",
         "cafile": "str",
         "country_code": "str",
-        "custom_tts": {
-            "active": "bool",
-            "platform": "match(mimic|pico2wave)",
-            "voice": "str"
+        "tts": {
+            "offline_service": "match(mimic|pico2wave)",
+            "mimic_voice": "str",
+            "max_cache_size": "match([0-9]*(|KB|MB|GB))",
+            "online_services": ["match(amazon|google|google_translate|macos)"],
+            "online_volume_factor": "float",
+            "sample_rate": "int",
+            "macos_voice": "str",
+            "macos_ssh_config": "str",
+            "macos_ssh_host": "str",
+            "google_voice": "str",
+            "google_voice_gender": "match(male|female|MALE|FEMALE)",
+            "google_tts_key": "str",
+            "amazon_voice": "str",
+            "aws_access_key_id": "str",
+            "aws_secret_access_key": "str",
+            "aws_default_region": "str"
         },
         "google_asr_credentials": "str",
         "language": "match(en|de|fr)",

@@ -1,0 +1,213 @@
+# Add-on Configuration
+| Option | Values | Explanation |
+|--------|--------|-------------|
+|analytics|true or false|If true, snips-analytics will be started.|
+|assistant|file name|The name of your snips assistant, in a zip file.  This should be a path relative to /share/snips or /share.|
+|cafile|file name|If your hass.io MQTT server uses TLS, specify a file containing the CA certificate for it here.  This should be a path relative to /share/snips or /share.  If you are using the MQTT add-on, you don't need this.|
+|country_code|ISO 3166 country code|Your two-letter country code, e.g. US for the United States of America.|
+|tts||Text-to-speech settings, see below.|
+|google_asr_credentials|string|If you want to use Google's ASR, specify your API key here.|
+|language|en, fr, or de|Indicate which langue you're using, en for English, fr for French, or de for German.|
+|restart_home_assistant|true or false|If true, Home Assistant will be restarted if its configuration was changed by this add-on. |
+|snips_watch|true or false|If true, snips-watch will be started.  Use the Web UI to view its output.|
+
+# TTS Options
+## Overview
+Text-to-speech in this add-on is handled through a special script that can
+make use of online services for vastly improved speech, improved speech
+through mimic, or the default speech engine in snips.  When using an online
+service, the script will check if the service appears to be available and if
+the amount of text exceeds the usual limitations of the online service,
+before trying that service, and won't bother trying if the request is likely
+to fail.  For any failure, the next configured online service is tried,
+until all configured online services have been tried.  If all of the
+configured online services have failed, the script will use the configured
+offline service.
+
+To reduce the network load and potential costs of using online services, the
+speech from online services is cached for later use.  See the max_cache_size
+option for more information on the cache.
+
+If you don't configure any online services, then the configured offline
+service will always be used.
+
+**Please note that speech from snips may contain sensitive information that
+could be transmitted across the internet if you have configured online
+services.**
+
+The use of online text-to-speech services is inspired by the
+![SnipsSuperTTS script](https://gist.github.com/Psychokiller1888/cf10af3220b5cd6d9c92c709c6af92c2),
+but the script in this add-on was written from scratch to provide more
+features.
+
+| Option | Values | Default | 
+|--------|--------|---------|
+|offline_service|mimic or pico2wave|mimic|
+|mimic_voice|string|/share/snips/voices/cmu_us_eey.flitevox|
+|online_services|array|an empty array|
+|max_cache_size|integer or string|50MB|
+|sample_rate|integer|22050|
+|online_volume_factor|float|0.25|
+|macos_voice|string|Susan|
+|macos_ssh_config|string|/config/ssh/ssh_config
+|macos_ssh_host|string||
+|google_voice|string|Wavenet-F|
+|google_voice_gender|MALE or FEMALE|FEMALE|
+|google_tts_key|string||
+|amazon_voice|string|Joanna|
+|aws_access_key_id|string||
+|aws_secret_access_keyd|string||
+|aws_default_region|string||
+
+## offline_service
+You can set this option to either "mimic" or "pico2wave".  mimic can provide
+higher quality voices than pico2wave.  pico2wave is what snips will use by
+default.
+
+## mimic_voice
+This is the full path to the flitevox file to use for mimic.  I recommend
+placing the file in /share/snips/ for easy access.
+
+Please note that only one flitevox file (voice) for mimic is included in the
+image.  You an download additional voices at
+http://festvox.org/flite/packed/flite-2.1/voices/ 
+
+## online_services
+This is an array of online services to try.  They will be tried in the order
+in which they appear in this array.  Make sure this is an empty array if you
+don't want your speech to be sent to the internet.
+
+You can configure "macos", "google_translate", "google", or "amazon".  Each
+are described below.
+
+### macos
+This option lets you use the text-to-speech features of macOS from one of
+your own computers.  The computer must be running macOS, and have ssh
+(Remote Login) enabled and properly configured.  See the macos_voice,
+macos_ssh_config, and macos_ssh_host options for more information.
+
+Unlike the other online services, the macos service doesn't send data to
+the internet -- unless you choose a macOS system that isn't on your local
+network.
+
+Since this runs on your own computer, it's free to use, but requires you to
+keep your mac running any time you want to use snips, which may cost more in
+electrical bills.
+
+### google_translate (Google Translate Text-to-Speech)
+This service is limited to only 100 bytes of text at a time, and may have
+other limitations, possibly including limitations based on your location.
+This service is provided for free, but could be removed at any time.
+
+### google (Google Cloud Text-to-Speech)
+This service is limited to 5000 bytes of text at a time.  This service is
+not free, and requires registration with Google.
+
+Since this is a paid service, it does not receive regular testing by the
+add-on author.
+
+### amazon (Amazon Polly)
+This service is limited to 3000 bytes of text at a time.  This service is
+not free, and requires registration with Amazon.  This service is reportedly
+faster than Google.
+
+This service also requires extra software to be installed.  If the amazon
+service is configured, and the extra software is not installed, it will be
+downloaded and installed.  This download and installation will happen every
+time you update this add-on.
+
+Since this is a paid service, it does not receive regular testing by the
+add-on author.
+
+## max_cache_size
+Speech from an online service is cached to speed up responses, but may be
+removed when updating this add-on.  You can also set a limit for how large
+the cache can grow.
+
+This value can be a number of bytes, or a number followed by KB, MB, or GB.
+For example, to limit the cache to 50 megabytes, you would set
+max_cache_size to "50MB".
+
+Please note this is approximate, as the cache is checked only once an hour.
+If you want to let the cache grow without bounds, set this option to 0.
+
+## sample_rate
+With the google and amazon services, you can choose a sample rate which
+affects the quality of the speech that is cached.  For all online services,
+this is also the sample rate for the speech that is played by snips.  This
+option is a whole number, in Hz.  Unless you have some really special
+requirements, you probably want to stick with the default of 22050.
+
+## online_volume_factor
+The online services tend to produce speech that is much louder than that
+produced by mimic or pico2wave.  Since volume controls in snips are often
+difficult and you don't necessarily know if the speech will come from an
+online service, this option lets you adjust the volume for online services.
+
+Choosing a value between 0 and 1 will decrease the volume, while larger
+values will increase it.  For example, setting this to "0.5" will reduce the
+volume to 50% of the original, "0.25" will reduce the volume to 25%, "1.5"
+will increase the volume by 50%, and "2.0" will increase the volume to 2
+times the original. 
+
+## macos_voice
+This is the macos voice you want to use with macOS.  To view the list of
+choices available, choose "Accessibility" in the System Preferences App.
+Then click on the Speech category on the left side.  Your choices are in the
+System Voice drop list.  If you choose "Customize..." you can install other
+voices, and hear samples of them.  You do not need to check the boxes for
+"Enable announcements" or "Speak selected text when the key is pressed" for
+this to work.
+
+## macos_ssh_config
+This is the full path to an OpenSSH config file which specifies how to
+connect to your mac system.  It will typically look something like this:
+
+```ssh
+Host mymac
+	User myname
+	HostName FQDN or IP address of mymac
+	ChallengeResponseAuthentication no
+	GlobalKnownHostsFile /config/ssh/known_hosts
+	IdentityFile /config/ssh/id_rsa
+	PasswordAuthentication no
+	StrictHostKeyChecking yes
+```
+
+This file is usually kept in /config/ssh, but you can also put it in
+/share/snips, or anywhere in /share or /config.  Be sure the path references
+in the file are correct and exist.
+
+Note that unless you bypass the new Hass.io DNS restrictions, you'll
+probably need to use the IP address of your mac for the HostName setting.
+Also, if StrictHostKeyChecking is yes, you'll need to manually add the host
+key for your mac to the GlobalKnownHostsFile.
+
+You will need to ensure that your IdentityFile is not protected by a
+password.  This means that anything which can view that file can connect to
+your mac and run programs on it.  I recommend creating a new "Managed with
+Parental Controls" user for this purpose.  The user needs to be able to run
+/usr/bin/say.
+
+## macos_ssh_host
+This is the host name of your mac, and must match the Host entry in the
+macos_ssh_config file.
+
+## google_voice
+This is the voice to use for Google's Cloud Text-to-Speech service.  This is
+usually something like "Wavenet-A", "Wavenet-B", etc., for the high quality
+voices.
+
+## google_voice_gender
+This should be set to "MALE" for male voices, or "FEMALE" for a female
+voice.
+
+## google_tts_key
+This is your API key for Google's Cloud Text-to-Speech service.
+
+## amazon_voice
+This is the voice to use for Amazon's Polly service.
+
+## amazon_access_key_id
+## amazon_secret_access_key
+## amazon_default_region
