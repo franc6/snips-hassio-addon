@@ -106,6 +106,8 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	@{DOCKER_OVERLAY}/restart_snips_skill_server.sh			rix,
 	/run.sh								rix,
 	@{DOCKER_OVERLAY}/run.sh					rix,
+	/setup.sh							rix,
+	@{DOCKER_OVERLAY}/setup.sh					rix,
 	/start_service.sh						rix,
 	@{DOCKER_OVERLAY}/start_service.sh				rix,
 	/start_snips_watch.sh						rix,

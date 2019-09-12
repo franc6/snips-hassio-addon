@@ -113,6 +113,7 @@ COPY extract_assistant.sh /
 COPY manage_tts_cache.sh /
 COPY restart_snips_skill_server.sh /
 COPY run.sh /
+COPY setup.sh /
 COPY start_service.sh /
 COPY start_snips_watch.sh /
 COPY stop_snips_watch.sh /
@@ -124,6 +125,5 @@ COPY EXTRA-LICENSES/* /EXTRA-LICENSES/
 RUN rm -rf /etc/supervisor \
 	&& mkdir /etc/supervisor
 RUN chmod 755 /extract_assistant.sh /manage_tts_cache.sh /restart_snips_skill_server.sh /run.sh /start_service.sh /start_snips_watch.sh /stop_snips_watch.sh /update_ha_config.py /wait-for-it.sh /ingress/ /ingress/static/ /ingress/templates/ /etc/supervisor/ /tts/
-RUN chmod 644 /funcs.sh /tts/tts-unparsed.sh /ingress/static/* /ingress/templates/*
-
+RUN chmod 644 /funcs.sh /ingress/static/* /ingress/templates/* /setup.sh /tts/tts-unparsed.sh
 ENTRYPOINT [ "/run.sh" ]
