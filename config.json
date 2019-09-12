@@ -32,6 +32,10 @@
         "assistant": "assistant.zip",
         "cafile": "certfile.pem",
         "country_code": "US",
+        "google_asr_credentials": "",
+        "language": "en",
+        "restart_home_assistant": "false",
+        "snips_watch": "false",
         "tts": {
             "offline_service": "mimic",
             "mimic_voice": "/share/snips/voices/cmu_us_eey.flitevox",
@@ -49,17 +53,17 @@
             "aws_access_key_id": "",
             "aws_secret_access_key": "",
             "aws_default_region": ""
-        },
-        "google_asr_credentials": "",
-        "language": "en",
-        "restart_home_assistant": "false",
-        "snips_watch": "false"
+        }
     },
     "schema": {
         "analytics": "bool",
         "assistant": "str",
         "cafile": "str",
         "country_code": "str",
+        "google_asr_credentials": "str",
+        "language": "match(en|de|fr)",
+        "restart_home_assistant": "bool",
+        "snips_watch": "bool",
         "tts": {
             "offline_service": "match(mimic|pico2wave)",
             "mimic_voice": "str",
@@ -77,10 +81,6 @@
             "aws_access_key_id": "str",
             "aws_secret_access_key": "str",
             "aws_default_region": "str"
-        },
-        "google_asr_credentials": "str",
-        "language": "match(en|de|fr)",
-        "restart_home_assistant": "bool",
-        "snips_watch": "bool"
+        }
     }
 }
