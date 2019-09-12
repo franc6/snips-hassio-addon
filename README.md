@@ -47,7 +47,7 @@ Log files for the programs running in the add-on are stored in
 /share/snips/logs.  This directory is created if it doesn't exist.
  
 ## Web UI
-See ![Web UI Configuration](/WebUIConfiguration.md)
+See ![Web UI Configuration](/WebUI.md)
 
 ## Accessing /share
 The best ways to access /share are through the samba and ssh add-ons.  Check
