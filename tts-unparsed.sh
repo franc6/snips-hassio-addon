@@ -9,13 +9,13 @@ shellSafeText=${shellSafeText//\$/\\\$}
 function amazonOnlineCheck() {
     # If aws isn't installed, don't bother with the online check!
     if [ ! -x /aws/bin/aws ] ; then
-	echo "offline"
+        echo "offline"
     else
-	if /usr/bin/curl -s -f https://aws.amazon.com/polly/ -o /dev/null 2>/dev/null ; then
-	    echo "online"
-	else
-	    echo "offline"
-	fi
+        if /usr/bin/curl -s -f https://aws.amazon.com/polly/ -o /dev/null 2>/dev/null ; then
+            echo "online"
+        else
+            echo "offline"
+        fi
     fi
 }
 
@@ -29,9 +29,9 @@ function googleOnlineCheck() {
 
 function macosOnlineCheck() {
     if echo > /dev/tcp/%%MACOS_SSH_HOST%%/22 ; then
-	echo "online"
+        echo "online"
     else
-	echo "offline"
+        echo "offline"
     fi
 }
 
@@ -43,7 +43,7 @@ function getCacheFileName() {
 function getFromCache() {
     cacheFile=$1
     if [ -f "${cacheFile}" ]; then
-	/usr/bin/ffmpeg -loglevel quiet -y -i "${cacheFile}" -ar %%SAMPLE_RATE%% -filter:a "volume=%%ONLINE_VOLUME_FACTOR%%" "${outputFile}"
+        /usr/bin/ffmpeg -loglevel quiet -y -i "${cacheFile}" -ar %%SAMPLE_RATE%% -filter:a "volume=%%ONLINE_VOLUME_FACTOR%%" "${outputFile}"
         #/usr/bin/mpg123 -q -w "${outputFile}" "${cacheFile}"
         ret=$?
         if [ ${ret} -ne 0 ] ; then
@@ -172,10 +172,10 @@ function macos() {
 
     if [ ! -f "${cacheFile}" -a "${status}" == "online" ]; then
         /usr/bin/ssh -F %%MACOS_SSH_CONFIG%% %%MACOS_SSH_HOST%% "TMPFILE=\`mktemp\` ; say -v %%MACOS_VOICE%% -o \${TMPFILE} \"\\\"${shellSafeText/\\/\\\\\\}\\\"\" ; ret=\$? ; cat \${TMPFILE}; rm -f \${TMPFILE} ; exit \${ret}" > "${cacheFile}"
-	ret=$?
-	if [ $ret -ne 0 ]; then
-	    rm -f "${cacheFile}"
-	fi
+        ret=$?
+        if [ $ret -ne 0 ]; then
+            rm -f "${cacheFile}"
+        fi
     fi
 
     getFromCache "${cacheFile}"
@@ -196,11 +196,11 @@ for i in %%ONLINE_SERVICES%%
 do
     bashio::log.info "Trying online service: ${i}"
     if ${i}; then
-	bashio::log.info "Success with online service: ${i}"
+        bashio::log.info "Success with online service: ${i}"
         ret=0
         break
     else
-	bashio::log.warning "Online service: ${i} failed"
+        bashio::log.warning "Online service: ${i} failed"
     fi
 done
 
