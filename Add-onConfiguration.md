@@ -1,15 +1,15 @@
 # Add-on Configuration
 | Option | Values | Default |
 |--------|--------|-------------|
-|analytics|true or false|false|
-|assistant|file name|assistant.zip|
-|cafile|file name|certfile.pem|
-|country_code|US|
-|google_asr_credentials|string||
-|language|en, fr, or de|en|
-|restart_home_assistant|true or false|false|
-|snips_watch|true or false|false|
-|tts||See [TTS Options](#tts-options).|
+|[analytics](#analytics)|true or false|false|
+|[assistant](#assistant)|file name|assistant.zip|
+|[cafile](#cafile)|file name|certfile.pem|
+|[country_code](#country_code)|US|
+|[google_asr_credentials](#google_asr_credentials)|string||
+|[language](#language)|en, fr, or de|en|
+|[restart_home_assistant|](#restart_home_assistant)true or false|false|
+|[snips_watch](#snips_watch)|true or false|false|
+|[tts](#tts-options)||See [TTS Options](#tts-options).|
 
 ## analytics
 Set to true if you want to run snips-analytics.
@@ -75,22 +75,22 @@ features.
 
 | Option | Values | Default | 
 |--------|--------|---------|
-|offline_service|mimic or pico2wave|mimic|
-|mimic_voice|file name|/share/snips/voices/cmu_us_eey.flitevox|
-|online_services|array|an empty array|
-|max_cache_size|integer or string|50MB|
-|sample_rate|integer|22050|
-|online_volume_factor|float|0.25|
-|macos_voice|string|Susan|
-|macos_ssh_config|file name|/config/ssh/ssh_config
-|macos_ssh_host|string||
-|google_voice|string|Wavenet-F|
-|google_voice_gender|MALE or FEMALE|FEMALE|
-|google_tts_key|string||
-|amazon_voice|string|Joanna|
-|aws_access_key_id|string||
-|aws_secret_access_keyd|string||
-|aws_default_region|string||
+|[offline_service](#offline_service)|mimic or pico2wave|mimic|
+|[mimic_voice](#mimic_voice)|file name|/share/snips/voices/cmu_us_eey.flitevox|
+|[online_services](#online_services)|array|an empty array|
+|[max_cache_size](#max_cache_size)|integer or string|50MB|
+|[sample_rate](#sample_rate)|integer|22050|
+|[online_volume_factor](#online_volume_factor)|float|0.25|
+|[macos_voice](#macos_voice)|string|Susan|
+|[macos_ssh_config](#macos_ssh_config)|file name|/config/ssh/ssh_config
+|[macos_ssh_host](#macos_ssh_host)|string||
+|[google_voice](#google_voice)|string|Wavenet-F|
+|[google_voice_gender](#google_voice_gender)|MALE or FEMALE|FEMALE|
+|[google_tts_key](#google_tts_key)|string||
+|[amazon_voice](#amazon_voice)|string|Joanna|
+|[aws_access_key_id](#aws_access_key_id)|string||
+|[aws_secret_access_key](#aws_secret_access_key)|string||
+|[aws_default_region](#aws_default_region)|string||
 
 ## offline_service
 You can set this option to either "mimic" or "pico2wave".  mimic can provide
@@ -103,7 +103,7 @@ placing the file in /share/snips/ for easy access.
 
 Please note that only one flitevox file (voice) for mimic is included in the
 image.  You an download additional voices at
-http://festvox.org/flite/packed/flite-2.1/voices/ 
+![http://festvox.org/flite/packed/flite-2.1/voices/](http://festvox.org/flite/packed/flite-2.1/voices/)
 
 ## online_services
 This is an array of online services to try.  They will be tried in the order
