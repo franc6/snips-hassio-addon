@@ -35,7 +35,7 @@ If you edit the configuration files directly (i.e., not through the Web UI),
 you must restart the add-on, or click "Update Assistant" in the Web UI for
 the changes to take effect.
 
-![Web UI Logs Screenshot](/snips-base-webui-config.png?raw=true)
+![Web UI Logs Screenshot](/screenshots/snips-base-webui-config.png?raw=true)
 
 ## Home Assistant Snippets
 If your assistant uses Home Assistant Snippets, they will be installed to
