@@ -1,15 +1,48 @@
 # Add-on Configuration
-| Option | Values | Explanation |
+| Option | Values | Default |
 |--------|--------|-------------|
-|analytics|true or false|If true, snips-analytics will be started.|
-|assistant|file name|The name of your snips assistant, in a zip file.  This should be a path relative to /share/snips or /share.|
-|cafile|file name|If your hass.io MQTT server uses TLS, specify a file containing the CA certificate for it here.  This should be a path relative to /share/snips or /share.  If you are using the MQTT add-on, you don't need this.|
-|country_code|ISO 3166 country code|Your two-letter country code, e.g. US for the United States of America.|
-|tts||Text-to-speech settings, see below.|
-|google_asr_credentials|string|If you want to use Google's ASR, specify your API key here.|
-|language|en, fr, or de|Indicate which langue you're using, en for English, fr for French, or de for German.|
-|restart_home_assistant|true or false|If true, Home Assistant will be restarted if its configuration was changed by this add-on. |
-|snips_watch|true or false|If true, snips-watch will be started.  Use the Web UI to view its output.|
+|analytics|true or false|false|
+|assistant|file name|assistant.zip|
+|cafile|file name|certfile.pem|
+|country_code|US|
+|google_asr_credentials|string||
+|language|en, fr, or de|en|
+|restart_home_assistant|true or false|false|
+|snips_watch|true or false|false|
+|tts||See [TTS Options](#tts-options).|
+
+## analytics
+Set to true if you want to run snips-analytics.
+
+## assistant
+The name of your snips assistant, in a .ZIP file.  This should be a path
+relative to /share/snips.
+
+## cafile
+If your hass.io MQTT server uses TLS, specify a file containing the CA
+certificate for it here.  This should be a path relative to /share/snips.
+
+**Note: If you are using the MQTT add-on, you don't need this.**
+
+## country_code
+The ISO 3166 two-letter country code for where you are.
+
+## google_asr_credentials
+If you want to use Google's ASR, specify your API key here.
+
+## language
+The two-letter language code.  You can only set de, en, or fr at this time.
+
+## restart_home_assistant
+Set this to true if you want Home Assistant to be restarted if its
+configuration was changed by this add-on.
+
+## snips_watch
+If true, snips-watch will be started.  Use the Logs tab of the Web UI to
+view its output.
+
+## tts
+See [TTS Options](#tts-options) below.
 
 # TTS Options
 ## Overview
@@ -43,13 +76,13 @@ features.
 | Option | Values | Default | 
 |--------|--------|---------|
 |offline_service|mimic or pico2wave|mimic|
-|mimic_voice|string|/share/snips/voices/cmu_us_eey.flitevox|
+|mimic_voice|file name|/share/snips/voices/cmu_us_eey.flitevox|
 |online_services|array|an empty array|
 |max_cache_size|integer or string|50MB|
 |sample_rate|integer|22050|
 |online_volume_factor|float|0.25|
 |macos_voice|string|Susan|
-|macos_ssh_config|string|/config/ssh/ssh_config
+|macos_ssh_config|file name|/config/ssh/ssh_config
 |macos_ssh_host|string||
 |google_voice|string|Wavenet-F|
 |google_voice_gender|MALE or FEMALE|FEMALE|
