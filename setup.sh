@@ -1,18 +1,35 @@
 function setup_amazon_tts() {
-    bashio::log.error "setup_amazon_tts hasn't been implemented yet!"
-    bashio::log.error "The Amazon Polly service will not work!"
+    if [ -x /aws/bin/aws ]; then
+        bashio::log.info "awscli-bundle already installed"
+        return 0
+    fi
+    mkdir -p /tmp/aws
+    mkdir -p /aws
+    cd /tmp/aws
+    # We don't really care which step failed here, so just do 'em all in one go
+    curl -f -s https://s2.amazonaws.com/aws-cli/awscli-bundle.zip -o awscli-bundle.zip \
+        && unzip awscli-bundle.zip \
+        && cd awscli-bundle \
+        && ./install -i /aws
+    ret=$?
+    if [ ${ret} -ne 0 ]; then
+        bashio::log.error "Installation failed! The Amazon Polly service will not be used!"
+    fi
+    cd /
+    rm -rf /tmp/aws
+    return ${ret}
 }
 
 function setup_mosquitto() {
     # Get information about the mqtt server from hassio API, to set up
     # mosquitto.conf
     if MQTT_CONFIG="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/services/mqtt)" ; then
-	mqtt_host="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.host')"
-	mqtt_port="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.port')"
-	mqtt_username="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.username')"
-	mqtt_password="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.password')"
-	mqtt_ssl="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.ssl')"
-	cat > /etc/mosquitto/mosquitto.conf << _MOSQUITTO_CONF_EOF
+        mqtt_host="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.host')"
+        mqtt_port="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.port')"
+        mqtt_username="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.username')"
+        mqtt_password="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.password')"
+        mqtt_ssl="$(echo "${MQTT_CONFIG}" | jq --raw-output '.data.ssl')"
+        cat > /etc/mosquitto/mosquitto.conf << _MOSQUITTO_CONF_EOF
 pid_file /var/run/mosquitto.pid
 persistence false
 persistence_location /data/
@@ -39,16 +56,16 @@ try_private false
 topic hermes/intent/# out
 topic hermes/dialogueManager/# in
 _MOSQUITTO_CONF_EOF
-	if [ "${mqtt_ssl}" = "true" ]; then
-	    echo "bridge_insecure true" >> /etc/mosquitto/mosquitto.conf
-	    cafile=$(check_for_file ${CAFILE})
-	    if [ -n "${cafile}" ]; then
-		echo "bridge_cafile ${cafile}" >> /etc/mosquitto/mosquitto.conf
-	    fi
-	fi
+        if [ "${mqtt_ssl}" = "true" ]; then
+            echo "bridge_insecure true" >> /etc/mosquitto/mosquitto.conf
+            cafile=$(check_for_file ${CAFILE})
+            if [ -n "${cafile}" ]; then
+                echo "bridge_cafile ${cafile}" >> /etc/mosquitto/mosquitto.conf
+            fi
+        fi
     else
-	bashio::log.error "No Hass.io mqtt service found!  You must install and configure the MQTT addon!"
-	return 1
+        bashio::log.error "No Hass.io mqtt service found!  You must install and configure the MQTT addon!"
+        return 1
     fi
     return 0
 }
@@ -56,12 +73,12 @@ _MOSQUITTO_CONF_EOF
 function setup_snips_toml() {
     snipstomlfile=$(check_for_file snips.toml)
     if [ -n "${snipstomlfile}" ]; then
-	bashio::log.warning "Installing ${snipstomlfile}"
-	bashio::log.warning "Addon configuration will be ignored!"
-	rm -f /etc/snips.toml
-	cp ${snipstomlfile} /etc
+        bashio::log.warning "Installing ${snipstomlfile}"
+        bashio::log.warning "Addon configuration will be ignored!"
+        rm -f /etc/snips.toml
+        cp ${snipstomlfile} /etc
     else
-	cat > /etc/snips.toml << _SNIPS_TOML_EOF
+        cat > /etc/snips.toml << _SNIPS_TOML_EOF
 [snips-common]
 assistant = "/usr/share/snips/assistant"
 user_dir = "/var/lib/snips"
@@ -89,18 +106,18 @@ audio = ["+@mqtt"]
 [snips-asr-google]
 _SNIPS_TOML_EOF
 
-	if [ -n "${GOOGLE_ASR_CREDENTIALS}" ]; then
-	    google_asr_credentials=$(check_for_file ${GOOGLE_ASR_CREDENTIALS})
-	    if [ -n "${google_asr_credentials}" ]; then
-		echo "credentials = \"${google_asr_credentials}\"" >> /etc/snips.toml
-	    fi
-	fi
+        if [ -n "${GOOGLE_ASR_CREDENTIALS}" ]; then
+            google_asr_credentials=$(check_for_file ${GOOGLE_ASR_CREDENTIALS})
+            if [ -n "${google_asr_credentials}" ]; then
+                echo "credentials = \"${google_asr_credentials}\"" >> /etc/snips.toml
+            fi
+        fi
 
-	echo "" >> /etc/snips.toml
-	echo "[snips-tts]" >> /etc/snips.toml
+        echo "" >> /etc/snips.toml
+        echo "[snips-tts]" >> /etc/snips.toml
 
-	echo 'provider = "customtts"' >> /etc/snips.toml
-	echo "customtts = { command = [\"/tts/tts.sh\", \"%%OUTPUT_FILE%%\", \"%%TEXT%%\"] }" >> /etc/snips.toml
+        echo 'provider = "customtts"' >> /etc/snips.toml
+        echo "customtts = { command = [\"/tts/tts.sh\", \"%%OUTPUT_FILE%%\", \"%%TEXT%%\"] }" >> /etc/snips.toml
     fi
     bashio::log.info "Done with snips.toml setup."
 }
@@ -111,13 +128,13 @@ function setup_supervisord() {
 
     SERVICES+=(snips-asr snips-dialogue snips-hotword snips-nlu snips-injection snips-tts snips-skill-server snips-audio-server)
     if [ "${SNIPS_ANALYTICS}" = "true" ]; then
-	SERVICES+=(snips-analytics)
+        SERVICES+=(snips-analytics)
     fi
 
     for service in ${SERVICES[@]} ; do
-	if [[ "${service}" == snips-* ]]; then
-	    SNIPS_GROUP+=(${service})
-	fi
+        if [[ "${service}" == snips-* ]]; then
+            SNIPS_GROUP+=(${service})
+        fi
     done
 
     # snips-watch must not be included in SNIPS_GROUP, so we add it only after
@@ -125,7 +142,7 @@ function setup_supervisord() {
     snips_watch_autostart="false"
     snips_watch_autorestart="false"
     if [ "${SNIPS_WATCH}" = "true" ]; then
-	SERVICES+=(snips-watch)
+        SERVICES+=(snips-watch)
     fi
 
     snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
@@ -134,9 +151,9 @@ function setup_supervisord() {
     ingress_entry="/"
     ingress_port="8099"
     if SELF_INFO="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/addons/self/info)" ; then
-	ingress_ip="$(echo "${SELF_INFO}" | jq --raw-output '.data.ip_address')"
-	ingress_entry="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_entry')"
-	ingress_port="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_port')"
+        ingress_ip="$(echo "${SELF_INFO}" | jq --raw-output '.data.ip_address')"
+        ingress_entry="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_entry')"
+        ingress_port="$(echo "${SELF_INFO}" | jq --raw-output '.data.ingress_port')"
     fi
     ingress_autostart="true"
     ingress_autorestart="true"
@@ -178,7 +195,7 @@ _EOF_SUPERVISORD_CONF
     tts_online=$(bashio::config 'tts.online_services | @sh')
     tts_maxCacheSize=$(bashio::config 'tts.max_cache_size')
     if [ -n "${tts_online[@]}" -a "X${tts_maxCacheSize}" != "X0"  ]; then
-	cat >> ${SUPERVISORD_CONF} << _EOF_CONF
+        cat >> ${SUPERVISORD_CONF} << _EOF_CONF
 [eventlistener:manage_tts_cache]
 command=/manage_tts_cache.sh
 autostart=true
@@ -189,20 +206,20 @@ _EOF_CONF
     fi
 
     for service in ${SERVICES[@]} ; do
-	service_underscores=${service//-/_}
-	flags=$(echo ${service_underscores}_flags)
-	priority=$(echo ${service_underscores}_priority)
-	directory=$(echo ${service_underscores}_directory)
-	program=$(echo ${service_underscores}_program)
-	startsecs=$(echo ${service_underscores}_startsecs)
-	autostart=$(echo ${service_underscores}_autostart)
-	autorestart=$(echo ${service_underscores}_autorestart)
-	if [ "${service}" = "mosquitto" -o "${service}" = "ingress" ]; then
-	    command="${!program:-${service}} ${!flags:-}"
-	else
-	    command="/start_service.sh localhost 1883 0 ${!program:-${service}} ${!flags:-}"
-	fi
-	cat >> ${SUPERVISORD_CONF} << _EOF_CONF
+        service_underscores=${service//-/_}
+        flags=$(echo ${service_underscores}_flags)
+        priority=$(echo ${service_underscores}_priority)
+        directory=$(echo ${service_underscores}_directory)
+        program=$(echo ${service_underscores}_program)
+        startsecs=$(echo ${service_underscores}_startsecs)
+        autostart=$(echo ${service_underscores}_autostart)
+        autorestart=$(echo ${service_underscores}_autorestart)
+        if [ "${service}" = "mosquitto" -o "${service}" = "ingress" ]; then
+            command="${!program:-${service}} ${!flags:-}"
+        else
+            command="/start_service.sh localhost 1883 0 ${!program:-${service}} ${!flags:-}"
+        fi
+        cat >> ${SUPERVISORD_CONF} << _EOF_CONF
 [program:${service}]
 command=${command}
 priority=${!priority:-900}
@@ -248,29 +265,29 @@ function setup_tts_script() {
 
     rm -f /tts/tts.sh
     sed -e "s/%%LANG%%/${LANG}/g" \
-	-e "s/%%COUNTRY%%/${COUNTRY}/g" \
-	-e "s/%%OFFLINE_SERVICE%%/${offline_service}/g" \
-	-e "s,%%MIMIC_VOICE%%,${mimic_voice},g" \
-	-e "s/%%ONLINE_SERVICES%%/${online_services}/g" \
-	-e "s/%%SAMPLE_RATE%%/${sample_rate}/g" \
-	-e "s/%%ONLINE_VOLUME_FACTOR%%/${online_volume_factor}/g" \
-	-e "s/%%MACOS_VOICE%%/${macos_voice}/g" \
-	-e "s,%%MACOS_SSH_CONFIG%%,${macos_ssh_config},g" \
-	-e "s/%%MACOS_SSH_HOST%%/${macos_ssh_host}/g" \
-	-e "s/%%GOOGLE_VOICE%%/${google_voice}/g" \
-	-e "s/%%GOOGLE_VOICE_GENDER%%/${google_voice_gender}/g" \
-	-e "s/%%GOOGLE_TTS_KEY%%/${google_tts_key}/g" \
-	-e "s/%%AMAZON_VOICE%%/${amazon_voice}/g" \
-	-e "s/%%AWS_ACCESS_KEY_ID%%/${aws_access_key_id}/g" \
-	-e "s/%%AWS_SECRET_ACCESS_KEY%%/${aws_secret_access_key}/g" \
-	-e "s/%%AWS_DEFAULT_REGION%%/${aws_default_region}/g" \
+        -e "s/%%COUNTRY%%/${COUNTRY}/g" \
+        -e "s/%%OFFLINE_SERVICE%%/${offline_service}/g" \
+        -e "s,%%MIMIC_VOICE%%,${mimic_voice},g" \
+        -e "s/%%ONLINE_SERVICES%%/${online_services}/g" \
+        -e "s/%%SAMPLE_RATE%%/${sample_rate}/g" \
+        -e "s/%%ONLINE_VOLUME_FACTOR%%/${online_volume_factor}/g" \
+        -e "s/%%MACOS_VOICE%%/${macos_voice}/g" \
+        -e "s,%%MACOS_SSH_CONFIG%%,${macos_ssh_config},g" \
+        -e "s/%%MACOS_SSH_HOST%%/${macos_ssh_host}/g" \
+        -e "s/%%GOOGLE_VOICE%%/${google_voice}/g" \
+        -e "s/%%GOOGLE_VOICE_GENDER%%/${google_voice_gender}/g" \
+        -e "s/%%GOOGLE_TTS_KEY%%/${google_tts_key}/g" \
+        -e "s/%%AMAZON_VOICE%%/${amazon_voice}/g" \
+        -e "s/%%AWS_ACCESS_KEY_ID%%/${aws_access_key_id}/g" \
+        -e "s/%%AWS_SECRET_ACCESS_KEY%%/${aws_secret_access_key}/g" \
+        -e "s/%%AWS_DEFAULT_REGION%%/${aws_default_region}/g" \
         /tts/tts-unparsed.sh > /tts/tts.sh
     chmod 755 /tts/tts.sh
 
     for i in ${online_services}
     do
-	if [ "${i}" == "amazon" ]; then
-	    setup_amazon_tts
-	fi
+        if [ "${i}" == "amazon" ]; then
+            setup_amazon_tts
+        fi
     done
 }

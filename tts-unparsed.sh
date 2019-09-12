@@ -7,10 +7,15 @@ shellSafeText=${text//\"/\\\"}
 shellSafeText=${shellSafeText//\$/\\\$}
 
 function amazonOnlineCheck() {
-    if /usr/bin/curl -s -f https://aws.amazon.com/polly/ -o /dev/null 2>/dev/null ; then
-        echo "online"
+    # If aws isn't installed, don't bother with the online check!
+    if [ ! -x /aws/bin/aws ] ; then
+	echo "offline"
     else
-        echo "offline"
+	if /usr/bin/curl -s -f https://aws.amazon.com/polly/ -o /dev/null 2>/dev/null ; then
+	    echo "online"
+	else
+	    echo "offline"
+	fi
     fi
 }
 
@@ -76,7 +81,7 @@ function amazon() {
         export AWS_SECRET_ACCESS_KEY="%%AWS_SECRET_ACCESS_KEY%%"
         export AWS_DEFAULT_REGION="%%AWS_DEFAULT_REGION%%"
 
-        /usr/local/bin/aws polly synthesize-speech --output-format mp3 --voice-id "%%AMAZON_VOICE%%" --sample-rate %%SAMPLE_RATE%% --text-type ssml --text "${ssmlText}" "${cacheFile}"
+        /aws/bin/aws polly synthesize-speech --output-format mp3 --voice-id "%%AMAZON_VOICE%%" --sample-rate %%SAMPLE_RATE%% --text-type ssml --text "${ssmlText}" "${cacheFile}"
         ret=$?
         if [ ${ret} -ne 0 ]; then
             /bin/rm -f "${cacheFile}"
