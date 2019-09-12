@@ -1,5 +1,6 @@
 function setup_amazon_tts() {
-    # TODO
+    bashio::log.error "setup_amazon_tts hasn't been implemented yet!"
+    bashio::log.error "The Amazon Polly service will not work!"
 }
 
 function setup_mosquitto() {
