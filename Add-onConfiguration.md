@@ -7,7 +7,7 @@
 |[country_code](#country_code)|US|
 |[google_asr_credentials](#google_asr_credentials)|string||
 |[language](#language)|en, fr, or de|en|
-|[restart_home_assistant|](#restart_home_assistant)true or false|false|
+|[restart_home_assistant](#restart_home_assistant)|true or false|false|
 |[snips_watch](#snips_watch)|true or false|false|
 |[tts](#tts-options)||See [TTS Options](#tts-options).|
 
@@ -69,7 +69,7 @@ could be transmitted across the internet if you have configured online
 services.**
 
 The use of online text-to-speech services is inspired by the
-![SnipsSuperTTS script](https://gist.github.com/Psychokiller1888/cf10af3220b5cd6d9c92c709c6af92c2),
+[SnipsSuperTTS script](https://gist.github.com/Psychokiller1888/cf10af3220b5cd6d9c92c709c6af92c2),
 but the script in this add-on was written from scratch to provide more
 features.
 
@@ -103,7 +103,7 @@ placing the file in /share/snips/ for easy access.
 
 Please note that only one flitevox file (voice) for mimic is included in the
 image.  You an download additional voices at
-![http://festvox.org/flite/packed/flite-2.1/voices/](http://festvox.org/flite/packed/flite-2.1/voices/)
+[http://festvox.org/flite/packed/flite-2.1/voices/](http://festvox.org/flite/packed/flite-2.1/voices/)
 
 ## online_services
 This is an array of online services to try.  They will be tried in the order
