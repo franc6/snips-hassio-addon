@@ -134,15 +134,20 @@ This service is provided for free, but could be removed at any time.
 
 ### google (Google Cloud Text-to-Speech)
 This service is limited to 5000 bytes of text at a time.  This service is
-not free, and requires registration with Google.
+not free, and requires registration with Google.  See
+[https://cloud.google.com/text-to-speech/docs/quickstart-protocol](https://cloud.google.com/text-to-speech/docs/quickstart-protocol)
+to register, and
+[https://console.developers.google.com/](https://console.developers.google.com/)
+to retrieve the API key.
 
 Since this is a paid service, it does not receive regular testing by the
 add-on author.
 
 ### amazon (Amazon Polly)
 This service is limited to 3000 bytes of text at a time.  This service is
-not free, and requires registration with Amazon.  This service is reportedly
-faster than Google.
+not free, and requires registration with Amazon. See
+[https://aws.amazon.com/polly/getting-started/?nc=sn&loc=5](https://aws.amazon.com/polly/getting-started/?nc=sn&loc=5)
+to get started.
 
 This service also requires extra software to be installed.  If the amazon
 service is configured, and the extra software is not installed, it will be
@@ -229,7 +234,9 @@ macos_ssh_config file.
 ## google_voice
 This is the voice to use for Google's Cloud Text-to-Speech service.  This is
 usually something like "Wavenet-A", "Wavenet-B", etc., for the high quality
-voices.
+voices.  See
+[https://cloud.google.com/text-to-speech/docs/voices](https://cloud.google.com/text-to-speech/docs/voices)
+for more info.
 
 ## google_voice_gender
 This should be set to "MALE" for male voices, or "FEMALE" for a female
@@ -239,7 +246,9 @@ voice.
 This is your API key for Google's Cloud Text-to-Speech service.
 
 ## amazon_voice
-This is the voice to use for Amazon's Polly service.
+This is the voice to use for Amazon's Polly service.  See
+[https://docs.aws.amazon.com/polly/latest/dg/voicelist.html](https://docs.aws.amazon.com/polly/latest/dg/voicelist.html)
+for more info.
 
 ## amazon_access_key_id
 ## amazon_secret_access_key
