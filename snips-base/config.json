@@ -13,6 +13,7 @@
     "hassio_role": "homeassistant",
     "homeassistant": "0.96.4",
     "homeassistant_api": true,
+    "image": "franc6/image-{arch}-snips-base-hassio-addon",
     "ingress": true,
     "host_network": false,
     "map": ["config:rw", "share:rw", "ssl"],
