@@ -6,8 +6,6 @@ cache="/data/tts/cache"
 shellSafeText=${text//\"/\\\"}
 shellSafeText=${shellSafeText//\$/\\\$}
 
-bashio::log.info "${shellSafeText}"
-
 function amazonOnlineCheck() {
     if /usr/bin/curl -s -f https://aws.amazon.com/polly/ -o /dev/null 2>/dev/null ; then
         echo "online"
