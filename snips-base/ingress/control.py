@@ -6,6 +6,7 @@ import re
 from shutil import copyfile
 import subprocess
 import sys
+from tempfile import NamedTemporaryFile
 from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
 from flask import Flask, abort, render_template, request
 
@@ -80,36 +81,34 @@ def save_config():
     if file_name and allowed_file(file_name):
         final_name = '/share/snips/' + file_name
         skill_config_name = '/var/lib/snips/skills/' + config_ini_re.sub('/config.ini', file_name)
-        temp_name = '/tmp/config.ini'
         bytes_left = int(request.headers.get('Content-Length'))
-        with open(temp_name, 'wb') as temp_file:
+        with NamedTemporaryFile() as temp_file:
+            temp_name = temp_file.name
             chunk_size = 4096
             while bytes_left > 0:
                 chunk = request.stream.read(chunk_size)
                 temp_file.write(chunk)
                 bytes_left -= len(chunk)
-        if not filecmp.cmp(final_name, temp_name):
-            try:
-                copyfile(temp_name, final_name)
-                # Don't bother trying to copy the file or restart the skills
-                # server if the skill doesn't actually exist!  This can happen,
-                # e.g., if someone removed a skill from their assistant.
-                # Response should be 202 in that case
-                status = 202
-                info("Checking if {} exists".format(skill_config_name))
-                if os.path.exists(skill_config_name):
-                    copyfile(temp_name, skill_config_name)
-                    subprocess.call(['/restart_snips_skill_server.sh'])
-                    status = 200
-                os.unlink(temp_name)
-                return app.response_class(' ', mimetype='text/plain', status=status)
-            except Exception as e:
-                error("Caught exception copying temp file or restarting snips-skill-server")
-                error("Exception: {}".format(e))
-                os.unlink(temp_name)
-                abort(500)
-        os.unlink(temp_name)
-        return app.response_class(' ', mimetype='text/plain', status=208)
+            temp_file.flush()
+            if not filecmp.cmp(final_name, temp_name):
+                try:
+                    copyfile(temp_name, final_name)
+                    # Don't bother trying to copy the file or restart the
+                    # skills server if the skill doesn't actually exist!  This
+                    # can happen, e.g., if someone removed a skill from their
+                    # assistant.  Response should be 202 in that case
+                    status = 202
+                    info("Checking if {} exists".format(skill_config_name))
+                    if os.path.exists(skill_config_name):
+                        copyfile(temp_name, skill_config_name)
+                        subprocess.call(['/restart_snips_skill_server.sh'])
+                        status = 200
+                    return app.response_class(' ', mimetype='text/plain', status=status)
+                except Exception as e:
+                    error("Caught exception copying temp file or restarting snips-skill-server")
+                    error("Exception: {}".format(e))
+                    abort(500)
+            return app.response_class(' ', mimetype='text/plain', status=208)
     abort(403)
 
 @app.route('/stream')
