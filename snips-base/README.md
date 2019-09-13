@@ -67,10 +67,13 @@ their documentation for more information.
 
 ## TODO
 The following list is in no particular order, but represent the features I
-think are still needed before a 1.0 release.
+think are still needed before a 1.0 release (that doesn't mean these will
+make it).
 
 - Automatically download assistant ZIP file from the snips console or a git repository
 - Support on-device audio, but only if it exists -- maybe a satellite add-on?
+- Translation of UI and documentation
+- Spoken notification/alert when snips is all up and running?
 - Support rpi builds
 
 [![Buy me some pizza](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/qpunYPZx5)
