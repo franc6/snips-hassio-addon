@@ -146,8 +146,8 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	/var/lib/snips/skills/**					mlkrwix,
 	@{DOCKER_OVERLAY}/var/lib/snips/skills/**			mlkrwix,
 
-	/aws/								mlkrw
-	/aws/**								mlkrwix
+	/aws/								mlkrw,
+	/aws/**								mlkrwix,
 
 	# Rules for running python scripts
 	/usr/lib{,32,64}/python{2.7,3.[0-7]}/				mr,
