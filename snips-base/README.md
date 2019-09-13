@@ -20,10 +20,10 @@ through Home Assistant.
 - Allows the use of higher quality voices, both locally and through the internet
 
 ## Configuration
-See ![Add-on Configuration](/Add-onConfiguration.md)
+See ![Add-on Configuration](/snips-base/Add-onConfiguration.md)
 
 ## Configuring Skills
-See ![Snips Configuration](/SnipsConfiguration.md)
+See ![Snips Configuration](/snips-base/SnipsConfiguration.md)
 
 ## Satellite Configuration
 In /etc/snips.toml:
@@ -48,7 +48,7 @@ Log files for the programs running in the add-on are stored in
 /share/snips/logs.  This directory is created if it doesn't exist.
  
 ## Web UI
-See ![Web UI](/WebUI.md)
+See ![Web UI](/snips-base/WebUI.md)
 
 ## Accessing /share
 The best ways to access /share are through the samba and ssh add-ons.  Check

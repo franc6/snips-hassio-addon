@@ -1,4 +1,7 @@
-## 0.4.0 2019/09/10
+## 0.4.1 2019/09/12
+- Fixed bug in apparmor.txt that prevented the add-on from starting
+
+## 0.4.0 2019/09/12
 - Revamped text-to-speech settings so that online text-to-speech services can be used
 - Split README.md into multiple files
 
