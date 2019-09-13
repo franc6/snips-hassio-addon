@@ -11,6 +11,17 @@ to work through Home Assistant.  This add-on is intended to let you use an
 assistant withs skills that run only on snips as well as skills that work
 through Home Assistant.
 
+## Alpha Quality Software
+Currently, this is "alpha quality" software.  This means that some features
+may be untested, and there may be breaking changes between updates.
+That said, most of the features are of "beta quality", and have been tested
+extensively.  The features which need the most testing are:
+
+- Google Cloud Text-to-Speech
+- Amazon Polly
+- Snips assistants which use javascript-based skills
+- More variety of skills and Home Assistant snippets
+
 ## Features
 - Works only with satellites
 - Configuration of snips skills (via Web UI or your favorite text editor)
@@ -58,7 +69,8 @@ their documentation for more information.
 The following list is in no particular order, but represent the features I
 think are still needed before a 1.0 release.
 
-- Support on-device audio, but only if it exists
 - Automatically download assistant ZIP file from the snips console or a git repository
+- Support on-device audio, but only if it exists -- maybe a satellite add-on?
+- Support rpi builds
 
 [![Buy me some pizza](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/qpunYPZx5)
