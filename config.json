@@ -1,6 +1,6 @@
 {
     "name": "Snips.AI Base (no local audio)",
-    "version": "0.4.0",
+    "version": "0.4.1XX",
     "slug": "snips-base",
     "description": "Local voice control platform",
     "apparmor": true,
