@@ -14,7 +14,7 @@ the configuration, starting it through the Web UI will not make it run when
 you restart the add-on.  It will also stop running (or start running) when
 you update your assistant, based on the configuration.
 
-![Web UI Logs Screenshot](/screenshots/snips-base-webui.png?raw=true)
+![Web UI Logs Screenshot](/snips-base/screenshots/snips-base-webui.png?raw=true)
 
 ## Logs
 You can view the log files for the Web UI, internal mosquitto, and snips
@@ -22,7 +22,7 @@ programs.  You can choose how frequently the interface updates the logs.  If
 you have enabled snips-watch (or started it from the Web UI), its output
 will be the first log file listed.
 
-![Web UI Logs Screenshot](/screenshots/snips-base-webui-logs.png?raw=true)
+![Web UI Logs Screenshot](/snips-base/screenshots/snips-base-webui-logs.png?raw=true)
 
 ## Skills Configuration
 You can configure your skills from the Web UI.  Any config.ini files which
@@ -30,4 +30,4 @@ are in /share/snips will be listed in this section.  When you save a
 configuration file, the snips-skill-server will be restarted, so the changes
 will take effect soon.
 
-![Web UI Logs Screenshot](/screenshots/snips-base-webui-config.png?raw=true)
+![Web UI Logs Screenshot](/snips-base/screenshots/snips-base-webui-config.png?raw=true)
