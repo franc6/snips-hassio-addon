@@ -219,8 +219,8 @@ if __name__ == '__main__':
 
     with open('/data/options.json', 'r') as f:
         config = json.load(f)
-        email = config['snips_email']
-        password = config['snips_password']
+        email = config['snips_console']['email']
+        password = config['snips_console']['password']
         assistant_zip = config['assistant']
 
     dispatcher = PathInfoDispatcher({'/': app.wsgi_app, root: app.wsgi_app})

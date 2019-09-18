@@ -17,6 +17,7 @@
     "host_network": false,
     "map": ["config:rw", "share:rw", "ssl"],
     "panel_icon": "mdi:text-to-speech",
+    "panel_admin": "true",
     "ports": {
         "1883/tcp": 9883
     },
@@ -35,8 +36,10 @@
         "google_asr_credentials": "",
         "language": "en",
         "restart_home_assistant": "false",
-        "snips_email": "",
-        "snips_password": "",
+        "snips_console": {
+            "email": "",
+            "password": ""
+        },
         "snips_watch": "false",
         "tts": {
             "offline_service": "mimic",
@@ -65,8 +68,10 @@
         "google_asr_credentials": "str",
         "language": "match(en|de|fr)",
         "restart_home_assistant": "bool",
-        "snips_email": "match(.+@.+)",
-        "snips_password": "str",
+        "snips_console": {
+            "email": "email",
+            "password": "str"
+        },
         "snips_watch": "bool",
         "tts": {
             "offline_service": "match(mimic|pico2wave)",

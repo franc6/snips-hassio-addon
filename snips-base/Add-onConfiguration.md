@@ -8,8 +8,7 @@
 |[google_asr_credentials](#google_asr_credentials)|string||
 |[language](#language)|de, en, fr|en|
 |[restart_home_assistant](#restart_home_assistant)|true, false|false|
-|[snips_email](#snips_email)|email address||
-|[snips_password](#snips_password)|string||
+|[snips_console](#snips_console)|See [snips_console](#snips_console)||
 |[snips_watch](#snips_watch)|true, false|false|
 |[tts](#tts-options)||See [TTS Options](#tts-options).|
 
@@ -18,7 +17,9 @@ Set to true if you want to run snips-analytics.
 
 ## assistant
 The name of your snips assistant, in a .ZIP file.  This should be a path
-relative to /share/snips.
+relative to /share/snips.  Note that if you use the Web UI to install your
+assistant, this file will be replaced by the assistant that you install through
+the Web UI.
 
 ## cafile
 If your hass.io MQTT server uses TLS, specify a file containing the CA
@@ -27,24 +28,42 @@ certificate for it here.  This should be a path relative to /share/snips.
 **Note: If you are using the MQTT add-on, you don't need this.**
 
 ## country_code
-The ISO 3166 two-letter country code for where you are.
+The ISO 3166 two-letter country code for where you are.  If you do not set
+this, a default country will be chosen for you, based on the language setting.
+DE for German, US for English, and FR for French.
 
 ## google_asr_credentials
 If you want to use Google's ASR, specify your API key here.
 
 ## language
-The two-letter language code.  You can only set de, en, or fr at this time.
+The two-letter language code, in lower case.  You can only set de, en, or fr at
+this time.  If you do not set this, English will be chosen for you.
 
 ## restart_home_assistant
 Set this to true if you want Home Assistant to be restarted if its
 configuration was changed by this add-on.
 
-## snips_email
-The email address for your Snips Console login.  If this and snips_password are
-both configured, you can use the Web UI to download and install your snips
-assistant.
+## snips_console
+You can configure your email address and password for logging into the Snips
+Console.  If you do, the Web UI can be used to download and install your
+assistant.  Note that the ZIP file for the installed assistant will also be
+copied to the file specified in the [assistant](#assistant) option (in
+/share/snips).
 
-## snips_password
+By using configuring your email address and password, you don't need to
+manually download your assistant's ZIP file from the Snips Console before
+starting this add-on.  Instead, you can start the add-on without an assistant,
+and use the Web UI to select and install your assistant.
+
+| Option | Values | Default |
+|--------|--------|-------------|
+|[email](#email)|email address||
+|[password](#password)|string||
+
+### email
+The email address for your Snips Console login.
+
+### password
 The password for your Snips Console login.
 
 ## snips_watch

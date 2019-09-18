@@ -10,6 +10,29 @@ COUNTRY=$(bashio::config 'country_code')
 GOOGLE_ASR_CREDENTIALS=$(bashio::config 'google_asr_credentials')
 SNIPS_WATCH=$(bashio::config 'snips_watch')
 
+if [ -z "${ASSISTANT}" ]; then
+    bashio::log.error "Invalid configuration.  'assistant' must not be empty!"
+    exit 1
+fi
+
+if [ -z "${LANG}" ]; then
+    bashio::log.warning "'language' was not set.  Assuming English."
+    LANG="en"
+fi
+
+if [ -z "${COUNTRY}" ]; then
+    if [ "${LANG}" == "de" ]; then
+	bashio::log.warning "'country' was not set.  Assuming Germany."
+	COUNTRY="DE"
+    elif [ "${LANG}" == "en" ]; then
+	bashio::log.warning "'country' was not set.  Assuming the United States."
+	COUNTRY="US"
+    elif [ "${LANG}" == "fr" ]; then
+	bashio::log.warning "'country was not set. Assuming France."
+	COUNTRY="FR"
+    fi
+fi
+
 export LC_ALL="${LANG}_${COUNTRY}.UTF-8"
 
 ADDON_INFO="$(curl -s -X GET -H "X-HASSIO-KEY: ${HASSIO_TOKEN}" http://hassio/addons/self/info)"
@@ -48,8 +71,8 @@ fi
 
 if ! extract_assistant "${ASSISTANT}" ; then
     bashio::log.error "Snips is not running yet!"
-    SNIPS_EMAIL=$(bashio::config 'snips_email')
-    SNIPS_PASSWORD=$(bashio::config 'snips_password')
+    SNIPS_EMAIL=$(bashio::config 'snips_console.email')
+    SNIPS_PASSWORD=$(bashio::config 'snips_console.password')
     if [ -n "${SNIPS_EMAIL}" -a -n "${SNIPS_PASSWORD}" ]; then
 	bashio::log.warning "You can use the Web UI to install your assistant.  Snips will start after the assistant is installed."
     else
