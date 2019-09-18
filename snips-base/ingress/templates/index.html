@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>Snips Base Web UI</title>
-        <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css?version=0.3.0" />
+        <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css?version=0.5.0" />
         <script type="text/javascript" src="{{ root }}/static/ansi_up.js"></script>
         <script type="text/javascript" src="{{ root }}/static/ace.js"></script>
         <script type="text/javascript" src="{{ root }}/static/keybinding-emacs.js"></script>
@@ -416,11 +416,12 @@
         </script>
     </head>
     <body>
-        <h1>Snips-base for Hass.io</h1>
-        <table>
-            <tr><td>Snips-base Add-on version:</td><td>{{ addon_version }}</td></tr>
+        <h1 class="floatLeft">Snips.AI Base for Hass.io</h1>
+        <table class="floatRight">
+            <tr><td>Add-on version:</td><td>{{ addon_version }}</td></tr>
             <tr><td>Snips version:</td><td>{{ snips_version }}</td></tr>
         </table>
+        <br clear="all" />
         <div class="buttonContainer">
             <button class="button topButtonActive" id="buttonControls" onclick="showControls()">Server Controls</button>
             <button class="button topButtonActive" id="buttonLogs" onclick="showLogs()">Logs</button>
