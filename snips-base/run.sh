@@ -3,12 +3,12 @@ set -e
 
 CONFIG_PATH=/data/options.json
 
-SNIPS_ANALYTICS=$(bashio::config 'analytics')
 ASSISTANT=$(bashio::config 'assistant')
 LANG=$(bashio::config 'language')
 COUNTRY=$(bashio::config 'country_code')
 GOOGLE_ASR_CREDENTIALS=$(bashio::config 'google_asr_credentials')
-SNIPS_WATCH=$(bashio::config 'snips_watch')
+SNIPS_ANALYTICS=$(bashio::config 'snips_extras.snips_analytics')
+SNIPS_WATCH=$(bashio::config 'snips_extras.snips_watch')
 
 if [ -z "${ASSISTANT}" ]; then
     bashio::log.error "Invalid configuration.  'assistant' must not be empty!"

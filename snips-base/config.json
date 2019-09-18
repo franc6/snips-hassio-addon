@@ -29,7 +29,6 @@
     "tmpfs": "size=10m",
     "url": "https://github.com/franc6/snips-hassio-addon",
     "options": {
-        "analytics": "false",
         "assistant": "assistant.zip",
         "cafile": "certfile.pem",
         "country_code": "US",
@@ -40,7 +39,10 @@
             "email": "",
             "password": ""
         },
-        "snips_watch": "false",
+        "snips_extras": {
+            "snips_analytics": "false",
+            "snips_watch": "false"
+        },
         "tts": {
             "offline_service": "mimic",
             "mimic_voice": "/share/snips/voices/cmu_us_eey.flitevox",
@@ -61,7 +63,6 @@
         }
     },
     "schema": {
-        "analytics": "bool",
         "assistant": "str",
         "cafile": "str",
         "country_code": "str",
@@ -72,7 +73,10 @@
             "email": "email",
             "password": "str"
         },
-        "snips_watch": "bool",
+        "snips_extras": {
+            "snips_analytics": "bool",
+            "snips_watch": "bool"
+        },
         "tts": {
             "offline_service": "match(mimic|pico2wave)",
             "mimic_voice": "str",

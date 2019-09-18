@@ -1,7 +1,6 @@
 # Add-on Configuration
 | Option | Values | Default |
-|--------|--------|-------------|
-|[analytics](#analytics)|true, false|false|
+|--------|--------|---------|
 |[assistant](#assistant)|file name|assistant.zip|
 |[cafile](#cafile)|file name|certfile.pem|
 |[country_code](#country_code)|string|US|
@@ -9,11 +8,8 @@
 |[language](#language)|de, en, fr|en|
 |[restart_home_assistant](#restart_home_assistant)|true, false|false|
 |[snips_console](#snips_console)|See [snips_console](#snips_console)||
-|[snips_watch](#snips_watch)|true, false|false|
+|[snips_extras](#snips_extras)|See [snips_extras](#snips_extras)||
 |[tts](#tts-options)||See [TTS Options](#tts-options).|
-
-## analytics
-Set to true if you want to run snips-analytics.
 
 ## assistant
 The name of your snips assistant, in a .ZIP file.  This should be a path
@@ -56,7 +52,7 @@ starting this add-on.  Instead, you can start the add-on without an assistant,
 and use the Web UI to select and install your assistant.
 
 | Option | Values | Default |
-|--------|--------|-------------|
+|--------|--------|---------|
 |[email](#email)|email address||
 |[password](#password)|string||
 
@@ -66,7 +62,18 @@ The email address for your Snips Console login.
 ### password
 The password for your Snips Console login.
 
-## snips_watch
+## snips_extras
+These are options snips programs you can run.
+
+| Option | Values | Default |
+|--------|--------|---------|
+|[snips_analytics](#snips_analytics)|true, false|false|
+|[snips_watch](#snips_watch)|true, false|false|
+
+### snips_analytics
+Set to true if you want to run snips-analytics.
+
+### snips_watch
 If true, snips-watch will be started.  Use the Logs tab of the Web UI to
 view its output.
 
