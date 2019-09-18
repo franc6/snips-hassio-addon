@@ -47,14 +47,23 @@ if ! setup_tts_script ; then
 fi
 
 if ! extract_assistant "${ASSISTANT}" ; then
-    bashio::log.error "Failed to extract and setup assistant!"
-    stop_snips
-    exit 1
+    bashio::log.error "Snips is not running yet!"
+    SNIPS_EMAIL=$(bashio::config 'snips_email')
+    SNIPS_PASSWORD=$(bashio::config 'snips_password')
+    if [ -n "${SNIPS_EMAIL}" -a -n "${SNIPS_PASSWORD}" ]; then
+	bashio::log.warning "You can use the Web UI to install your assistant.  Snips will start after the assistant is installed."
+    else
+	bashio::log.error "You have not configured your Snips Console email address and password.  You must configure those or copy your assistant's ZIP file to /share/snips/${ASSISTANT}.  This add-on will now exit."
+	stop_snips
+	exit 1
+    fi
+    SNIPS_EMAIL=
+    SNIPS_PASSWORD=
+else
+    bashio::log.info "Waiting for mosquitto to settle..."
+    sleep 5
+    start_snips
 fi
-
-bashio::log.info "Waiting for mosquitto to settle..."
-sleep 5
-start_snips
 
 function stop_addon() {
     bashio::log.info "Shutdown $(hostname)"
