@@ -1,6 +1,6 @@
 {
     "name": "Snips.AI Base (no local audio)",
-    "version": "0.4.1",
+    "version": "0.5.0",
     "slug": "snips-base",
     "description": "Local voice control platform",
     "apparmor": true,
@@ -35,6 +35,8 @@
         "google_asr_credentials": "",
         "language": "en",
         "restart_home_assistant": "false",
+        "snips_email": "",
+        "snips_password": "",
         "snips_watch": "false",
         "tts": {
             "offline_service": "mimic",
@@ -63,6 +65,8 @@
         "google_asr_credentials": "str",
         "language": "match(en|de|fr)",
         "restart_home_assistant": "bool",
+        "snips_email": "match(.+@.+)",
+        "snips_password": "str",
         "snips_watch": "bool",
         "tts": {
             "offline_service": "match(mimic|pico2wave)",

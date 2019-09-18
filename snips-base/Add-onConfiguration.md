@@ -8,6 +8,8 @@
 |[google_asr_credentials](#google_asr_credentials)|string||
 |[language](#language)|de, en, fr|en|
 |[restart_home_assistant](#restart_home_assistant)|true, false|false|
+|[snips_email](#snips_email)|email address||
+|[snips_password](#snips_password)|string||
 |[snips_watch](#snips_watch)|true, false|false|
 |[tts](#tts-options)||See [TTS Options](#tts-options).|
 
@@ -36,6 +38,14 @@ The two-letter language code.  You can only set de, en, or fr at this time.
 ## restart_home_assistant
 Set this to true if you want Home Assistant to be restarted if its
 configuration was changed by this add-on.
+
+## snips_email
+The email address for your Snips Console login.  If this and snips_password are
+both configured, you can use the Web UI to download and install your snips
+assistant.
+
+## snips_password
+The password for your Snips Console login.
 
 ## snips_watch
 If true, snips-watch will be started.  Use the Logs tab of the Web UI to

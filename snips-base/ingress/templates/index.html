@@ -17,6 +17,50 @@
             var ansi_up = new AnsiUp;
             var editor = null;
 
+            function downloadAssistant() {
+                enableAssistantButtons(false);
+                var assistantList = document.getElementById('assistantList');
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/download-assistant?AssistantID=' + assistantList.options[assistantList.selectedIndex].value, true);
+                xhr.responseType = 'text';
+                xhr.onload = function() {
+                    if (xhr.readyState === xhr.DONE) {
+                        if (xhr.status == 200) {
+                            alert("Finished downloading and updating the assistant!")
+                        }
+                        else if (xhr.status == 202) {
+                            alert('The assistant appears to be the same!');
+                        }
+                        else {
+                            alert("Failed to update the assistant!")
+                        }
+                        enableAssistantButtons(true);
+                    }
+                }
+                xhr.send();
+            }
+
+            function enableAssistantButtons(enable) {
+                var downloadButton = document.getElementById('downloadAssistantButton');
+                var refreshButton = document.getElementById('refreshAssistantsButton');
+                var updateButton = document.getElementById('updateAssistantButton');
+                downloadButton.diabled = !enable;
+                refreshButton.diabled = !enable;
+                updateButton.diabled = !enable;
+                if (enable)
+                {
+                    downloadButton.removeAttribute('disabled');
+                    refreshButton.removeAttribute('disabled');
+                    updateButton.removeAttribute('disabled');
+                }
+                else
+                {
+                    downloadButton.setAttribute('disabled', 'disabled');
+                    refreshButton.setAttribute('disabled', 'disabled');
+                    updateButton.setAttribute('disabled', 'disabled');
+                }
+            }
+
             function enableReloadSaveConfig(enable) {
                 var saveButton = document.getElementById('saveConfigButton');
                 var reloadButton = document.getElementById('reloadConfigButton');
@@ -54,6 +98,36 @@
                     stopButton.diabled = true;
                     stopButton.setAttribute('disabled', 'disabled');
                 }
+            }
+
+            function getSnipsAssistants() {
+                enableAssistantButtons(false);
+                var assistantList = document.getElementById('assistantList');
+                while (assistantList.options.length > 0)
+                {
+                    assistantList.remove(0);
+                }
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/assistant-list', true);
+                xhr.responseType = 'text';
+                xhr.onload = function() {
+                    if (xhr.readyState === xhr.DONE) {
+                        if (xhr.status == 200) {
+                            var assistants = JSON.parse(xhr.responseText);
+                            var assistantList = document.getElementById('assistantList');
+                            for (var idx = 0; idx < assistants.length; idx++)
+                            {
+                                var opt = document.createElement('option');
+                                opt.innerHTML = assistants[idx].title;
+                                opt.value = assistants[idx].id;
+                                assistantList.appendChild(opt);
+                            }
+                            assistantList.selectedIndex = 0;
+                            enableAssistantButtons(true);
+                        }
+                    }
+                }
+                xhr.send();
             }
 
             function onEditorChange() {
@@ -293,23 +367,19 @@
             }
 
             function updateAssistant() {
-                var updateButton = document.getElementById('updateAssistantButton');
-                updateButton.diabled = true;
-                updateButton.setAttribute('disabled', 'disabled');
+                enableAssistantButtons(false);
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', '{{ root }}/update-assistant', true);
                 xhr.responseType = 'text';
                 xhr.onload = function() {
                     if (xhr.readyState === xhr.DONE) {
-                        var updateButton = document.getElementById('updateAssistantButton');
                         if (xhr.status == 200) {
                             alert("Finished updating the assistant!")
                         }
                         else {
                             alert("Failed to update the assistant!")
                         }
-                        updateButton.diabled = false;
-                        updateButton.removeAttribute('disabled');
+                        enableAssistantButtons(true);
                     }
                 }
                 xhr.send();
@@ -338,6 +408,7 @@
                             cm.ace.execCommand('saveFile');
                         });
                     });
+                    getSnipsAssistants();
                     enableSnipsWatchButtons();
                     showControls();
                 }, 100);
@@ -357,10 +428,23 @@
         </div>
         <br clear="all" />
         <div id="controlsTab" class="topTab">
-            <h2>Assistant Re-install and Update</h2>
+            <h2>Download, Install, and Update Assistant</h2>
+            <p>If you have put your Snips Console email address and password
+            into the add-on's configuration, you should see all of your
+            assistants in the drop-list below.  Choose the assistant you want
+            to install, and click the Download Assistant button.  Please note
+            this will take a few minutes.</p>
+            <label>Snips Assistants:
+                <select id="assistantList">
+                </select>
+            </label>
+            <input id="refreshAssistantsButton" value="Refresh Assistant List" type="button" onclick="getSnipsAssistants()" />
+            <br clear="all" />
+            <input id="downloadAssistantButton" value="Download Assistant" type="button" onclick="downloadAssistant()" />
             <p>If you have replaced your assistant ZIP file, click the Update
             Assistant button. Please note this could take a few minutes.</p>
             <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
+            <br clear="all" />
             <h2>Snips-watch</h2>
             <p>You can start and stop snips-watch, even if you didn't configure it
             to be started.  Note that starting it here will not change the

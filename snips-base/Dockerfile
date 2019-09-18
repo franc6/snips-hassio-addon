@@ -16,9 +16,9 @@ RUN set -x \
 	apt-transport-https
 
 RUN set -x \
-    && sed -i -e 's/# en_\(..\)\.UTF-8 UTF-8/en_\1.UTF-8 UTF-8/' /etc/locale.gen \
-    && sed -i -e 's/# fr_\(..\)\.UTF-8 UTF-8/fr_\1.UTF-8 UTF-8/' /etc/locale.gen \
-    && sed -i -e 's/# de_\(..\)\.UTF-8 UTF-8/de_\1.UTF-8 UTF-8/' /etc/locale.gen \
+    && sed -i -e 's/# en_\(..\)\.UTF-8 UTF-8/en_\1.UTF-8 UTF-8/' \
+           -e 's/# fr_\(..\)\.UTF-8 UTF-8/fr_\1.UTF-8 UTF-8/' \
+           -e 's/# de_\(..\)\.UTF-8 UTF-8/de_\1.UTF-8 UTF-8/' /etc/locale.gen \
     && dpkg-reconfigure --frontend=noninteractive locales \
     && update-locale
 
@@ -92,6 +92,7 @@ RUN set -x \
 RUN set -x \
     && mkdir -p /ingress/templates /ingress/static /EXTRA-LICENSES \
     && pip3 install flask \
+	requests \
 	ruamel.yaml \
 	cheroot
 
@@ -104,7 +105,7 @@ RUN set -x \
     && rm -rf /tmp/mimic \
     && apt-get -y autoremove
 
-COPY ingress/control.py /ingress/
+COPY ingress/*.py /ingress/
 COPY ingress/templates/* /ingress/templates/
 COPY ingress/static/* /ingress/static/
 
@@ -124,6 +125,6 @@ COPY EXTRA-LICENSES/* /EXTRA-LICENSES/
 
 RUN rm -rf /etc/supervisor \
 	&& mkdir /etc/supervisor
-RUN chmod 755 /extract_assistant.sh /manage_tts_cache.sh /restart_snips_skill_server.sh /run.sh /start_service.sh /start_snips_watch.sh /stop_snips_watch.sh /update_ha_config.py /wait-for-it.sh /ingress/ /ingress/static/ /ingress/templates/ /etc/supervisor/ /tts/
+RUN chmod 755 /extract_assistant.sh /manage_tts_cache.sh /restart_snips_skill_server.sh /run.sh /start_service.sh /start_snips_watch.sh /stop_snips_watch.sh /update_ha_config.py /wait-for-it.sh /ingress/ /ingress/static/ /ingress/templates/ /ingress/control.py /etc/supervisor/ /tts/
 RUN chmod 644 /funcs.sh /ingress/static/* /ingress/templates/* /setup.sh /tts/tts-unparsed.sh
 ENTRYPOINT [ "/run.sh" ]
