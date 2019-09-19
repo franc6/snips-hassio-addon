@@ -1,3 +1,12 @@
+## 0.5.0 2019/09/19
+- Added support for downloading and installing snips assistants directly from the Snips Console
+- Improved handling of missing assistant ZIP file -- if it's missing and you have configured Snips Console login information, it'll continue startup, and let you use the Web UI to download and install an assistant
+- Improved temp file handling in Web UI
+- Added ability to configure Italian and Japanese as your language
+- Added defaults for language and country if not configured
+- Breaking changes to make add-on configuration a little more logical
+- Minor UI tweaks
+
 ## 0.4.1 2019/09/12
 - Fixed bug in apparmor.txt that prevented the add-on from starting
 
