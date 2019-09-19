@@ -41,23 +41,33 @@
             }
 
             function enableAssistantButtons(enable) {
+                {% if email|length %}
                 var downloadButton = document.getElementById('downloadAssistantButton');
                 var refreshButton = document.getElementById('refreshAssistantsButton');
-                var updateButton = document.getElementById('updateAssistantButton');
                 downloadButton.diabled = !enable;
                 refreshButton.diabled = !enable;
+
+                {% else %}
+                var updateButton = document.getElementById('updateAssistantButton');
                 updateButton.diabled = !enable;
+                {% endif %}
                 if (enable)
                 {
+                    {% if email|length %}
                     downloadButton.removeAttribute('disabled');
                     refreshButton.removeAttribute('disabled');
+                    {% else %}
                     updateButton.removeAttribute('disabled');
+                    {% endif %}
                 }
                 else
                 {
+                    {% if email|length %}
                     downloadButton.setAttribute('disabled', 'disabled');
                     refreshButton.setAttribute('disabled', 'disabled');
+                    {% else %}
                     updateButton.setAttribute('disabled', 'disabled');
+                    {% endif %}
                 }
             }
 
@@ -408,7 +418,9 @@
                             cm.ace.execCommand('saveFile');
                         });
                     });
+                    {% if email|length %}
                     getSnipsAssistants();
+                    {% endif %}
                     enableSnipsWatchButtons();
                     showControls();
                 }, 100);
@@ -429,29 +441,38 @@
         </div>
         <br clear="all" />
         <div id="controlsTab" class="topTab">
+            {% if email|length %}
             <h2>Download, Install, and Update Assistant</h2>
-            <p>If you have put your Snips Console email address and password
-            into the add-on's configuration, you should see all of your
-            assistants in the drop-list below.  Choose the assistant you want
-            to install, and click the Download Assistant button.  Please note
-            this will take a few minutes.</p>
+            <p>Your assistants are listed in the drop-list below.  Choose
+            the assistant you want to install, and click the Install
+            Assistant button.  This assistant you choose will also be copied
+            to {{ assistant_zip }}.  Please note this may take several
+            minutes.</p>
+            <p>If the drop-list is empty, please double-check the addon's
+            Config.  The snips_console settings are empty or incorrect.</p>
             <label>Snips Assistants:
                 <select id="assistantList">
                 </select>
             </label>
+            <br clear="all" />
             <input id="refreshAssistantsButton" value="Refresh Assistant List" type="button" onclick="getSnipsAssistants()" />
-            <br clear="all" />
-            <input id="downloadAssistantButton" value="Download Assistant" type="button" onclick="downloadAssistant()" />
-            <p>If you have replaced your assistant ZIP file, click the Update
-            Assistant button. Please note this could take a few minutes.</p>
+            <input id="downloadAssistantButton" value="Install Assistant" type="button" onclick="downloadAssistant()" />
+            {% else %}
+            <h2>Update Assistant</h2>
+            <p>If you have copied a new assistant to {{ assistant_zip }},
+            click the Update Assistant button. Please note this could take a
+            few minutes.</p>
             <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
-            <br clear="all" />
+            {% endif %}
+            <br clear="all" />&nbsp;
             <h2>Snips-watch</h2>
-            <p>You can start and stop snips-watch, even if you didn't configure it
-            to be started.  Note that starting it here will not change the
-            configuration.  If it is disabled in the configuration, the next time
-            you restart this addon, snips-watch will not be running.</p>
-            <p>The snips-watch log is always the first log file, when it is running.</p>
+            <p>You can start and stop snips-watch, even if you didn't
+            configure it to be started.  Note that starting it here will not
+            change the configuration.  If it is disabled in the
+            configuration, the next time you restart this addon, snips-watch
+            will not be running.</p>
+            <p>The snips-watch log is always the first log file, when it is
+            running.</p>
             <button id="button_start_snips_watch" onclick="startSnipsWatch()">Start snips-watch</button>
             <button id="button_stop_snips_watch" onclick="stopSnipsWatch()">Stop snips-watch</button>
         </div>

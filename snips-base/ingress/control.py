@@ -17,8 +17,9 @@ import snipsConsole
 
 fileNames = []
 root = ''
-email = None
-password = None
+assistant_zip = None
+email = ''
+password = ''
 
 config_ini_re = re.compile(r'-config.ini$')
 
@@ -49,7 +50,7 @@ def limit_remote():
 
 @app.route('/')
 def index():
-    return render_template('index.html', fileNames = fileNames, root = root, addon_version = addon_version, snips_version = snips_version)
+    return render_template('index.html', fileNames=fileNames, root=root, addon_version=addon_version, snips_version=snips_version, email=email, assistant_zip=assistant_zip)
 
 @app.route('/start_snips_watch')
 def start_snips_watch():
@@ -219,8 +220,10 @@ if __name__ == '__main__':
 
     with open('/data/options.json', 'r') as f:
         config = json.load(f)
-        email = config['snips_console']['email']
-        password = config['snips_console']['password']
+        if 'email' in config['snips_console']:
+            email = config['snips_console']['email']
+        if 'password' in config['snips_console']:
+            password = config['snips_console']['password']
         assistant_zip = config['assistant']
 
     dispatcher = PathInfoDispatcher({'/': app.wsgi_app, root: app.wsgi_app})
