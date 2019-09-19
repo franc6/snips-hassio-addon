@@ -25,43 +25,45 @@ if [ -z "${LANG}" ]; then
 	case "${COUNTRY}" in
 	    DE)
 		LANG="de"
-		bashio::log.warning "'language' was not set.  Assuming German."
+		;;
 	    FR)
 		LANG="fr"
-		bashio::log.warning "'language' was not set.  Assuming French."
+		;;
 	    IT)
 		LANG="it"
-		bashio::log.warning "'language' was not set.  Assuming Italian."
+		;;
 	    JP)
 		LANG="ja"
-		bashio::log.warning "'language' was not set.  Assuming Japanese."
+		;;
 	    *)
 		LANG="en"
-		bashio::log.warning "'language' was not set.  Assuming English."
+		;;
 	esac
     else
 	LANG="en"
-	bashio::log.warning "'language' was not set.  Assuming English."
     fi
+    bashio::log.warning "'language' was not set.  Assuming ${LANG}."
 fi
 
 if [ -z "${COUNTRY}" ]; then
-    if [ "${LANG}" == "de" ]; then
-	bashio::log.warning "'country' was not set.  Assuming Germany."
-	COUNTRY="DE"
-    elif [ "${LANG}" == "en" ]; then
-	bashio::log.warning "'country' was not set.  Assuming the United States."
-	COUNTRY="US"
-    elif [ "${LANG}" == "fr" ]; then
-	bashio::log.warning "'country was not set. Assuming France."
-	COUNTRY="FR"
-    elif [ "${LANG}" == "it" ]; then
-	bashio::log.warning "'country was not set. Assuming Italy."
-	COUNTRY="IT"
-    elif [ "${LANG}" == "ja" ]; then
-	bashio::log.warning "'country was not set. Assuming Japan."
-	COUNTRY="JP"
-    fi
+    case "${LANG}" in
+	de)
+	    COUNTRY="DE"
+	    ;;
+	fr)
+	    COUNTRY="FR"
+	    ;;
+	it)
+	    COUNTRY="IT"
+	    ;;
+	ja)
+	    COUNTRY="JP"
+	    ;;
+	*)
+	    COUNTRY="US"
+	    ;;
+    esac
+    bashio::log.warning "'country' was not set.  Assuming ${COUNTRY}."
 fi
 
 export LC_ALL="${LANG}_${COUNTRY}.UTF-8"
