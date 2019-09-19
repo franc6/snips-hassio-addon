@@ -16,9 +16,11 @@ RUN set -x \
         apt-transport-https
 
 RUN set -x \
-    && sed -i -e 's/# en_\(..\)\.UTF-8 UTF-8/en_\1.UTF-8 UTF-8/' \
+    && sed -i -e 's/# de_\(..\)\.UTF-8 UTF-8/de_\1.UTF-8 UTF-8/' \
+           -e 's/# en_\(..\)\.UTF-8 UTF-8/en_\1.UTF-8 UTF-8/' \
            -e 's/# fr_\(..\)\.UTF-8 UTF-8/fr_\1.UTF-8 UTF-8/' \
-           -e 's/# de_\(..\)\.UTF-8 UTF-8/de_\1.UTF-8 UTF-8/' /etc/locale.gen \
+           -e 's/# it_\(..\)\.UTF-8 UTF-8/it_\1.UTF-8 UTF-8/' \
+           -e 's/# ja_\(..\)\.UTF-8 UTF-8/ja_\1.UTF-8 UTF-8/' /etc/locale.gen \
     && dpkg-reconfigure --frontend=noninteractive locales \
     && update-locale
 

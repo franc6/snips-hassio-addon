@@ -16,8 +16,33 @@ if [ -z "${ASSISTANT}" ]; then
 fi
 
 if [ -z "${LANG}" ]; then
-    bashio::log.warning "'language' was not set.  Assuming English."
-    LANG="en"
+    if [ -n "${COUNTRY}" ]; then
+	# This isn't really reasonable; e.g. a user in LU, probably wants
+	# German or French, and a user in CH French, German or Italian, but
+	# which?  So default to the almost certainly wrong English.  Everyone
+	# will think "stupid American" about me, rather than think I'm
+	# prejudiced against one language or another.
+	case "${COUNTRY}" in
+	    DE)
+		LANG="de"
+		bashio::log.warning "'language' was not set.  Assuming German."
+	    FR)
+		LANG="fr"
+		bashio::log.warning "'language' was not set.  Assuming French."
+	    IT)
+		LANG="it"
+		bashio::log.warning "'language' was not set.  Assuming Italian."
+	    JP)
+		LANG="ja"
+		bashio::log.warning "'language' was not set.  Assuming Japanese."
+	    *)
+		LANG="en"
+		bashio::log.warning "'language' was not set.  Assuming English."
+	esac
+    else
+	LANG="en"
+	bashio::log.warning "'language' was not set.  Assuming English."
+    fi
 fi
 
 if [ -z "${COUNTRY}" ]; then
@@ -30,6 +55,12 @@ if [ -z "${COUNTRY}" ]; then
     elif [ "${LANG}" == "fr" ]; then
 	bashio::log.warning "'country was not set. Assuming France."
 	COUNTRY="FR"
+    elif [ "${LANG}" == "it" ]; then
+	bashio::log.warning "'country was not set. Assuming Italy."
+	COUNTRY="IT"
+    elif [ "${LANG}" == "ja" ]; then
+	bashio::log.warning "'country was not set. Assuming Japan."
+	COUNTRY="JP"
     fi
 fi
 

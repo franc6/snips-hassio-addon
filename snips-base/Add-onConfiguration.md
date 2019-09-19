@@ -5,7 +5,7 @@
 |[cafile](#cafile)|file name|certfile.pem|
 |[country_code](#country_code)|string|US|
 |[google_asr_credentials](#google_asr_credentials)|string||
-|[language](#language)|de, en, fr|en|
+|[language](#language)|de, en, fr, it, ja|en|
 |[restart_home_assistant](#restart_home_assistant)|true, false|false|
 |[snips_console](#snips_console)|See [snips_console](#snips_console)||
 |[snips_extras](#snips_extras)|See [snips_extras](#snips_extras)||
@@ -26,14 +26,16 @@ certificate for it here.  This should be a path relative to /share/snips.
 ## country_code
 The ISO 3166 two-letter country code for where you are.  If you do not set
 this, a default country will be chosen for you, based on the language setting.
-DE for German, US for English, and FR for French.
+DE for German, US for English, FR for French, IT for Italian, and JP for
+Japanese.
 
 ## google_asr_credentials
 If you want to use Google's ASR, specify your API key here.
 
 ## language
-The two-letter language code, in lower case.  You can only set de, en, or fr at
-this time.  If you do not set this, English will be chosen for you.
+The two-letter language code, in lower case.  You can only set de, en, fr, it,
+or ja at this time.  If you do not set this, a language will be chosen for you,
+perhaps not the one you would choose.
 
 ## restart_home_assistant
 Set this to true if you want Home Assistant to be restarted if its

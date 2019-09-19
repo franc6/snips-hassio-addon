@@ -67,7 +67,7 @@
         "cafile": "str",
         "country_code": "str",
         "google_asr_credentials": "str",
-        "language": "match(en|de|fr)",
+        "language": "match(en|de|fr|it|ja)",
         "restart_home_assistant": "bool",
         "snips_console": {
             "email": "email",
