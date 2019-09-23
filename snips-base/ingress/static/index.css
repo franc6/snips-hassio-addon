@@ -100,6 +100,9 @@
 .fullFlex > label {
     flex: auto;
 }
+#downloadStatusDiv {
+    display: none;
+}
 #files {
     position: absolute;
     /* 36px is 20px (padding + margin) + 16px (height of label & select) */
@@ -115,6 +118,9 @@
     height: calc(100% - 36px);
     left: 30%;
     width: calc(70% - 20px);
+}
+#status {
+    width: 200px;
 }
 #updateInterval {
     width: 40px;
@@ -143,6 +149,10 @@ label {
 }
 li {
     cursor: pointer;
+}
+progress {
+    height: 1em;
+    width: 200px;
 }
 ul {
     list-style: none;

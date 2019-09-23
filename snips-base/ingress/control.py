@@ -101,36 +101,35 @@ def assistant_list():
 def download_assistant():
     assistant_id = request.args.get('AssistantID')
     snips = snipsConsole.SnipsConsole()
+    abort_code = None
     if not snips.login(email, password):
         error("Could not login")
         abort(401)
 
     try:
         with NamedTemporaryFile() as temp_file:
-            download_success = snips.download_assistant(assistant_id, temp_file)
+            download_status = snips.download_assistant(assistant_id, temp_file)
             snips.logout()
-            if not download_success:
+            if download_status != 200:
                 error("Failed to download assistant: {}".format(assistant_id))
+                error("Status code: {}".format(download_status))
                 abort_code = 500
                 abort(abort_code)
             if not zipfile.is_zipfile(temp_file.name):
                 error("Didn't download a ZIP file!")
+                copyfile(temp_file.name, "/tmp/debug.txt")
                 abort_code = 404
                 abort(abort_code)
             status = 202
-            if not filecmp.cmp(assistant_zip, temp_file.name):
+            if not assistant_zip.exists() or not filecmp.cmp(assistant_zip, temp_file.name):
                 status = 200
                 try:
-                    info("Files are not the same; will copy and extract")
                     copyfile(temp_file.name, assistant_zip)
-                    extract_assistant()
                 except Exception as e:
                     error("Caught exception copying temp file or installing assistant")
                     error("Exception: {}".format(e))
                     abort_code = 500
                     abort(abort_code)
-            else:
-                info("Files are the same!")
             return app.response_class(" ", mimetype='text/plain', status=status)
     except Exception as e:
         snips.logout()
@@ -183,13 +182,34 @@ def stream():
         abort(403)
     return app.response_class(generate('/share/snips/logs/', log), mimetype='text/plain')
 
+@app.route('/train-assistant')
+def train_assistant():
+    assistant_id = request.args.get('AssistantID')
+    training_type = request.args.get('trainingType')
+    snips = snipsConsole.SnipsConsole()
+    if not snips.login(email, password):
+        error("Could not login")
+        abort(401)
+    result = snips.train_assistant(assistant_id, training_type)
+    snips.logout()
+    # Just forward the full result from sinps.train_assistant!
+    return (result.text, result.status_code, result.headers.items())
+
+@app.route('/training-status')
+def training_status():
+    assistant_id = request.args.get('AssistantID')
+    snips = snipsConsole.SnipsConsole()
+    if not snips.login(email, password):
+        error("Could not login")
+        abort(401)
+    training_status = snips.get_training_status(assistant_id)
+    snips.logout()
+    return app.response_class(training_status, mimetype='text/json', status=200)
+
 @app.route('/update-assistant')
 def update_assistant():
-    extract_assistant()
-    return app.response_class(" ", mimetype='text/plain')
-
-def extract_assistant():
     subprocess.call(['/extract_assistant.sh'])
+    return app.response_class(" ", mimetype='text/plain')
 
 def generate(directory, log):
     lines = []
@@ -225,6 +245,19 @@ if __name__ == '__main__':
         if 'password' in config['snips_console']:
             password = config['snips_console']['password']
         assistant_zip = config['assistant']
+
+    # Replicate code from funcs.sh to locate the assistant_zip file
+    # If it doesn't exist in /share/snips, check /share.  If it's in
+    # neither, assume it's in /share/snips!
+    test_path1 = Path('/share/snips') / assistant_zip
+    if test_path1.exists():
+        assistant_zip = test_path1
+    else:
+        test_path2 = Path('/share') / assistant_zip
+        if test_path2.exists():
+            assistant_zip = test_path2
+        else:
+            assistant_zip = test_path1
 
     dispatcher = PathInfoDispatcher({'/': app.wsgi_app, root: app.wsgi_app})
     server = WSGIServer((host, port), dispatcher)

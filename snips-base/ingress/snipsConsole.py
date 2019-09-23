@@ -13,7 +13,6 @@ class SnipsConsole():
 
     def login(self, email, password):
         if self.user_id is not None and self.alias is not None and self.access_token is not None:
-            #warning("Already logged in!")
             return True
 
         for x in range(0, self.login_retries):
@@ -55,7 +54,7 @@ class SnipsConsole():
         for chunk in r.iter_content(chunk_size=4096):
             temp_file.write(chunk)
         temp_file.flush()
-        return r.status_code == 200
+        return r.status_code
 
     def get_assistant_list(self):
         assistants = None
@@ -65,6 +64,15 @@ class SnipsConsole():
             assistants = js['assistants']
         return json.dumps(assistants)
         #assistant_id = assistants[0]['id']
+
+    def get_training_status(self, assistant_id):
+        r = self._get_request('v2/training/assistant/{assistant_id}'.format(assistant_id=assistant_id), False)
+        if r.status_code == 200:
+            return r.content
+        return '{ "nluStatus": { "needTraining": false, "inProgress": false }, "asrStatus": { "needTraining": false, "inProgress": false } }'
+
+    def train_assistant(self, assistant_id, training_type):
+        return self._post_request('v2/training/assistant/{assistant_id}'.format(assistant_id=assistant_id), { "trainingType": training_type })
 
     def _get_request(self, url, stream):
         full_url = '{base_url}/{url}'.format(base_url=self.base_url, url=url)

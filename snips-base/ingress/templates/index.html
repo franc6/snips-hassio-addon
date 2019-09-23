@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>Snips Base Web UI</title>
-        <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css?version=0.5.0" />
+        <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css?version=0.5.1" />
         <script type="text/javascript" src="{{ root }}/static/ansi_up.js"></script>
         <script type="text/javascript" src="{{ root }}/static/ace.js"></script>
         <script type="text/javascript" src="{{ root }}/static/keybinding-emacs.js"></script>
@@ -17,32 +17,16 @@
             var ansi_up = new AnsiUp;
             var editor = null;
 
-            function downloadAssistant() {
-                enableAssistantButtons(false);
-                var assistantList = document.getElementById('assistantList');
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', '{{ root }}/download-assistant?AssistantID=' + assistantList.options[assistantList.selectedIndex].value, true);
-                xhr.responseType = 'text';
-                xhr.onload = function() {
-                    if (xhr.readyState === xhr.DONE) {
-                        if (xhr.status == 200) {
-                            alert("Finished downloading and updating the assistant!")
-                        }
-                        else if (xhr.status == 202) {
-                            alert('The assistant appears to be the same!');
-                        }
-                        else {
-                            alert("Failed to update the assistant!")
-                        }
-                        enableAssistantButtons(true);
-                    }
-                }
-                xhr.send();
+            const timeout = async (ms) => new Promise(res => setTimeout(res, ms))
+
+            async function downloadAssistant(assistantID) {
+                // Force error here for now...
+                return fetch('{{ root }}/download-assistant?AssistantID=' + assistantID);
             }
 
             function enableAssistantButtons(enable) {
                 {% if email|length %}
-                var downloadButton = document.getElementById('downloadAssistantButton');
+                var downloadButton = document.getElementById('installAssistantButton');
                 var refreshButton = document.getElementById('refreshAssistantsButton');
                 downloadButton.diabled = !enable;
                 refreshButton.diabled = !enable;
@@ -138,6 +122,97 @@
                     }
                 }
                 xhr.send();
+            }
+
+            async function getTrainingStatus(assistantID) {
+                var assistantList = document.getElementById('assistantList');
+                var status = null;
+                return fetch('{{ root }}/training-status?AssistantID=' + assistantID)
+                    .then((response) => {
+                        return response.text();
+                    })
+                    .then((text) => {
+                        return JSON.parse(text);
+                    })
+                    .catch(function(err) {
+                        console.log(err);
+                        status = {
+                            nluStatus: { needTraining: false },
+                            asrStatus: { needTraining: false }
+                        }
+                        return status;
+                    });
+            }
+
+            async function installAssistant() {
+                var statusDiv = document.getElementById('downloadStatusDiv');
+                var statusText = document.getElementById('status');
+                statusText.innerHTML = '';
+                statusDiv.style.display = 'block';
+                enableAssistantButtons(false);
+                var assistantList = document.getElementById('assistantList');
+                var assistantID = assistantList.options[assistantList.selectedIndex].value;
+                stillTraining = true;
+                while (stillTraining)
+                {
+                    trainingStatus = await getTrainingStatus(assistantID);
+                    if (!trainingStatus.nluStatus.needTraining
+                        && !trainingStatus.asrStatus.needTraining
+                        && !trainingStatus.nluStatus.inProgress
+                        && !trainingStatus.asrStatus.inProgress)
+                    {
+                        stillTraining = false;
+                        break;
+                    }
+                    else if (trainingStatus.nluStatus.needTraining)
+                    {
+                        if (!trainingStatus.nluStatus.inProgress
+                            && !trainingStatus.asrStatus.inProgress)
+                        {
+                            setTimeout(() => {
+                                statusText.innerText = 'NLU training in progress...';
+                            }, 0);
+                            await trainAssistant(assistantID, 'nlu');
+                        }
+                    }
+                    else if (trainingStatus.asrStatus.needTraining)
+                    {
+                        if (!trainingStatus.nluStatus.inProgress
+                            && !trainingStatus.asrStatus.inProgress)
+                        {
+                            setTimeout(() => {
+                                statusText.innerText = 'ASR training in progress...';
+                            }, 0);
+                            await trainAssistant(assistantID, 'asr');
+                        }
+                    }
+                    await timeout(5000);
+                }
+
+                statusText.innerText = 'Download in progress...';
+                downloadAssistant(assistantID).
+                    then(async function(response) {
+                        if (response.status == 200) {
+                            statusText.innerText = 'Updating the assistant...';
+                            await updateAssistant();
+                            alert("Finished downloading the assistant. Beginning upate.")
+                        }
+                        else if (response.status == 202) {
+                            alert('The assistant appears to be the same!');
+                        }
+                        else {
+                            alert("Failed to update the assistant!")
+                        }
+                        var statusDiv = document.getElementById('downloadStatusDiv');
+                        statusDiv.style.display = 'none';
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        alert("Failed to contact the add-on!");
+                        var statusDiv = document.getElementById('downloadStatusDiv');
+                        statusDiv.style.display = 'none';
+                        enableAssistantButtons(true);
+                    });
             }
 
             function onEditorChange() {
@@ -367,6 +442,11 @@
                 xhr.send();
             }
 
+            async function trainAssistant(assistantID, trainingType) {
+                // Force error here for now...
+                return fetch('{{ root }}/train-assistant?AssistantID=' + assistantID + '&trainingType=' + trainingType);
+            }
+
             function updateCurrentLog() {
                 var button = document.getElementsByClassName('buttonActive')[0];
                 if (button)
@@ -456,7 +536,10 @@
             </label>
             <br clear="all" />
             <input id="refreshAssistantsButton" value="Refresh Assistant List" type="button" onclick="getSnipsAssistants()" />
-            <input id="downloadAssistantButton" value="Install Assistant" type="button" onclick="downloadAssistant()" />
+            <input id="installAssistantButton" value="Install Assistant" type="button" onclick="installAssistant()" />
+            <div id="downloadStatusDiv">
+                <progress></progress><div id="status"></div>
+            </div>
             {% else %}
             <h2>Update Assistant</h2>
             <p>If you have copied a new assistant to {{ assistant_zip }},
