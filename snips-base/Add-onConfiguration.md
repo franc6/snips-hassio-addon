@@ -11,6 +11,9 @@
 |[snips_extras](#snips_extras)|See [snips_extras](#snips_extras)||
 |[tts](#tts-options)||See [TTS Options](#tts-options).|
 
+Please note you must restart the add-on for changes to this configuration to
+take affect.
+
 ## assistant
 The name of your snips assistant, in a .ZIP file.  This should be a path
 relative to /share/snips.  Note that if you use the Web UI to install your
