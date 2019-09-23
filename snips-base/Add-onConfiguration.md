@@ -62,7 +62,11 @@ and use the Web UI to select and install your assistant.
 The email address for your Snips Console login.
 
 ### password
-The password for your Snips Console login.
+The password for your Snips Console login.  If you're running hassio build 186
+or later, you can put your password in secrets.yaml, and set this to "!secret
+&lt;password_identifier&gt; See
+[Storing Secrets](https://www.home-assistant.io/docs/configuration/secrets/)
+for more information.
 
 ## snips_extras
 These are options snips programs you can run.
