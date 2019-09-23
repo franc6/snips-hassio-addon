@@ -112,7 +112,7 @@
                             for (var idx = 0; idx < assistants.length; idx++)
                             {
                                 var opt = document.createElement('option');
-                                opt.innerHTML = assistants[idx].title;
+                                opt.innerText = assistants[idx].title;
                                 opt.value = assistants[idx].id;
                                 assistantList.appendChild(opt);
                             }
@@ -147,7 +147,7 @@
             async function installAssistant() {
                 var statusDiv = document.getElementById('downloadStatusDiv');
                 var statusText = document.getElementById('status');
-                statusText.innerHTML = '';
+                statusText.innerText = '';
                 statusDiv.style.display = 'block';
                 enableAssistantButtons(false);
                 var assistantList = document.getElementById('assistantList');
@@ -193,9 +193,7 @@
                 downloadAssistant(assistantID).
                     then(async function(response) {
                         if (response.status == 200) {
-                            statusText.innerText = 'Updating the assistant...';
-                            await updateAssistant();
-                            alert("Finished downloading the assistant. Beginning upate.")
+                            await _updateAssistant();
                         }
                         else if (response.status == 202) {
                             alert('The assistant appears to be the same!');
@@ -203,8 +201,6 @@
                         else {
                             alert("Failed to update the assistant!")
                         }
-                        var statusDiv = document.getElementById('downloadStatusDiv');
-                        statusDiv.style.display = 'none';
                     })
                     .catch((err) => {
                         console.log(err);
@@ -234,7 +230,7 @@
                 var activeConfig = document.getElementsByClassName('configFileActive')[0];
                 if (activeConfig != null)
                 {
-                    fileName = activeConfig.innerHTML;
+                    fileName = activeConfig.innerText;
                     fileData = editor.session.getValue();
                     var xhr = new XMLHttpRequest();
                     xhr.open('POST', '{{ root }}/save-config', true);
@@ -297,7 +293,7 @@
                 el.classList.add('configFileActive');
 
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', '{{ root }}/config?ini=' + el.innerHTML, true);
+                xhr.open('GET', '{{ root }}/config?ini=' + el.innerText, true);
                 xhr.responseType = 'text/html';
                 xhr.onload = function() {
                     if (xhr.readyState === xhr.DONE) {
@@ -352,7 +348,7 @@
                         if (xhr.readyState == xhr.DONE) {
                             if (xhr.status == 200) {
                                 var files = document.getElementById('files');
-                                files.innerHTML = xhr.responseText;
+                                files.innerText = xhr.responseText;
                             }
                         }
                     }
@@ -456,23 +452,34 @@
                 }
             }
 
-            function updateAssistant() {
+            async function updateAssistant() {
                 enableAssistantButtons(false);
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', '{{ root }}/update-assistant', true);
-                xhr.responseType = 'text';
-                xhr.onload = function() {
-                    if (xhr.readyState === xhr.DONE) {
-                        if (xhr.status == 200) {
+                await _updateAssistant();
+            }
+
+            function _updateAssistant() {
+                var statusDiv = document.getElementById('downloadStatusDiv');
+                var statusText = document.getElementById('status');
+                statusDiv.style.display = 'block';
+                setTimeout(() => {
+                    statusText.innerText = 'Updating the assistant...';
+                }, 0);
+                return fetch('{{ root }}/update-assistant')
+                    .then((response) => {
+                        if (response.status == 200) {
                             alert("Finished updating the assistant!")
                         }
                         else {
                             alert("Failed to update the assistant!")
                         }
+                    })
+                    .catch(() => {
+                        alert("Failed to update the assistant!")
+                    })
+                    .then(() => {
+                        statusDiv.style.display = 'none';
                         enableAssistantButtons(true);
-                    }
-                }
-                xhr.send();
+                    });
             }
 
             function updateLog(fileName) {
@@ -537,9 +544,6 @@
             <br clear="all" />
             <input id="refreshAssistantsButton" value="Refresh Assistant List" type="button" onclick="getSnipsAssistants()" />
             <input id="installAssistantButton" value="Install Assistant" type="button" onclick="installAssistant()" />
-            <div id="downloadStatusDiv">
-                <progress></progress><div id="status"></div>
-            </div>
             {% else %}
             <h2>Update Assistant</h2>
             <p>If you have copied a new assistant to {{ assistant_zip }},
@@ -547,6 +551,9 @@
             few minutes.</p>
             <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
             {% endif %}
+            <div id="downloadStatusDiv">
+                <progress></progress><div id="status"></div>
+            </div>
             <br clear="all" />&nbsp;
             <h2>Snips-watch</h2>
             <p>You can start and stop snips-watch, even if you didn't
