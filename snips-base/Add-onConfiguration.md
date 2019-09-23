@@ -1,22 +1,24 @@
 # Add-on Configuration
 | Option | Values | Default |
-|--------|--------|-------------|
-|[analytics](#analytics)|true, false|false|
+|--------|--------|---------|
 |[assistant](#assistant)|file name|assistant.zip|
 |[cafile](#cafile)|file name|certfile.pem|
 |[country_code](#country_code)|string|US|
 |[google_asr_credentials](#google_asr_credentials)|string||
-|[language](#language)|de, en, fr|en|
+|[language](#language)|de, en, fr, it, ja|en|
 |[restart_home_assistant](#restart_home_assistant)|true, false|false|
-|[snips_watch](#snips_watch)|true, false|false|
+|[snips_console](#snips_console)|See [snips_console](#snips_console)||
+|[snips_extras](#snips_extras)|See [snips_extras](#snips_extras)||
 |[tts](#tts-options)||See [TTS Options](#tts-options).|
 
-## analytics
-Set to true if you want to run snips-analytics.
+Please note you must restart the add-on for changes to this configuration to
+take affect.
 
 ## assistant
 The name of your snips assistant, in a .ZIP file.  This should be a path
-relative to /share/snips.
+relative to /share/snips.  Note that if you use the Web UI to install your
+assistant, this file will be replaced by the assistant that you install through
+the Web UI.
 
 ## cafile
 If your hass.io MQTT server uses TLS, specify a file containing the CA
@@ -25,19 +27,62 @@ certificate for it here.  This should be a path relative to /share/snips.
 **Note: If you are using the MQTT add-on, you don't need this.**
 
 ## country_code
-The ISO 3166 two-letter country code for where you are.
+The ISO 3166 two-letter country code for where you are.  If you do not set
+this, a default country will be chosen for you, based on the language setting.
+DE for German, US for English, FR for French, IT for Italian, and JP for
+Japanese.
 
 ## google_asr_credentials
 If you want to use Google's ASR, specify your API key here.
 
 ## language
-The two-letter language code.  You can only set de, en, or fr at this time.
+The two-letter language code, in lower case.  You can only set de, en, fr, it,
+or ja at this time.  If you do not set this, a language will be chosen for you,
+perhaps not the one you would choose.
 
 ## restart_home_assistant
 Set this to true if you want Home Assistant to be restarted if its
 configuration was changed by this add-on.
 
-## snips_watch
+## snips_console
+You can configure your email address and password for logging into the Snips
+Console.  If you do, the Web UI can be used to download and install your
+assistant.  Note that the ZIP file for the installed assistant will also be
+copied to the file specified in the [assistant](#assistant) option (in
+/share/snips).
+
+By using configuring your email address and password, you don't need to
+manually download your assistant's ZIP file from the Snips Console before
+starting this add-on.  Instead, you can start the add-on without an assistant,
+and use the Web UI to select and install your assistant.
+
+| Option | Values | Default |
+|--------|--------|---------|
+|[email](#email)|email address||
+|[password](#password)|string||
+
+### email
+The email address for your Snips Console login.
+
+### password
+The password for your Snips Console login.  If you're running hassio build 186
+or later, you can put your password in secrets.yaml, and set this to "!secret
+&lt;password_identifier&gt; See
+[Storing Secrets](https://www.home-assistant.io/docs/configuration/secrets/)
+for more information.
+
+## snips_extras
+These are options snips programs you can run.
+
+| Option | Values | Default |
+|--------|--------|---------|
+|[snips_analytics](#snips_analytics)|true, false|false|
+|[snips_watch](#snips_watch)|true, false|false|
+
+### snips_analytics
+Set to true if you want to run snips-analytics.
+
+### snips_watch
 If true, snips-watch will be started.  Use the Logs tab of the Web UI to
 view its output.
 

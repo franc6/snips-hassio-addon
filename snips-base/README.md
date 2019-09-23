@@ -24,6 +24,7 @@ extensively.  The features which need the most testing are:
 
 ## Features
 - Works only with satellites
+- Downloads and installs your assistant from the Snips Console (via Web UI, if configured)
 - Configuration of snips skills (via Web UI or your favorite text editor)
 - Installs Home Assistant skills (and optionally restarts Home Assistant if necessary)
 - Exposes log files (via WebUI and /share/snips/logs)

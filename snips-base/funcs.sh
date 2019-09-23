@@ -24,7 +24,7 @@ function extract_assistant() {
         rm -rf /usr/share/snips/assistant
         unzip -qq -d /usr/share/snips "${assistant}"
     else
-        bashio::log.error "Could not find the snips assistant!"
+        bashio::log.warning "Could not find the snips assistant, ${assistant}!"
         return 1
     fi
 

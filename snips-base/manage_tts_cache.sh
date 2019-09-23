@@ -23,7 +23,6 @@ esac
 maxCacheSize=${maxCacheSize/([^0-9]*)/}
 
 function manageCache() {
-    echo "BUSY"
     cacheSize=$(/usr/bin/du -s${duSizeOpt} "${cache}")
     cacheSize=${cacheSize/([^0-9]*)/}
     while [ ${cacheSize} -gt ${maxCacheSize} ]
@@ -35,8 +34,26 @@ function manageCache() {
 }
 
 echo "READY"
-read l && manageCache
-echo "RESULT 2"
-echo "OK"
+len=0
+read -a header
+for i in ${header[@]}
+do
+    if [[ ${i} == len:* ]]; then
+	len=${i/len:/}
+    fi
+done
+
+if [ "${len}" == "0" ]; then
+    exit 0
+fi
+
+read -N ${len} when && manageCache 
+if [ $? -eq 0 ]; then
+    echo "RESULT 2"
+    echo "OK"
+else
+    echo "RESULT 4"
+    echo "FAIL"
+fi
 exit 0
 

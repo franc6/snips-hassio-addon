@@ -1,20 +1,30 @@
+from base64 import b64decode
 from datetime import datetime
 import filecmp
+import json
 import os
 from pathlib import Path
 import re
+import requests
 from shutil import copyfile
 import subprocess
 import sys
+from tempfile import NamedTemporaryFile
+import zipfile
 from cheroot.wsgi import Server as WSGIServer, PathInfoDispatcher
 from flask import Flask, abort, render_template, request
+import snipsConsole
 
 fileNames = []
 root = ''
+assistant_zip = None
+email = ''
+password = ''
 
 config_ini_re = re.compile(r'-config.ini$')
 
 app = Flask(__name__)
+
 
 def logme(level, message):
     time = datetime.now()
@@ -40,7 +50,7 @@ def limit_remote():
 
 @app.route('/')
 def index():
-    return render_template('index.html', fileNames = fileNames, root = root, addon_version = addon_version, snips_version = snips_version)
+    return render_template('index.html', fileNames=fileNames, root=root, addon_version=addon_version, snips_version=snips_version, email=email, assistant_zip=assistant_zip)
 
 @app.route('/start_snips_watch')
 def start_snips_watch():
@@ -74,42 +84,95 @@ def config_file():
         abort(403)
     return app.response_class(generate('/share/snips/', ini), mimetype='text/plain')
 
+@app.route('/assistant-list')
+def assistant_list():
+    snips = snipsConsole.SnipsConsole()
+    if not snips.login(email, password):
+        error("Could not login")
+        abort(401)
+
+    assistants = snips.get_assistant_list()
+    snips.logout()
+    if assistants is None:
+        abort(404)
+    return app.response_class(assistants, mimetype='text/plain', status=200)
+
+@app.route('/download-assistant')
+def download_assistant():
+    assistant_id = request.args.get('AssistantID')
+    snips = snipsConsole.SnipsConsole()
+    abort_code = None
+    if not snips.login(email, password):
+        error("Could not login")
+        abort(401)
+
+    try:
+        with NamedTemporaryFile() as temp_file:
+            download_status = snips.download_assistant(assistant_id, temp_file)
+            snips.logout()
+            if download_status != 200:
+                error("Failed to download assistant: {}".format(assistant_id))
+                error("Status code: {}".format(download_status))
+                abort_code = 500
+                abort(abort_code)
+            if not zipfile.is_zipfile(temp_file.name):
+                error("Didn't download a ZIP file!")
+                copyfile(temp_file.name, "/tmp/debug.txt")
+                abort_code = 404
+                abort(abort_code)
+            status = 202
+            if not assistant_zip.exists() or not filecmp.cmp(assistant_zip, temp_file.name):
+                status = 200
+                try:
+                    copyfile(temp_file.name, assistant_zip)
+                except Exception as e:
+                    error("Caught exception copying temp file or installing assistant")
+                    error("Exception: {}".format(e))
+                    abort_code = 500
+                    abort(abort_code)
+            return app.response_class(" ", mimetype='text/plain', status=status)
+    except Exception as e:
+        snips.logout()
+        if abort_code is None:
+            error("Caught exception downloading assistant")
+            error("Exception: {}".format(e))
+            abort_code = 500
+        abort(abort_code)
+
+    return app.response_class(' ', mimetype='text/plain', status=403)
+
 @app.route('/save-config', methods=['POST'])
 def save_config():
     file_name = request.headers.get('X-File-Name')
     if file_name and allowed_file(file_name):
         final_name = '/share/snips/' + file_name
         skill_config_name = '/var/lib/snips/skills/' + config_ini_re.sub('/config.ini', file_name)
-        temp_name = '/tmp/config.ini'
         bytes_left = int(request.headers.get('Content-Length'))
-        with open(temp_name, 'wb') as temp_file:
+        with NamedTemporaryFile() as temp_file:
             chunk_size = 4096
             while bytes_left > 0:
                 chunk = request.stream.read(chunk_size)
                 temp_file.write(chunk)
                 bytes_left -= len(chunk)
-        if not filecmp.cmp(final_name, temp_name):
-            try:
-                copyfile(temp_name, final_name)
-                # Don't bother trying to copy the file or restart the skills
-                # server if the skill doesn't actually exist!  This can happen,
-                # e.g., if someone removed a skill from their assistant.
-                # Response should be 202 in that case
-                status = 202
-                info("Checking if {} exists".format(skill_config_name))
-                if os.path.exists(skill_config_name):
-                    copyfile(temp_name, skill_config_name)
-                    subprocess.call(['/restart_snips_skill_server.sh'])
-                    status = 200
-                os.unlink(temp_name)
-                return app.response_class(' ', mimetype='text/plain', status=status)
-            except Exception as e:
-                error("Caught exception copying temp file or restarting snips-skill-server")
-                error("Exception: {}".format(e))
-                os.unlink(temp_name)
-                abort(500)
-        os.unlink(temp_name)
-        return app.response_class(' ', mimetype='text/plain', status=208)
+            temp_file.flush()
+            if not filecmp.cmp(final_name, temp_file.name):
+                try:
+                    copyfile(temp_file.name, final_name)
+                    # Don't bother trying to copy the file or restart the
+                    # skills server if the skill doesn't actually exist!  This
+                    # can happen, e.g., if someone removed a skill from their
+                    # assistant.  Response should be 202 in that case
+                    status = 202
+                    if os.path.exists(skill_config_name):
+                        copyfile(temp_file.name, skill_config_name)
+                        subprocess.call(['/restart_snips_skill_server.sh'])
+                        status = 200
+                    return app.response_class(' ', mimetype='text/plain', status=status)
+                except Exception as e:
+                    error("Caught exception copying temp file or restarting snips-skill-server")
+                    error("Exception: {}".format(e))
+                    abort(500)
+            return app.response_class(' ', mimetype='text/plain', status=208)
     abort(403)
 
 @app.route('/stream')
@@ -118,6 +181,30 @@ def stream():
     if log not in fileNames:
         abort(403)
     return app.response_class(generate('/share/snips/logs/', log), mimetype='text/plain')
+
+@app.route('/train-assistant')
+def train_assistant():
+    assistant_id = request.args.get('AssistantID')
+    training_type = request.args.get('trainingType')
+    snips = snipsConsole.SnipsConsole()
+    if not snips.login(email, password):
+        error("Could not login")
+        abort(401)
+    result = snips.train_assistant(assistant_id, training_type)
+    snips.logout()
+    # Just forward the full result from sinps.train_assistant!
+    return (result.text, result.status_code, result.headers.items())
+
+@app.route('/training-status')
+def training_status():
+    assistant_id = request.args.get('AssistantID')
+    snips = snipsConsole.SnipsConsole()
+    if not snips.login(email, password):
+        error("Could not login")
+        abort(401)
+    training_status = snips.get_training_status(assistant_id)
+    snips.logout()
+    return app.response_class(training_status, mimetype='text/json', status=200)
 
 @app.route('/update-assistant')
 def update_assistant():
@@ -139,7 +226,6 @@ def generate(directory, log):
         error("Exception: {}".format(e))
     return ""
 
-
 # There should really be some more error handling here...
 if __name__ == '__main__':
     host = sys.argv[1]
@@ -151,6 +237,27 @@ if __name__ == '__main__':
     if 'snips-watch.log' in fileNames:
         fileNames.remove('snips-watch.log')
         fileNames.insert(0, 'snips-watch.log')
+
+    with open('/data/options.json', 'r') as f:
+        config = json.load(f)
+        if 'email' in config['snips_console']:
+            email = config['snips_console']['email']
+        if 'password' in config['snips_console']:
+            password = config['snips_console']['password']
+        assistant_zip = config['assistant']
+
+    # Replicate code from funcs.sh to locate the assistant_zip file
+    # If it doesn't exist in /share/snips, check /share.  If it's in
+    # neither, assume it's in /share/snips!
+    test_path1 = Path('/share/snips') / assistant_zip
+    if test_path1.exists():
+        assistant_zip = test_path1
+    else:
+        test_path2 = Path('/share') / assistant_zip
+        if test_path2.exists():
+            assistant_zip = test_path2
+        else:
+            assistant_zip = test_path1
 
     dispatcher = PathInfoDispatcher({'/': app.wsgi_app, root: app.wsgi_app})
     server = WSGIServer((host, port), dispatcher)

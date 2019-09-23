@@ -3,12 +3,68 @@ set -e
 
 CONFIG_PATH=/data/options.json
 
-SNIPS_ANALYTICS=$(bashio::config 'analytics')
 ASSISTANT=$(bashio::config 'assistant')
 LANG=$(bashio::config 'language')
 COUNTRY=$(bashio::config 'country_code')
 GOOGLE_ASR_CREDENTIALS=$(bashio::config 'google_asr_credentials')
-SNIPS_WATCH=$(bashio::config 'snips_watch')
+SNIPS_ANALYTICS=$(bashio::config 'snips_extras.snips_analytics')
+SNIPS_WATCH=$(bashio::config 'snips_extras.snips_watch')
+
+if [ -z "${ASSISTANT}" ]; then
+    bashio::log.error "Invalid configuration.  'assistant' must not be empty!"
+    exit 1
+fi
+
+if [ -z "${LANG}" ]; then
+    if [ -n "${COUNTRY}" ]; then
+	# This isn't really reasonable; e.g. a user in LU, probably wants
+	# German or French, and a user in CH French, German or Italian, but
+	# which?  So default to the almost certainly wrong English.  Everyone
+	# will think "stupid American" about me, rather than think I'm
+	# prejudiced against one language or another.
+	case "${COUNTRY}" in
+	    DE)
+		LANG="de"
+		;;
+	    FR)
+		LANG="fr"
+		;;
+	    IT)
+		LANG="it"
+		;;
+	    JP)
+		LANG="ja"
+		;;
+	    *)
+		LANG="en"
+		;;
+	esac
+    else
+	LANG="en"
+    fi
+    bashio::log.warning "'language' was not set.  Assuming ${LANG}."
+fi
+
+if [ -z "${COUNTRY}" ]; then
+    case "${LANG}" in
+	de)
+	    COUNTRY="DE"
+	    ;;
+	fr)
+	    COUNTRY="FR"
+	    ;;
+	it)
+	    COUNTRY="IT"
+	    ;;
+	ja)
+	    COUNTRY="JP"
+	    ;;
+	*)
+	    COUNTRY="US"
+	    ;;
+    esac
+    bashio::log.warning "'country' was not set.  Assuming ${COUNTRY}."
+fi
 
 export LC_ALL="${LANG}_${COUNTRY}.UTF-8"
 
@@ -47,14 +103,23 @@ if ! setup_tts_script ; then
 fi
 
 if ! extract_assistant "${ASSISTANT}" ; then
-    bashio::log.error "Failed to extract and setup assistant!"
-    stop_snips
-    exit 1
+    bashio::log.error "Snips is not running yet!"
+    SNIPS_EMAIL=$(bashio::config 'snips_console.email')
+    SNIPS_PASSWORD=$(bashio::config 'snips_console.password')
+    if [ -n "${SNIPS_EMAIL}" -a -n "${SNIPS_PASSWORD}" ]; then
+	bashio::log.warning "You can use the Web UI to install your assistant.  Snips will start after the assistant is installed."
+    else
+	bashio::log.error "You have not configured your Snips Console email address and password.  You must configure those or copy your assistant's ZIP file to /share/snips/${ASSISTANT}.  This add-on will now exit."
+	stop_snips
+	exit 1
+    fi
+    SNIPS_EMAIL=
+    SNIPS_PASSWORD=
+else
+    bashio::log.info "Waiting for mosquitto to settle..."
+    sleep 5
+    start_snips
 fi
-
-bashio::log.info "Waiting for mosquitto to settle..."
-sleep 5
-start_snips
 
 function stop_addon() {
     bashio::log.info "Shutdown $(hostname)"
