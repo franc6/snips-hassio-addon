@@ -1,16 +1,9 @@
 ARG BUILD_FROM
-FROM mammo0/armv7hf-debian-qemu AS QEMU
 FROM $BUILD_FROM
 
 ARG BUILD_ARCH
 
 ENV LANG C.UTF-8
-
-COPY --from=QEMU /usr/bin/qemu-arm-static /usr/bin/qemu-arm-static
-COPY --from=QEMU /usr/bin/cross-build-start /usr/bin
-COPY --from=QEMU /usr/bin/cross-build-end /usr/bin
-COPY --from=QEMU /usr/bin/resin-xbuild /usr/bin
-RUN [ "cross-build-start" ]
 
 # Update system and install dependencies and the snips repository
 RUN set -x \
@@ -50,9 +43,9 @@ RUN set -x \
         unzip \
     && rm -rf /var/lib/apt/lists/* \
     && if [ "$BUILD_ARCH" = "amd64" ]; then \
-        sh -c  'echo "deb https://debian.snips.ai/stretch stable main" > /etc/apt/sources.list.d/snips.list'; (apt-key adv --keyserver pgp.surfnet.nl --recv-keys F727C778CCB0A455 || apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F727C778CCB0A455); \
+        bash -c  'echo "deb https://debian.snips.ai/stretch stable main" > /etc/apt/sources.list.d/snips.list'; (apt-key adv --keyserver pgp.surfnet.nl --recv-keys F727C778CCB0A455 || apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F727C778CCB0A455); \
     else \
-        sh -c  'echo "deb https://raspbian.snips.ai/stretch stable main" > /etc/apt/sources.list.d/snips.list'; (apt-key adv --keyserver pgp.surfnet.nl --recv-keys D4F50CDCA10A2849 || apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D4F50CDCA10A2849); \
+        bash -c  'echo "deb https://raspbian.snips.ai/stretch stable main" > /etc/apt/sources.list.d/snips.list'; (apt-key adv --keyserver pgp.surfnet.nl --recv-keys D4F50CDCA10A2849 || apt-key adv --keyserver keyserver.ubuntu.com --recv-keys D4F50CDCA10A2849); \
     fi \
     && pip install virtualenv
 
@@ -74,25 +67,24 @@ RUN set -x \
 
 # Install mimic from Mycroft
 RUN set -x \
-    && [ "$BUILD_ARCH" = "amd64" ] \
-        && apt-get install -y \
-            gcc \
-            make \
-            pkg-config \
-            automake \
-            libtool \
-            libicu-dev \
-            libpcre2-dev \
-            libasound2-dev \
-        && cd /tmp \
-        && git clone https://github.com/MycroftAI/mimic.git \
-        && cd /tmp/mimic \
-        && ./autogen.sh \
-        && ./configure --prefix=/usr/local \
-        && make \
-        && make check \
-        && make install
-
+    && apt-get install -y \
+        gcc \
+        make \
+        pkg-config \
+        automake \
+        libtool \
+        libicu-dev \
+        libpcre2-dev \
+        libasound2-dev
+WORKDIR /tmp
+RUN set -x && git clone https://github.com/MycroftAI/mimic.git
+WORKDIR /tmp/mimic
+RUN set -x \
+    && ./autogen.sh \
+    && ./configure --prefix=/usr/local \
+    && make \
+    && make check \
+    && make install
 WORKDIR /
 
 RUN set -x \
@@ -137,7 +129,4 @@ RUN rm -rf /etc/supervisor \
         && mkdir /etc/supervisor
 RUN chmod 755 /extract_assistant.sh /manage_tts_cache.sh /restart_snips_skill_server.sh /run.sh /start_service.sh /start_snips_watch.sh /stop_snips_watch.sh /update_ha_config.py /wait-for-it.sh /ingress/ /ingress/static/ /ingress/templates/ /ingress/control.py /etc/supervisor/ /tts/
 RUN chmod 644 /funcs.sh /ingress/static/* /ingress/templates/* /setup.sh /tts/tts-unparsed.sh
-
-RUN [ "cross-build-end" ]
-
 ENTRYPOINT [ "/run.sh" ]
