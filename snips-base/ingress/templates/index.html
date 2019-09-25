@@ -348,7 +348,7 @@
                         if (xhr.readyState == xhr.DONE) {
                             if (xhr.status == 200) {
                                 var files = document.getElementById('files');
-                                files.innerText = xhr.responseText;
+                                files.innerHTML = xhr.responseText;
                             }
                         }
                     }
