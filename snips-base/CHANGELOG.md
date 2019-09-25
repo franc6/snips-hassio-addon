@@ -1,4 +1,8 @@
-## 0.5.0 2019/09/19
+## 0.5.1 2019/09/24
+- Fixed bug with starting snips-watch, introduced in 0.5.0 or 0.4.0?
+- Fixed bug with editing config.ini files introduced in 0.5.0
+
+## 0.5.0 2019/09/22
 - Added support for downloading and installing snips assistants directly from the Snips Console
 - Improved handling of missing assistant ZIP file -- if it's missing and you have configured Snips Console login information, it'll continue startup, and let you use the Web UI to download and install an assistant
 - Improved temp file handling in Web UI
