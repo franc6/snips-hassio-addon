@@ -1,6 +1,6 @@
-## 0.5.1 2019/09/24
-- Fixed bug with starting snips-watch, introduced in 0.5.0 or 0.4.0?
-- Fixed bug with editing config.ini files introduced in 0.5.0
+## 0.5.1 2019/09/26
+- Fixed issue #6, can once again start snips-watch
+- Fixed issue #5, can edit config.ini files again
 
 ## 0.5.0 2019/09/22
 - Added support for downloading and installing snips assistants directly from the Snips Console
