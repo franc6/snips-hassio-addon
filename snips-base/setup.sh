@@ -139,6 +139,7 @@ function setup_supervisord() {
 
     snips_watch_autostart="false"
     snips_watch_autorestart="false"
+    snips_watch_flags="-vvv"
     if [ "${SNIPS_WATCH}" = "true" ]; then
 	snips_watch_autostart="true"
 	snips_watch_autorestart="true"
