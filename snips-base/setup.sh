@@ -137,12 +137,15 @@ function setup_supervisord() {
         fi
     done
 
-    # snips-watch must not be included in SNIPS_GROUP, so we add it only after
-    # setting up SNIPS_GROUP!
     snips_watch_autostart="false"
     snips_watch_autorestart="false"
+    snips_watch_flags="-vvv"
     if [ "${SNIPS_WATCH}" = "true" ]; then
-        SERVICES+=(snips-watch)
+	snips_watch_autostart="true"
+	snips_watch_autorestart="true"
+	# snips-watch must not be included in SNIPS_GROUP, so we add it only
+	# after setting up SNIPS_GROUP!
+	SERVICES+=(snips-watch)
     fi
 
     snips_audio_server_flags="--disable-playback --no-mike --hijack localhost:64321"
@@ -168,6 +171,12 @@ function setup_supervisord() {
     mosquitto_startsecs=15
     mosquitto_autostart="true"
     mosquitto_autorestart="true"
+
+    # If snips-watch wasn't enabled, we need to add it to SERVICES now, so that
+    # it'll be generated in supervisor.conf
+    if [ "${SNIPS_WATCH}" != "true" ]; then
+	SERVICES+=(snips-watch)
+    fi
 
     rm -f ${SUPERVISORD_CONF}
     cat > ${SUPERVISORD_CONF} << _EOF_SUPERVISORD_CONF
