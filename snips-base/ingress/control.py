@@ -209,7 +209,7 @@ def training_status():
 @app.route('/update-assistant')
 def update_assistant():
     subprocess.call(['/extract_assistant.sh'])
-    return app.response_class(" ", mimetype='text/plain')
+    return app.response_class(" ", mimetype='text/plain', status=200)
 
 def generate(directory, log):
     lines = []
