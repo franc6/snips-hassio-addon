@@ -3,7 +3,8 @@ configuration files, screenshots, and documentation for teh snips-base add-on,
 which were created by TOM.
 
 Specifically, it does NOT apply to ansi_up.js, wait-for-it.sh, Home Assistant,
-Snips.ai, mimic, and other third-party software installed in the docker image.
+Snips.ai, localization.js, mimic, and other third-party software installed in
+the docker image.
 See EXTRA-LICENSES/README.md for more details of third-party software.
 
 This license and copyright statement cover the following files (as they appear
@@ -21,6 +22,7 @@ funcs.sh
 hooks/build
 ingress/control.py
 ingress/templates/index.html
+ingress/static/translations.js
 run.sh
 snips-base-webui.png
 start_server.sh

@@ -2,15 +2,17 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>Snips Base Web UI</title>
+        <title>Snips.AI Base for Hass.io Web UI</title>
         <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css?version=0.5.1" />
         <script type="text/javascript" src="{{ root }}/static/ansi_up.js"></script>
         <script type="text/javascript" src="{{ root }}/static/ace.js"></script>
         <script type="text/javascript" src="{{ root }}/static/keybinding-emacs.js"></script>
         <script type="text/javascript" src="{{ root }}/static/keybinding-sublime.js"></script>
         <script type="text/javascript" src="{{ root }}/static/keybinding-vim.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/localization.js?version=0.5.1B"></script>
         <script type="text/javascript" src="{{ root }}/static/mode-ini.js"></script>
         <script type="text/javascript" src="{{ root }}/static/theme-textmate.js"></script>
+        <script type="text/javascript" src="{{ root }}/static/translations.js?version=0.5.1H"></script>
         <script type="text/javascript">
             var intervalID = null;
             var updateInterval = 5000;
@@ -18,6 +20,13 @@
             var editor = null;
 
             const timeout = async (ms) => new Promise(res => setTimeout(res, ms))
+
+            String.prototype.format = function () {
+                var args = arguments;
+                return this.replace(/\{(\d+)\}/g, function (m, n) {
+                    return args[n];
+                });
+            };
 
             async function downloadAssistant(assistantID) {
                 // Force error here for now...
@@ -170,7 +179,7 @@
                             && !trainingStatus.asrStatus.inProgress)
                         {
                             setTimeout(() => {
-                                statusText.innerText = 'NLU training in progress...';
+                                statusText.innerText = window.localization.for('NLUTraining');
                             }, 0);
                             await trainAssistant(assistantID, 'nlu');
                         }
@@ -181,7 +190,7 @@
                             && !trainingStatus.asrStatus.inProgress)
                         {
                             setTimeout(() => {
-                                statusText.innerText = 'ASR training in progress...';
+                                statusText.innerText = window.localization.for('ASRTraining');
                             }, 0);
                             await trainAssistant(assistantID, 'asr');
                         }
@@ -189,22 +198,22 @@
                     await timeout(5000);
                 }
 
-                statusText.innerText = 'Download in progress...';
+                statusText.innerText = window.localization.for('Downloading');
                 downloadAssistant(assistantID).
                     then(async function(response) {
                         if (response.status == 200) {
                             await _updateAssistant();
                         }
                         else if (response.status == 202) {
-                            alert('The assistant appears to be the same!');
+                            alert(window.localization.for('AssistantNotChanged'));
                         }
                         else {
-                            alert("Failed to update the assistant!")
+                            alert(window.localization.for('AssistantUpdateFailed'));
                         }
                     })
                     .catch((err) => {
                         console.log(err);
-                        alert("Failed to contact the add-on!");
+                        alert(window.localization.for('AddonContactFailed'));
                         var statusDiv = document.getElementById('downloadStatusDiv');
                         statusDiv.style.display = 'none';
                         enableAssistantButtons(true);
@@ -241,22 +250,22 @@
                     xhr.onload = function() {
                         if (xhr.readyState === xhr.DONE) {
                             if (xhr.status == 200) {
-                                alert(fileName + ' was saved, and the skill server restarted.');
+                                alert(window.localization.for('ConfigSavedAndSkillServerRestarted').format(fileName));
                             }
                             else if (xhr.status == 202) {
-                                alert(fileName + ' was saved, but doesn\'t seem to be used.');
+                                alert(window.localization.for('ConfigSavedNotUsed').format(fileName));
                             }
                             else if (xhr.status == 208) {
-                                alert(fileName + ' was not changed.')
+                                alert(window.localization.for('ConfigUnchanged').format(fileName));
                             }
                             else if (xhr.status == 403) {
-                                alert('You do not have access to change ' + fileName);
+                                alert(window.localization.for('ConfigPermissionDenied').format(fileName));
                             }
                             else if (xhr.status == 500) {
-                                alert('The server encountered an error saving ' + fileName);
+                                alert(window.localization.for('ConfigServerErrorDuringSave').format(fileName));
                             }
                             else {
-                                alert('Unknown response code: ' + xhr.status);
+                                alert(window.localization.for('ConfigUnknownResponseCode').format(xhr.status, fileName));
                             }
                         }
                     }
@@ -272,7 +281,7 @@
             }
 
             function setUpdateInterval() {
-                var updateElement = document.getElementById("updateInterval");
+                var updateElement = document.getElementById('updateInterval');
                 if (updateElement.value < 0.1)
                     updateElement.value = 0.1;
 
@@ -315,7 +324,7 @@
                     editor = ace.edit('editor');
                     editor.setTheme('ace/theme/textmate');
                     editor.session.setMode('ace/mode/ini');
-                    editor.on("change", onEditorChange);
+                    editor.on('change', onEditorChange);
                     editor.commands.addCommand({
                         name: 'saveFile',
                         bindkey: {
@@ -364,7 +373,7 @@
                 var button = document.getElementsByClassName('buttonActive')[0];
                 if (button)
                 {
-                    var fileName = button.id.split("_")[1];
+                    var fileName = button.id.split('_')[1];
                     showLog(fileName);
                 }
                 showTopTab('buttonLogs', 'logTab');
@@ -383,9 +392,9 @@
                     tabs[idx].style.display = 'none';
                 }
                 updateLog(fileName);
-                var button = document.getElementById("button_" + fileName);
+                var button = document.getElementById('button_' + fileName);
                 button.classList.add('buttonActive');
-                var tab = document.getElementById("tab_" + fileName);
+                var tab = document.getElementById('tab_' + fileName);
                 tab.style.display = 'block';
             }
 
@@ -447,7 +456,7 @@
                 var button = document.getElementsByClassName('buttonActive')[0];
                 if (button)
                 {
-                    var fileName = button.id.split("_")[1];
+                    var fileName = button.id.split('_')[1];
                     updateLog(fileName);
                 }
             }
@@ -462,19 +471,19 @@
                 var statusText = document.getElementById('status');
                 statusDiv.style.display = 'block';
                 setTimeout(() => {
-                    statusText.innerText = 'Updating the assistant...';
+                    statusText.innerText = window.localization.for('UpdatingAssistant');
                 }, 0);
                 return fetch('{{ root }}/update-assistant')
                     .then((response) => {
                         if (response.status == 200) {
-                            alert("Finished updating the assistant!")
+                            alert(window.localization.for('UpdatingAssistantDone'));
                         }
                         else {
-                            alert("Failed to update the assistant!")
+                            alert(window.localization.for('AssistantUpdateFailed'));
                         }
                     })
                     .catch(() => {
-                        alert("Failed to update the assistant!")
+                        alert(window.localization.for('AssistantUpdateFailed'));
                     })
                     .then(() => {
                         statusDiv.style.display = 'none';
@@ -499,6 +508,7 @@
 
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
+                    initTranslations();
                     ace.config.loadModule('ace/keyboard/vim', function(m) {
                         var vimAPI = ace.require('ace/keyboard/vim').CodeMirror.Vim;
                         vimAPI.defineEx('write', 'w', function(cm, input) {
@@ -515,59 +525,58 @@
         </script>
     </head>
     <body>
-        <h1 class="floatLeft">Snips.AI Base for Hass.io</h1>
+        <!-- All translatable text should come from a string in
+        translations.js!  Add a class to the element, and name it as
+        "l10n-blah" where "blah" is the string ID in translations.js.
+        The l10n class should be the FIRST class in the list to make it easier
+        to identify. -->
+        <h1 class="l10n-title floatLeft"></h1>
         <table class="floatRight">
-            <tr><td>Add-on version:</td><td>{{ addon_version }}</td></tr>
-            <tr><td>Snips version:</td><td>{{ snips_version }}</td></tr>
+            <tr><td class="l10n-addonVersion"></td><td>{{ addon_version }}</td></tr>
+            <tr><td class="l10n-snipsVersion"></td><td>{{ snips_version }}</td></tr>
         </table>
         <br clear="all" />
         <div class="buttonContainer">
-            <button class="button topButtonActive" id="buttonControls" onclick="showControls()">Server Controls</button>
-            <button class="button topButtonActive" id="buttonLogs" onclick="showLogs()">Logs</button>
-            <button class="button topButtonActive" id="buttonConfigs" onclick="showConfigs()">Skill Configs</button>
+            <button class="l10n-serverControlsTabButton button topButtonActive" id="buttonControls" onclick="showControls()"></button>
+            <button class="l10n-logsTabButton button topButtonActive" id="buttonLogs" onclick="showLogs()"></button>
+            <button class="l10n-skillConfigsTabButton button topButtonActive" id="buttonConfigs" onclick="showConfigs()"></button>
         </div>
         <br clear="all" />
         <div id="controlsTab" class="topTab">
             {% if email|length %}
-            <h2>Download, Install, and Update Assistant</h2>
+            <h2 class="l10n-downloadAssistantTitle"></h2>
             <p>Your assistants are listed in the drop-list below.  Choose
             the assistant you want to install, and click the Install
             Assistant button.  This assistant you choose will also be copied
             to {{ assistant_zip }}.  Please note this may take several
             minutes.</p>
-            <p>If the drop-list is empty, please double-check the addon's
-            Config.  The snips_console settings are empty or incorrect.</p>
-            <label>Snips Assistants:
+            <p><span class="l10n-emptyAssistantsList"></span></p>
+            <label><span class="l10n-snipsAssistantsLabel"></span>
                 <select id="assistantList">
                 </select>
             </label>
             <br clear="all" />
-            <input id="refreshAssistantsButton" value="Refresh Assistant List" type="button" onclick="getSnipsAssistants()" />
-            <input id="installAssistantButton" value="Install Assistant" type="button" onclick="installAssistant()" />
+            <button id="refreshAssistantsButton" class="l10n-refreshAssistantsListButton" onclick="getSnipsAssistants()"></button>
+            <button id="installAssistantButton" class="l10n-installAssistantButton" onclick="installAssistant()"></button>
             {% else %}
-            <h2>Update Assistant</h2>
+            <h2 class="l10n-updateAssistantTitle"></h2>
             <p>If you have copied a new assistant to {{ assistant_zip }},
             click the Update Assistant button. Please note this could take a
             few minutes.</p>
-            <input id="updateAssistantButton" value="Update Assistant" type="button" onclick="updateAssistant()" />
+            <button id="updateAssistantButton" class="l10n-updateAssistantButton" type="button" onclick="updateAssistant()"></button>
             {% endif %}
             <div id="downloadStatusDiv">
                 <progress></progress><div id="status"></div>
             </div>
             <br clear="all" />&nbsp;
-            <h2>Snips-watch</h2>
-            <p>You can start and stop snips-watch, even if you didn't
-            configure it to be started.  Note that starting it here will not
-            change the configuration.  If it is disabled in the
-            configuration, the next time you restart this addon, snips-watch
-            will not be running.</p>
-            <p>The snips-watch log is always the first log file, when it is
-            running.</p>
-            <button id="button_start_snips_watch" onclick="startSnipsWatch()">Start snips-watch</button>
-            <button id="button_stop_snips_watch" onclick="stopSnipsWatch()">Stop snips-watch</button>
+            <h2 class="l10n-snipsWatchTitle">Snips-watch</h2>
+            <p><span class="l10n-snipsWatchPara1"></span></p>
+            <p><span class="l10n-snipsWatchPara2"></span></p>
+            <button id="button_start_snips_watch" class="l10n-startSnipsWatchButton" onclick="startSnipsWatch()"></button>
+            <button id="button_stop_snips_watch" class="l10n-stopSnipsWatchButton" onclick="stopSnipsWatch()"></button>
         </div>
         <div id="logTab" class="topTab">
-            Update interval: <input id="updateInterval" type="number" value="5.0" min="0.1" step="0.1" />&nbsp;<input value="Set" type="button" onclick="setUpdateInterval()" />
+            <span class="l10n-updateIntervalLabel">&nbsp;</span>&nbsp;<input id="updateInterval" type="number" value="5.0" min="0.1" step="0.1"></input>&nbsp;<button class="l10n-setButton" onclick="setUpdateInterval()"></button>
             <hr />
             <div class="tabBox">
                 <div class="buttonContainer">
@@ -579,7 +588,7 @@
                 <div class="tabContainer">
                     {% for fileName in fileNames %}
                     <div class="tab" id="tab_{{ fileName }}">
-                        <div class="tabContent" id="{{ fileName }}">Loading data, please wait...</div>
+                        <div class="tabContent" id="{{ fileName }}"><span class="l10n-loadingLogData"></span></div>
                     </div>
                     {% endfor %}
                 </div>
@@ -587,7 +596,7 @@
         </div>
         <div id="configTab" class="topTab">
             <div class="fullFlex" />
-                <label>Keyboard type:
+                <label><span class="l10n-keyboardTypeLabel">&nbsp;</span>
                     <select id="keyboardType" onchange="setKeyboard(this)">
                         <option value="" selected>Default</option>
                         <option value="ace/keyboard/emacs">emacs</option>
@@ -595,12 +604,12 @@
                         <option value="ace/keyboard/vim">vim</option>
                     </select>
                 </label>
-                <button id="reloadConfigButton" onclick="reloadConfig()">Reload</button>
-                <button id="saveConfigButton" onclick="saveConfig()">Save</button>
+                <button id="reloadConfigButton" class="l10n-reloadButton" onclick="reloadConfig()"></button>
+                <button id="saveConfigButton" class="l10n-saveButton" onclick="saveConfig()"></button>
             </div>
             <div class="tabBox">
-                <div id="files">Loading file list, please wait...</div>
-                <div id="editor">Please select a file to the left.</div>
+                <div id="files" class="l10n-loadingFileList"></div>
+                <div id="editor" class="l10n-selectFile"></div>
             </div>
         </div>
     </body>
