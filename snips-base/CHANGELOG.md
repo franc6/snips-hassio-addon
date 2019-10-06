@@ -1,3 +1,7 @@
+## 0.5.2 2019/10/05
+- Updated snips to version 0.64.0
+- Made Web UI translatable (not finished)
+
 ## 0.5.1 2019/09/26
 - Fixed issue #6, can once again start snips-watch
 - Fixed issue #5, can edit config.ini files again
