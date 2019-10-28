@@ -1,3 +1,7 @@
+## 0.5.3 2019/10/28
+- Fixed typo in manage_tts_cache.sh
+- Forced new build
+
 ## 0.5.2 2019/10/05
 - Updated snips to version 0.64.0
 - Made Web UI translatable (not finished)
