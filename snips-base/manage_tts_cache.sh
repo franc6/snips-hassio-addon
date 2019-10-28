@@ -24,7 +24,7 @@ maxCacheSize=${maxCacheSize/([^0-9]*)/}
 
 function manageCache() {
     cacheSize=$(/usr/bin/du -s${duSizeOpt} "${cache}")
-    cacheSize=${cacheSize/([^0-9]*)/}
+    cacheSize=${cacheSize/[^0-9]*/}
     while [ ${cacheSize} -gt ${maxCacheSize} ]
     do
         /bin/rm -f $(/bin/ls -tur "${cache}" | /usr/bin/head -n 1)
