@@ -29,24 +29,21 @@ function extract_assistant() {
     fi
 
     bashio::log.info "Clearing existing skills"
-    #start with a clear skill directory
+    # start with an empty skills directory
     rm -rf /var/lib/snips/skills/*
 
-    #deploy apps (skills). See: https://snips.gitbook.io/documentation/console/deploying-your-skills
+    # deploy apps (skills). See: https://snips.gitbook.io/documentation/console/deploying-your-skills
     bashio::log.info "Rendering snips templates"
     snips-template render
 
-    #goto skill directory
+    # switch to the skills directory
     cd /var/lib/snips/skills
 
     bashio::log.info "Cloning git-based skills"
-    #download required skills from git
+    # download required skills from git
     for url in $(awk '$1=="url:" {print $2}' /usr/share/snips/assistant/Snipsfile.yaml); do
             git clone -q $url
     done
-
-    #be sure we are in the skill directory
-    cd /var/lib/snips/skills
 
     # run setup.sh for each skill, and link any config.ini file for it
     # since we can't interact with the user, we have to do something else to get
