@@ -1,3 +1,6 @@
+## 0.5.5 2019/10/29
+- Additional updates to apparmor.txt
+
 ## 0.5.4 2019/10/29
 - Updated apparmor.txt to handle the docker image location in hassos
 
