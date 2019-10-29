@@ -1,3 +1,6 @@
+## 0.5.4 2019/10/29
+- Updated apparmor.txt to handle the docker image location in hassos
+
 ## 0.5.3 2019/10/28
 - Fixed typo in manage_tts_cache.sh
 - Forced new build
