@@ -1,3 +1,6 @@
+## 0.5.8 2019/10/30
+- Additional updates to apparmor.txt
+
 ## 0.5.7 2019/10/29
 - Additional updates to apparmor.txt
 
