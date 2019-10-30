@@ -133,7 +133,7 @@ if isinstance(code['intent_script'], TaggedScalar):
         if intent_script_path.exists():
             iscode = yaml.load(intent_script_path)
         else:
-            iscode = yaml.load("""""")
+            iscode = YAML()
         iscode = add_intent_scripts(iscode)
         need_restart = save_yaml(intent_script_path, iscode)
 

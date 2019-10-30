@@ -1,3 +1,6 @@
+## 0.5.7 2019/10/29
+- Additional updates to apparmor.txt
+
 ## 0.5.6 2019/10/29
 - Additional updates to apparmor.txt
 - Fixed typos in English for WebUI
