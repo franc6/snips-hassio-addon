@@ -10,9 +10,9 @@ function initTranslations()
     window.localization = new Localization({
         'en': {
             // Strings displayed via javascript
-            'NLUTraining': 'NLU Training in prgress...',
-            'ASRTraining': 'ASR Training in prgress...',
-            'Downloading': 'Download in pgoress...',
+            'NLUTraining': 'NLU Training in progress...',
+            'ASRTraining': 'ASR Training in progress...',
+            'Downloading': 'Download in progress...',
             'AssistantNotChanged': 'The assistant appears to be the same!',
             'AssistantUpdateFailed': 'Failed to update the assistant!',
             'AddonContactFailed': 'Failed to contact the addo-on!',
