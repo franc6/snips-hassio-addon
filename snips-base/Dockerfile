@@ -1,5 +1,6 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM AS myBase
+COPY qemu-arm-static /usr/bin/
 
 ARG BUILD_ARCH
 
