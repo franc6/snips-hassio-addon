@@ -41,7 +41,7 @@ def error(message):
     logme('ERROR', message)
 
 def allowed_file(file_name):
-    return file_name.endswith('-config.ini')
+    return '/' not in file_name and file_name.endswith('-config.ini')
 
 @app.before_request
 def limit_remote():
@@ -81,6 +81,8 @@ def config_file_list():
 def config_file():
     ini=request.args.get('ini')
     if not ini.endswith('-config.ini'):
+        abort(403)
+    if '/' in ini:
         abort(403)
     return app.response_class(generate('/share/snips/', ini), mimetype='text/plain')
 
@@ -140,6 +142,24 @@ def download_assistant():
         abort(abort_code)
 
     return app.response_class(' ', mimetype='text/plain', status=403)
+
+@app.route('/license-list')
+def license_list():
+    file_list = Path('/EXTRA-LICENSES/').glob('*')
+    response = '<ul>'
+    info("found license files:")
+    for file_name in file_list:
+        info(file_name);
+        response += '<li class="configFile" onclick="showLicense(this)">{name}</li>'.format(name=file_name.name)
+    response += '</ul>'
+    return app.response_class(response, mimetype='text/html')
+
+@app.route('/license')
+def license_file():
+    license=request.args.get('license')
+    if '/' in license:
+        abort(403)
+    return app.response_class(generate('/EXTRA-LICENSES/', license), mimetype='text/plain')
 
 @app.route('/save-config', methods=['POST'])
 def save_config():

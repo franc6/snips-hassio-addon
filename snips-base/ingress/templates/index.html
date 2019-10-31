@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>Snips.AI Base for Hass.io Web UI</title>
-        <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css?version=0.5.1" />
+        <link rel="stylesheet" type="text/css" href="{{ root }}/static/index.css?version=0.6.0" />
         <script type="text/javascript" src="{{ root }}/static/ansi_up.js"></script>
         <script type="text/javascript" src="{{ root }}/static/ace.js"></script>
         <script type="text/javascript" src="{{ root }}/static/keybinding-emacs.js"></script>
@@ -369,6 +369,44 @@
                 showTopTab('buttonControls', 'controlsTab');
             }
 
+            function showLicense(el) {
+                var list_items = document.getElementsByClassName('licenseFileActive');
+                while (list_items[0])
+                {
+                    list_items[0].classList.remove('licenseFileActive');
+                }
+                el.classList.add('licenseFileActive');
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/license?license=' + el.innerText, true);
+                xhr.responseType = 'text/html';
+                xhr.onload = function() {
+                    if (xhr.readyState === xhr.DONE) {
+                        if (xhr.status == 200) {
+                            var license = document.getElementById('license');
+                            license.innerHTML = '<pre>' + xhr.responseText + '</pre>';
+                        }
+                    }
+                }
+                xhr.send();
+            }
+
+            function showLicenses() {
+                showTopTab('buttonLicenses', 'licensesTab');
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{{ root }}/license-list');
+                xhr.responseType = 'text/html';
+                xhr.onload = function() {
+                    if (xhr.readyState == xhr.DONE) {
+                        if (xhr.status == 200) {
+                            var files = document.getElementById('licensefiles');
+                            files.innerHTML = xhr.responseText;
+                        }
+                    }
+                }
+                xhr.send();
+            }
+
             function showLogs() {
                 var button = document.getElementsByClassName('buttonActive')[0];
                 if (button)
@@ -540,6 +578,7 @@
             <button class="l10n-serverControlsTabButton button topButtonActive" id="buttonControls" onclick="showControls()"></button>
             <button class="l10n-logsTabButton button topButtonActive" id="buttonLogs" onclick="showLogs()"></button>
             <button class="l10n-skillConfigsTabButton button topButtonActive" id="buttonConfigs" onclick="showConfigs()"></button>
+            <button class="l10n-licensesTabButton button topButtonActive" id="buttonLicenses" onclick="showLicenses()"></button>
         </div>
         <br clear="all" />
         <div id="controlsTab" class="topTab">
@@ -608,8 +647,14 @@
                 <button id="saveConfigButton" class="l10n-saveButton" onclick="saveConfig()"></button>
             </div>
             <div class="tabBox">
-                <div id="files" class="l10n-loadingFileList"></div>
-                <div id="editor" class="l10n-selectFile"></div>
+                <div id="files" class="l10n-loadingFileList filesList"></div>
+                <div id="editor" class="l10n-selectFile fileDisplay"></div>
+            </div>
+        </div>
+        <div id="licensesTab" class="topTab">
+            <div class="tabBox">
+                <div id="licensefiles" class="l10n-loadingFileList filesList"></div>
+                <div id="license" class="l10n-selectFile fileDisplay"></div>
             </div>
         </div>
     </body>

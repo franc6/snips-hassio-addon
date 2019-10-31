@@ -124,6 +124,7 @@ COPY tts-unparsed.sh /tts/
 COPY update_ha_config.py /
 COPY wait-for-it.sh /
 COPY EXTRA-LICENSES/* /EXTRA-LICENSES/
+COPY LICENSE /EXTRA-LICENSES/
 
 RUN rm -rf /etc/supervisor \
         && mkdir /etc/supervisor

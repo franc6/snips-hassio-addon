@@ -42,6 +42,7 @@ function initTranslations()
             'startSnipsWatchButton': 'Start snips-watch',
             'stopSnipsWatchButton': 'Stop snips-watch',
             'logsTabButton': 'Logs',
+            'licensesTabButton': 'Licenses',
             'updateIntervalLabel': 'Update interval:',
             'setButton': 'Set',
             'loadingLogData': 'Loading log data, please wait...',

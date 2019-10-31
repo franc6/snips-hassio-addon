@@ -100,10 +100,7 @@
 .fullFlex > label {
     flex: auto;
 }
-#downloadStatusDiv {
-    display: none;
-}
-#files {
+.filesList {
     position: absolute;
     /* 36px is 20px (padding + margin) + 16px (height of label & select) */
     height: calc(100% - 36px);
@@ -112,12 +109,15 @@
     padding-right: 0px;
     width: calc(30% - 10px);
 }
-#editor {
+.fileDisplay {
     position: absolute;
     /* 36px is 20px (padding + margin) + 16px (height of label & select) */
     height: calc(100% - 36px);
     left: 30%;
     width: calc(70% - 20px);
+}
+#downloadStatusDiv {
+    display: none;
 }
 #status {
     width: 200px;
@@ -126,6 +126,16 @@
     width: 40px;
 }
 #configTab > .tabBox {
+    height: calc(100% - 16px);
+    margin: 10px;
+    padding: 10px 0 10px 0;
+    position: absolute;
+    width: calc(100% - 40px);
+}
+#license {
+    overflow: scroll;
+}
+#licensesTab > .tabBox {
     height: calc(100% - 16px);
     margin: 10px;
     padding: 10px 0 10px 0;
