@@ -4,7 +4,7 @@
     "slug": "snips-base",
     "description": "Local voice control platform",
     "apparmor": true,
-    "arch": ["amd64"],
+    "arch": ["amd64", "armhf"],
     "audio": false,
     "boot": "auto",
     "docker_api": false,

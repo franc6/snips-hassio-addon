@@ -1,4 +1,4 @@
-## 0.5.8 2019/11/01
+## 0.6.0 2019/11/12
 - Added armhf support
 - Added display of license agreements in WebUI
 
