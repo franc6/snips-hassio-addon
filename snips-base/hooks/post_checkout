@@ -1,0 +1,7 @@
+#!/bin/bash
+# Download qemu-arm-static
+curl -L https://github.com/balena-io/qemu/releases/download/v3.0.0%2Bresin/qemu-3.0.0+resin-arm.tar.gz | tar -C . -xzf - && mv qemu-3.0.0+resin-arm/qemu-arm-static .
+rm -rf qemu-3.0.0+resin-arm/
+
+cat Dockerfile.src/base.inc Dockerfile.src/snips.inc Dockerfile.src/mimic.inc Dockerfile.src/addon.inc > Dockerfile
+

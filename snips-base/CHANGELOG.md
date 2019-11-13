@@ -1,3 +1,7 @@
+## 0.6.0 2019/11/12
+- Added armhf support
+- Added display of license agreements in WebUI
+
 ## 0.5.8 2019/10/30
 - Additional updates to apparmor.txt
 

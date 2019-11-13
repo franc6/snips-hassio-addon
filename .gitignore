@@ -1,0 +1,4 @@
+.DS_Store
+**/.DS_Store
+snips-base/Dockerfile
+snips-base/qemu-arm-static

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-// Modified by TOM to no longer dependon JQuery
+// Modified by TOM to no longer depend on JQuery
 // Modified by TOM to use language without country code before using fall-back
 // language
 // Modified by TOM to remove console.log messages.
