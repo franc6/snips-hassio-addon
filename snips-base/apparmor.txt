@@ -13,6 +13,7 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	capability setgid,
 	capability setuid,
 	capability dac_override,
+	signal,
 
 	/data/**							r,
 	/data/mosquitto.db						lw,
@@ -162,8 +163,8 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 	/EXTRA-LICENSES/						r,
 	/EXTRA-LICENSES/**						mr,
 	@{DOCKER_OVERLAY}/EXTRA-LICENSES/				r,
-	@{DOCKER_OVERLAY2}/EXTRA-LICENSES/**				mr,
-	@{DOCKER_OVERLAY}/EXTRA-LICENSES/				r,
+	@{DOCKER_OVERLAY}/EXTRA-LICENSES/**				mr,
+	@{DOCKER_OVERLAY2}/EXTRA-LICENSES/				r,
 	@{DOCKER_OVERLAY2}/EXTRA-LICENSES/**				mr,
 	/manage_tts_cache.sh						rcx,
 	/restart_snips_skill_server.sh					rix,
@@ -376,6 +377,8 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 		#include <abstractions/base>
 		#include <abstractions/bash>
 
+		signal,
+
 		/usr/bin/env						rix,
 		/usr/bin/du						rix,
 		/bin/ls							rix,
@@ -502,6 +505,8 @@ profile local_snips-base flags=(attach_disconnected,mediate_deleted) {
 		#include <abstractions/nameservice>
 		#include <abstractions/openssl>
 		#include <abstractions/ssl_certs>
+
+		signal,
 
 		/data/mosquitto.db					mlkrw,
 		/data/mosquitto.db.new					mlkrw,

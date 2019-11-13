@@ -1,3 +1,7 @@
+## 0.6.1 2019/11/13
+- Apparmor fix
+- Fixed some of the issues with using the WebUI from a phone or other small device.
+
 ## 0.6.0 2019/11/12
 - Added armhf support
 - Added display of license agreements in WebUI
