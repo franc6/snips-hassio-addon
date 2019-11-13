@@ -51,7 +51,7 @@ function initTranslations()
             'reloadButton': 'Reload',
             'saveButton': 'Save',
             'loadingFileList': 'Loading file list, please wait...',
-            'selectFile': 'Please select a file to the left.',
+            'selectFile': 'Please select a file from the list.',
         }
     }, 'en', false);
 }

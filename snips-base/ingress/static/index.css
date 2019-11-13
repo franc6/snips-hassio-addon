@@ -43,11 +43,21 @@
     float: right;
     text-align: right;
 }
-.fullFlex {
-    flex-direction: row;
-    display: flex;
-    justify-content: stretch;
-    width: 100%;
+@media only screen and (max-width: 300px) {
+    .fullFlex {
+	flex-direction: column;
+	display: flex;
+	justify-content: stretch;
+	width: 100%;
+    }
+}
+@media only screen and (min-width: 300px) {
+    .fullFlex {
+	flex-direction: row;
+	display: flex;
+	justify-content: stretch;
+	width: 100%;
+    }
 }
 .tab {
     background-color: white;
@@ -100,21 +110,51 @@
 .fullFlex > label {
     flex: auto;
 }
-.filesList {
-    position: absolute;
-    /* 36px is 20px (padding + margin) + 16px (height of label & select) */
-    height: calc(100% - 36px);
-    left: 10px;
-    padding-left: 0px;
-    padding-right: 0px;
-    width: calc(30% - 10px);
+@media only screen and (max-width: 600px) {
+    .filesList {
+	left: 10px;
+	padding-left: 0px;
+	padding-right: 0px;
+	width: calc(100% - 10px);
+    }
+    @media only screen and (max-width: 300px) {
+	.fileDisplay {
+	    /* 72 is 20px (padding + margin) + 16px (height of label &
+	     * select) + 18 * 2 for the two buttons */
+	    /* 80px is the height of .filesList */
+	    height: calc(100% - 152px);
+	    left: 10px;
+	    width: calc(100% - 10px);
+	}
+    }
+    @media only screen and (min-width: 300px) {
+	.fileDisplay {
+	    /* 36px is 20px (padding + margin) + 16px (height of label &
+	     * select) */
+	    /* 80px is the height of .filesList */
+	    height: calc(100% - 116px);
+	    left: 10px;
+	    width: calc(100% - 10px);
+	}
+    }
 }
-.fileDisplay {
-    position: absolute;
-    /* 36px is 20px (padding + margin) + 16px (height of label & select) */
-    height: calc(100% - 36px);
-    left: 30%;
-    width: calc(70% - 20px);
+@media only screen and (min-width: 600px) {
+    .filesList {
+	position: absolute;
+	/* 36px is 20px (padding + margin) + 16px (height of label & select) */
+	height: calc(100% - 36px);
+	left: 10px;
+	padding-left: 0px;
+	padding-right: 0px;
+	width: calc(30% - 10px);
+    }
+    .fileDisplay {
+	position: absolute;
+	/* 36px is 20px (padding + margin) + 16px (height of label & select) */
+	height: calc(100% - 36px);
+	left: 30%;
+	width: calc(70% - 20px);
+    }
 }
 #downloadStatusDiv {
     display: none;
